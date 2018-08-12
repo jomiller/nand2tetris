@@ -77,7 +77,7 @@ void n2t::CodeWriter::writeArithmetic(const std::string& command)
     // clang-format on
 
     const auto iter = arithmeticInfo.find(command);
-    VmUtil::throwCond((iter != arithmeticInfo.end()), "Invalid arithmetic command type (" + command + ")");
+    VM_THROW_COND(iter != arithmeticInfo.end(), "Invalid arithmetic command type (" + command + ")");
 
     const ArithmeticInfo& info = iter->second;
     if (info.unary)
@@ -147,7 +147,7 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
     // clang-format on
 
     const auto iter = segmentInfo.find(segment);
-    VmUtil::throwCond((iter != segmentInfo.end()), "Invalid memory segment (" + segment + ")");
+    VM_THROW_COND(iter != segmentInfo.end(), "Invalid memory segment (" + segment + ")");
 
     const SegmentInfo& info = iter->second;
     std::string        symbol(info.base);
@@ -214,7 +214,7 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
     }
     else  // (command == CommandType::Pop)
     {
-        VmUtil::throwCond((info.type != SegmentType::Constant), "Cannot pop to the constant segment");
+        VM_THROW_COND(info.type != SegmentType::Constant, "Cannot pop to the constant segment");
 
         if (info.indirect && (index > 1))
         {
@@ -248,7 +248,7 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
 
 void n2t::CodeWriter::writeLabel(const std::string& label)
 {
-    VmUtil::throwCond(!std::isdigit(label.front(), std::locale()), "Label (" + label + ") begins with a digit");
+    VM_THROW_COND(!std::isdigit(label.front(), std::locale()), "Label (" + label + ") begins with a digit");
 
     if (!m_labels.insert(label).second)
     {
@@ -290,11 +290,11 @@ void n2t::CodeWriter::writeFunction(const std::string& functionName, unsigned in
 {
     validateFunction();
 
-    VmUtil::throwCond(!std::isdigit(functionName.front(), std::locale()),
-                      "Function name (" + functionName + ") begins with a digit");
+    VM_THROW_COND(!std::isdigit(functionName.front(), std::locale()),
+                  "Function name (" + functionName + ") begins with a digit");
 
-    VmUtil::throwCond((m_definedFunctions.find(functionName) == m_definedFunctions.end()),
-                      "Function with name (" + functionName + ") already exists");
+    VM_THROW_COND(m_definedFunctions.find(functionName) == m_definedFunctions.end(),
+                  "Function with name (" + functionName + ") already exists");
 
     m_currentFunction.name          = functionName;
     m_currentFunction.numParameters = 0;
@@ -315,7 +315,7 @@ void n2t::CodeWriter::writeFunction(const std::string& functionName, unsigned in
 
 void n2t::CodeWriter::writeReturn()
 {
-    VmUtil::throwCond(!m_currentFunction.name.empty(), "Return command is outside of a function");
+    VM_THROW_COND(!m_currentFunction.name.empty(), "Return command is outside of a function");
 
     // save the base address of the calling function's saved state into R13
     // clang-format off
@@ -512,10 +512,10 @@ void n2t::CodeWriter::validateFunctionCalls() const
     for (const FunctionCallInfo& call : m_calledFunctions)
     {
         const auto func = m_definedFunctions.find(call.name);
-        VmUtil::throwCond((func != m_definedFunctions.end()), "Undefined reference to function (" + call.name + ")");
+        VM_THROW_COND(func != m_definedFunctions.end(), "Undefined reference to function (" + call.name + ")");
 
-        VmUtil::throwCond((call.numArguments >= func->second),
-                          "Function (" + func->first + ") requires at least " + std::to_string(func->second) +
-                              " argument(s) but called with " + std::to_string(call.numArguments) + " argument(s)");
+        VM_THROW_COND(call.numArguments >= func->second,
+                      "Function (" + func->first + ") requires at least " + std::to_string(func->second) +
+                          " argument(s) but called with " + std::to_string(call.numArguments) + " argument(s)");
     }
 }
