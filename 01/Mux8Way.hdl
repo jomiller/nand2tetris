@@ -1,0 +1,38 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/Mux4Way16.hdl
+
+/**
+ * 8-way 16-bit multiplexor.  
+ * out = a if sel == 000
+ *       b if sel == 001
+ *       etc.
+ *       h if sel == 111
+ */
+
+
+CHIP Mux8Way {
+    IN a, b, c, d, e, f, g, h, sel[3];
+    OUT out;
+
+    PARTS:
+    Not(in=sel[0], out=notsel0);
+    Not(in=sel[1], out=notsel1);
+    Not(in=sel[2], out=notsel2);
+    And4Way(in[0]=a, in[1]=notsel2, in[2]=notsel1, in[3]=notsel0, out=x);
+    And4Way(in[0]=b, in[1]=notsel2, in[2]=notsel1, in[3]=sel[0], out=y);
+    And4Way(in[0]=c, in[1]=notsel2, in[2]=sel[1],  in[3]=notsel0, out=z);
+    And4Way(in[0]=d, in[1]=notsel2, in[2]=sel[1],  in[3]=sel[0], out=w);
+    And4Way(in[0]=e, in[1]=sel[2],  in[2]=notsel1, in[3]=notsel0, out=xx);
+    And4Way(in[0]=f, in[1]=sel[2],  in[2]=notsel1, in[3]=sel[0], out=yy);
+    And4Way(in[0]=g, in[1]=sel[2],  in[2]=sel[1],  in[3]=notsel0, out=zz);
+    And4Way(in[0]=h, in[1]=sel[2],  in[2]=sel[1],  in[3]=sel[0], out=ww);
+    Or(a=x, b=y, out=xy);
+    Or(a=z, b=w, out=zw);
+    Or(a=xx, b=yy, out=xxyy);
+    Or(a=zz, b=ww, out=zzww);
+    Or(a=xy, b=zw, out=xyzw);
+    Or(a=xxyy, b=zzww, out=xxyyzzww);
+    Or(a=xyzw, b=xxyyzzww, out=out);
+}

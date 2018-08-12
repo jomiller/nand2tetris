@@ -1,0 +1,93 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/03/a/PC.hdl
+
+/**
+ * 16-bit counter with load and reset controls.
+ *
+ * If reset(t-1) then out(t) = 0
+ *    else if load(t-1) then out(t) = in(t-1)
+ *         else if inc(t-1) then out(t) = out(t-1) + 1 (integer addition)
+ *              else out(t) = out(t-1)
+ */
+
+CHIP PC {
+    IN in[16],load,inc,reset;
+    OUT out[16];
+
+    PARTS:
+    Inc16(in[0]=cout0,
+          in[1]=cout1,
+          in[2]=cout2,
+          in[3]=cout3,
+          in[4]=cout4,
+          in[5]=cout5,
+          in[6]=cout6,
+          in[7]=cout7,
+          in[8]=cout8,
+          in[9]=cout9,
+          in[10]=cout10,
+          in[11]=cout11,
+          in[12]=cout12,
+          in[13]=cout13,
+          in[14]=cout14,
+          in[15]=cout15,
+          out=incrout);
+    //incrementer mux
+    Mux16(a[0]=cout0,
+          a[1]=cout1,
+          a[2]=cout2,
+          a[3]=cout3,
+          a[4]=cout4,
+          a[5]=cout5,
+          a[6]=cout6,
+          a[7]=cout7,
+          a[8]=cout8,
+          a[9]=cout9,
+          a[10]=cout10,
+          a[11]=cout11,
+          a[12]=cout12,
+          a[13]=cout13,
+          a[14]=cout14,
+          a[15]=cout15,
+          b=incrout, sel=inc, out=incout);
+    //load mux
+    Mux16(a=incout, b=in, sel=load, out=loadout);
+    //reset mux
+    Mux16(a=loadout, b=false, sel=reset,
+          out[0]=resetout0,
+          out[1]=resetout1,
+          out[2]=resetout2,
+          out[3]=resetout3,
+          out[4]=resetout4,
+          out[5]=resetout5,
+          out[6]=resetout6,
+          out[7]=resetout7,
+          out[8]=resetout8,
+          out[9]=resetout9,
+          out[10]=resetout10,
+          out[11]=resetout11,
+          out[12]=resetout12,
+          out[13]=resetout13,
+          out[14]=resetout14,
+          out[15]=resetout15);
+
+    DFF(in=resetout0,  out=cout0,  out=out[0]);
+    DFF(in=resetout1,  out=cout1,  out=out[1]);
+    DFF(in=resetout2,  out=cout2,  out=out[2]);
+    DFF(in=resetout3,  out=cout3,  out=out[3]);
+    DFF(in=resetout4,  out=cout4,  out=out[4]);
+    DFF(in=resetout5,  out=cout5,  out=out[5]);
+    DFF(in=resetout6,  out=cout6,  out=out[6]);
+    DFF(in=resetout7,  out=cout7,  out=out[7]);
+    DFF(in=resetout8,  out=cout8,  out=out[8]);
+    DFF(in=resetout9,  out=cout9,  out=out[9]);
+    DFF(in=resetout10, out=cout10, out=out[10]);
+    DFF(in=resetout11, out=cout11, out=out[11]);
+    DFF(in=resetout12, out=cout12, out=out[12]);
+    DFF(in=resetout13, out=cout13, out=out[13]);
+    DFF(in=resetout14, out=cout14, out=out[14]);
+    DFF(in=resetout15, out=cout15, out=out[15]);
+}
+

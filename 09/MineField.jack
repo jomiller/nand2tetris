@@ -1,0 +1,296 @@
+class MineField
+{
+    field int m_button_height;
+    field int m_button_width;
+    field Table m_buttons;
+    field int m_num_mines;
+
+    constructor MineField new(int button_height, int button_width,
+                              int num_rows, int num_columns, int num_mines, int seed)
+    {
+        var int row;
+        var int col;
+
+        let m_button_height = button_height;
+        let m_button_width = button_width;
+        let m_buttons = Table.new(num_rows, num_columns);
+        let m_num_mines = num_mines;
+        let row = 0;
+        while (row < m_buttons.rows())
+        {
+            let col = 0;
+            while (col < m_buttons.columns())
+            {
+                do m_buttons.set(row, col, Button.new());
+                let col = col + 1;
+            }
+            let row = row + 1;
+        }
+        do setMines(seed);
+        return this;
+    }
+
+    method void dispose()
+    {
+        var int row;
+        var int col;
+        var Button button;
+
+        let row = 0;
+        while (row < m_buttons.rows())
+        {
+            let col = 0;
+            while (col < m_buttons.columns())
+            {
+                let button = m_buttons.get(row, col);
+                do button.dispose();
+                let col = col + 1;
+            }
+            let row = row + 1;
+        }
+        do m_buttons.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method Button getButton(int row, int col) { return m_buttons.get(row, col); }
+
+    method int getNumRows() { return m_buttons.rows(); }
+
+    method int getNumColumns() { return m_buttons.columns(); }
+
+    // Randomly set the positions of the mines on the mine field
+    method void setMines(int seed)
+    {
+        var int row;
+        var int col;
+        var int mine;
+        var Button button;
+        var Random random;
+
+        let mine = 0;
+        let random = Random.newSeed(seed);
+        while (mine < m_num_mines)
+        {
+            let row = MathUtil.mod(random.nextInt(), m_buttons.rows());
+            let col = MathUtil.mod(random.nextInt(), m_buttons.columns());
+            let button = m_buttons.get(row, col);
+
+            // ensure that the same button is not mined more than once
+            while (button.isMined())
+            {
+                let row = MathUtil.mod(random.nextInt(), m_buttons.rows());
+                let col = MathUtil.mod(random.nextInt(), m_buttons.columns());
+                let button = m_buttons.get(row, col);
+            }
+            do button.setMined(true);
+            let mine = mine + 1;
+        }
+        do random.dispose();
+        return;
+    }
+
+    // Count the number of mines surrounding the button at the specified position
+    method int countMines(int row, int col)
+    {
+        var int count;
+        var int r;
+        var int c;
+        var Button button;
+
+        let count = 0;
+        let r = row - 1;
+        while (r < (row + 2))
+        {
+            let c = col - 1;
+            while (c < (col + 2))
+            {
+                // check whether the button is within the bounds of the mine field
+                if ((r > -1) & (r < m_buttons.rows()) & (c > -1) & (c < m_buttons.columns()))
+                {
+                    // check whether the button is not the one originally opened
+                    if (~((r = row) & (c = col)))
+                    {
+                        // check whether the button is mined
+                        let button = m_buttons.get(r, c);
+                        if (button.isMined())
+                        {
+                            let count = count + 1;
+                        }
+                    }
+                }
+                let c = c + 1;
+            }
+            let r = r + 1;
+        }
+        return count;
+    }
+
+    // Open the button at the specified position
+    method void open(int row, int col)
+    {
+        var Button button;
+        var int num_mines;
+        var int r;
+        var int c;
+
+        let button = m_buttons.get(row, col);
+        do button.setOpened(true);
+        let num_mines = countMines(row, col);
+
+        // if there are no mines surrounding the button, set the button label accordingly,
+        // and open the surrounding buttons
+        if (num_mines = 0)
+        {
+            do button.setLabel(JackUtil.stringToChar("-"));
+            let r = row - 1;
+            while (r < (row + 2))
+            {
+                let c = col - 1;
+                while (c < (col + 2))
+                {
+                    // check whether the button is within the bounds of the mine field
+                    if ((r > -1) & (r < m_buttons.rows()) & (c > -1) & (c < m_buttons.columns()))
+                    {
+                        // check whether the button is not the one originally opened
+                        if (~((r = row) & (c = col)))
+                        {
+                            // check whether the button has not already been opened or flagged
+                            let button = m_buttons.get(r, c);
+                            if (~(button.isOpened() | button.isFlagged()))
+                            {
+                                // recursively open the surrounding button
+                                do open(r, c);
+                            }
+                        }
+                    }
+                    let c = c + 1;
+                }
+                let r = r + 1;
+            }
+        }
+        else
+        {
+            // set the button label to read the number of surrounding mines
+            do button.setLabel(JackUtil.intToChar(num_mines));
+        }
+        return;
+    }
+
+    // Place a flag on the button at the specified position
+    method void flag(int row, int col)
+    {
+        var Button button;
+        let button = m_buttons.get(row, col);
+        do button.setFlagged(true);
+        do button.setLabel(JackUtil.stringToChar("!"));
+        return;
+    }
+
+    // Remove the flag from the button at the specified position
+    method void unflag(int row, int col)
+    {
+        var Button button;
+        let button = m_buttons.get(row, col);
+        do button.setFlagged(false);
+        do button.setLabel(0);
+        return;
+    }
+
+    // Update the mine field with the final state
+    method void finish(boolean won)
+    {
+        var int row;
+        var int col;
+        var Button button;
+
+        let row = 0;
+        while (row < m_buttons.rows())
+        {
+            let col = 0;
+            while (col < m_buttons.columns())
+            {
+                // check whether the button is mined
+                let button = m_buttons.get(row, col);
+                if (button.isMined())
+                {
+                    if (won)
+                    {
+                        do button.setLabel(JackUtil.stringToChar("W"));
+                    }
+                    else
+                    {
+                        do button.setLabel(JackUtil.stringToChar("X"));
+                    }
+                }
+                let col = col + 1;
+            }
+            let row = row + 1;
+        }
+        return;
+    }
+
+    // Draw the mine field
+    method void draw(int sel_row, int sel_col)
+    {
+        var int row;
+        var int col;
+        var boolean selected;
+
+        let row = 0;
+        while (row < m_buttons.rows())
+        {
+            let col = 0;
+            while (col < m_buttons.columns())
+            {
+                let selected = (row = sel_row) & (col = sel_col);
+                do drawButton(row, col, selected);
+                let col = col + 1;
+            }
+            let row = row + 1;
+        }
+        return;
+    }
+
+    // Draw the button at the specified position
+    method void drawButton(int row, int col, boolean selected)
+    {
+        var Button button;
+        var int rect_x;
+        var int rect_y;
+        var char label;
+
+        let button = m_buttons.get(row, col);
+        let rect_x = col * m_button_width;
+        let rect_y = row * m_button_height;
+        let label = button.getLabel();
+        if (selected)
+        {
+            if (~(label = 0))
+            {
+                do Screen.setColor(true);
+            }
+            else
+            {
+                do Screen.setColor(false);
+            }
+            do Screen.drawRectangle(rect_x, rect_y, rect_x + m_button_width - 1,
+                                    rect_y + m_button_height - 1);
+        }
+        else
+        {
+            if (~(label = 0))
+            {
+                do Output.moveCursor(row, col);
+                do Output.printChar(label);
+            }
+            else
+            {
+                do Screen.setColor(true);
+                do Screen.drawRectangle(rect_x, rect_y, rect_x + m_button_width - 1,
+                                        rect_y + m_button_height - 1);
+            }
+        }
+        return;
+    }
+}

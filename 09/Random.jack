@@ -1,0 +1,33 @@
+class Random
+{
+    field int m_rand;
+
+    constructor Random new()
+    {
+        let m_rand = 1;
+        return this;
+    }
+
+    constructor Random newSeed(int seed)
+    {
+        let m_rand = Math.max(seed, 1);
+        return this;
+    }
+
+    method void dispose()
+    {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method int nextInt()
+    {
+        let m_rand = m_rand * 157;
+        if (m_rand < 0)
+        {
+            let m_rand = m_rand + 32767 + 1;
+        }
+        let m_rand = MathUtil.mod(m_rand, 32363);
+        return m_rand;
+    }
+}

@@ -1,0 +1,10 @@
+class HackInfo
+{
+    function int getFontHeight() { return 11; }
+
+    function int getFontWidth() { return 8; }
+
+    function int getScreenHeight() { return 256; }
+
+    function int getScreenWidth() { return 512; }
+}

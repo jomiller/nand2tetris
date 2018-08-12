@@ -1,0 +1,117 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Memory.jack
+
+/**
+ * Memory operations library.
+ */ 
+class Memory
+{
+    static Array s_memory;
+    static Array s_free_list;
+
+    /** Initializes memory parameters. */
+    function void init()
+    {
+        var int heap_base;
+        var int heap_top;
+        let s_memory = 0;
+        let heap_base = 2048;
+        let heap_top = 16383;
+        let s_free_list = heap_base;
+        let s_free_list[0] = heap_top - heap_base + 1;
+        let s_free_list[1] = null;
+        return;
+    }
+
+    /** Returns the value of the main memory at the given address. */
+    function int peek(int address)
+    {
+        return s_memory[address];
+    }
+
+    /** Sets the value of the main memory at this address
+     *  to the given value. */
+    function void poke(int address, int value)
+    {
+        let s_memory[address] = value;
+        return;
+    }
+
+    /** finds and allocates from the heap a memory block of the 
+     *  specified size and returns a reference to its base address. */
+    function int alloc(int size)
+    {
+        var Array segment;
+        var Array prev;
+        var Array curr;
+        var Array block;
+        var int remainder;
+
+        if (~(size > 0))
+        {
+            do Sys.error(5);
+        }
+
+        // search the free list for the first segment that is larger than the requested size
+        let segment = null;
+        let prev = null;
+        let curr = s_free_list;
+        while ((segment = null) & ~(curr = null))
+        {
+            if (curr[0] > size)
+            {
+                let segment = curr;
+            }
+            else
+            {
+                let prev = curr;
+                let curr = curr[1];
+            }
+        }
+        if (segment = null)
+        {
+            do Sys.error(6);
+        }
+
+        let remainder = segment[0] - (size + 1);
+        if (remainder < 2)
+        {
+            // allocate the entire segment to the block
+            let block = segment + 1;
+
+            // remove the segment from the free list
+            if (prev = null)
+            {
+                let s_free_list = segment[1];
+            }
+            else
+            {
+                let prev[1] = segment[1];
+            }
+        }
+        else
+        {
+            // allocate a part of the segment to the block
+            let block = segment + 1 + remainder;
+            let block[-1] = size + 1;
+
+            // update the size of the segment
+            let segment[0] = remainder;
+        }
+        return block;
+    }
+
+    /** De-allocates the given object and frees its space. */
+    function void deAlloc(Array object)
+    {
+        var Array segment;
+        let segment = object - 1;
+
+        // add the segment to the head of the free list
+        let segment[1] = s_free_list;
+        let s_free_list = segment;
+        return;
+    }    
+}

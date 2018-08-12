@@ -1,0 +1,36 @@
+class Main
+{
+    function void main()
+    {
+        var int num_rows;
+        var int num_columns;
+        var int num_mines;
+        var int seed;
+        var char key;
+        var Minesweeper game;
+
+        let num_rows = Keyboard.readInt("Enter the number of rows: ");
+        let num_columns = Keyboard.readInt("Enter the number of columns: ");
+        let num_mines = Keyboard.readInt("Enter the number of mines: ");
+
+        do Output.printString("Press a key to start the game");
+        let seed = 0;
+        let key = 0;
+        while (key = 0)
+        {
+            do Output.printChar(32);
+            do Output.printChar(46);
+            do Sys.wait(200);
+            let seed = seed + 1;
+            let key = Keyboard.keyPressed();
+        }
+        let seed = Math.abs(seed * key);
+
+        let game = Minesweeper.new(HackInfo.getFontHeight(), HackInfo.getFontWidth(),
+                                   HackInfo.getScreenHeight(), HackInfo.getScreenWidth(),
+                                   num_rows, num_columns, num_mines, seed);
+        do game.run();
+        do game.dispose();
+        return;
+    }
+}

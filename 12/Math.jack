@@ -1,0 +1,156 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Math.jack
+
+/**
+ * A basic math library.
+ */
+class Math
+{
+    static Array s_powers_of_two;
+    static Array s_divisors;
+
+    /** Initializes the library. */
+    function void init()
+    {
+        var int power;
+        var int i;
+        let s_powers_of_two = Array.new(16);
+        let s_divisors = Array.new(16);
+        let power = 1;
+        let i = 0;
+        while (i < 16)
+        {
+            let s_powers_of_two[i] = power;
+            let power = power + power;
+            let i = i + 1;
+        }
+        return;
+    }
+
+    /** Returns the absolute value of x. */
+    function int abs(int x)
+    {
+        if (x < 0)
+        {
+            return -x;
+        }
+        return x;
+    }
+
+    /** Returns the product of x and y. */
+    function int multiply(int x, int y)
+    {
+        var int sum;
+        var int i;
+        let sum = 0;
+        let i = 0;
+        while (i < 16)
+        {
+            if (~((y & s_powers_of_two[i]) = 0))
+            {
+                let sum = sum + x;
+            }
+            let x = x + x;
+            let i = i + 1;
+        }
+        return sum;
+    }
+
+    /** Returns the integer part of x/y. */
+    function int divide(int x, int y)
+    {
+        var boolean negative;
+        var boolean done;
+        var int i;
+        var int value;
+        var int quotient;
+
+        if (y = 0)
+        {
+            do Sys.error(3);
+        }
+        let negative = ((x < 0) & (y > 0)) | ((x > 0) & (y < 0));
+        let x = Math.abs(x);
+        let y = Math.abs(y);
+        let done = false;
+        let i = 0;
+        while (~done)
+        {
+            let done = ((32767 - y) < y) | ~(y < x);
+            let s_divisors[i] = y;
+            let y = y + y;
+            let i = i + 1;
+        }
+
+        let i = i - 1;
+        let value = 0;
+        let quotient = 0;
+        while (~(i < 0))
+        {
+            if ((x - value) < s_divisors[i])
+            {
+                let quotient = quotient + quotient;
+            }
+            else
+            {
+                let quotient = quotient + quotient + 1;
+                let value = value + s_divisors[i];
+            }
+            let i = i - 1;
+        }
+        if (negative)
+        {
+            let quotient = -quotient;
+        }
+        return quotient;
+    }
+
+    /** Returns the integer part of the square root of x. */
+    function int sqrt(int x)
+    {
+        var int root;
+        var int value;
+        var int value_squared;
+        var int i;
+
+        if (x < 0)
+        {
+            do Sys.error(4);
+        }
+        let root = 0;
+        let i = 7;
+        while (~(i < 0))
+        {
+            let value = root + s_powers_of_two[i];
+            let value_squared = value * value;
+            if (~(value_squared > x) & (value_squared > 0))
+            {
+                let root = value;
+            }
+            let i = i - 1;
+        }
+        return root;
+    }
+
+    /** Returns the greater number. */
+    function int max(int a, int b)
+    {
+        if (a > b)
+        {
+            return a;
+        }
+        return b;
+    }
+
+    /** Returns the smaller number. */
+    function int min(int a, int b)
+    {
+        if (a < b)
+        {
+            return a;
+        }
+        return b;
+    }
+}

@@ -1,0 +1,56 @@
+class Table
+{
+    field int m_num_rows;
+    field int m_num_columns;
+    field Array m_rows;
+
+    constructor Table new(int num_rows, int num_columns)
+    {
+        var int row;
+        let m_num_rows = num_rows;
+        let m_num_columns = num_columns;
+        let m_rows = Array.new(m_num_rows);
+        let row = 0;
+        while (row < m_num_rows)
+        {
+            let m_rows[row] = Array.new(m_num_columns);
+            let row = row + 1;
+        }
+        return this;
+    }
+
+    method void dispose()
+    {
+        var int row;
+        var Array r;
+        let row = 0;
+        while (row < m_num_rows)
+        {
+            let r = m_rows[row];
+            do r.dispose();
+            let row = row + 1;
+        }
+        do m_rows.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method int rows() { return m_num_rows; }
+
+    method int columns() { return m_num_columns; }
+
+    method void set(int row, int col, Array val)
+    {
+        var Array r;
+        let r = m_rows[row];
+        let r[col] = val;
+        return;
+    }
+
+    method Array get(int row, int col)
+    {
+        var Array r;
+        let r = m_rows[row];
+        return r[col];
+    }
+}

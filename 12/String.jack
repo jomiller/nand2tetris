@@ -1,0 +1,209 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/String.jack
+
+/**
+ * Represents a String object. Implements the String type.
+ */
+class String
+{
+    field int m_max_length;
+    field int m_length;
+    field Array m_data;
+
+    /** Constructs a new empty String with a maximum length of maxLength. */
+    constructor String new(int maxLength)
+    {
+        if (maxLength < 0)
+        {
+            do Sys.error(14);
+        }
+        let m_max_length = maxLength;
+        let m_length = 0;
+        let m_data = null;
+        if (m_max_length > 0)
+        {
+            let m_data = Array.new(m_max_length);
+        }
+        return this;
+    }
+
+    /** De-allocates the string and frees its space. */
+    method void dispose()
+    {
+        if (~(m_data = null))
+        {
+            do m_data.dispose();
+        }
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Returns the current length of this String. */
+    method int length()
+    {
+        return m_length;
+    }
+
+    /** Returns the character at location j. */
+    method char charAt(int j)
+    {
+        if (~(j < m_length))
+        {
+            do Sys.error(15);
+        }
+        return m_data[j];
+    }
+
+    /** Sets the j'th character of this string to be c. */
+    method void setCharAt(int j, char c)
+    {
+        if (~(j < m_length))
+        {
+            do Sys.error(16);
+        }
+        let m_data[j] = c;
+        return;
+    }
+
+    /** Appends the character c to the end of this String.
+     *  Returns this string as the return value. */
+    method String appendChar(char c)
+    {
+        if (~(m_length < m_max_length))
+        {
+            do Sys.error(17);
+        }
+        let m_data[m_length] = c;
+        let m_length = m_length + 1;
+        return this;
+    }
+
+    /** Erases the last character from this String. */
+    method void eraseLastChar()
+    {
+        if (~(m_length > 0))
+        {
+            do Sys.error(18);
+        }
+        let m_length = m_length - 1;
+        return;
+    }
+
+    /** Returns the integer value of this String until the first non
+     *  numeric character. */
+    method int intValue()
+    {
+        var int value;
+        var boolean negative;
+        var int i;
+        var char digit;
+
+        if (~(m_length > 0))
+        {
+            return 0;
+        }
+
+        let value = 0;
+        let negative = false;
+        let i = 0;
+        if (m_data[i] = 45)
+        {
+            let negative = true;
+            let i = i + 1;
+        }
+
+        while (i < m_length)
+        {
+            let digit = m_data[i];
+            if ((digit > 47) & (digit < 58))
+            {
+                let value = (value * 10) + (digit - 48);
+                let i = i + 1;
+            }
+            else
+            {
+                let i = m_length;
+            }
+        }
+        if (negative)
+        {
+            let value = -value;
+        }
+        return value;
+    }
+
+    /** Sets this String to hold a representation of the given number. */
+    method void setInt(int number)
+    {
+        var boolean negative;
+        var int value;
+        var int digit;
+        var Array digits;
+        var int i;
+
+        let negative = false;
+        if (number < 0)
+        {
+            let negative = true;
+            let number = Math.abs(number);
+        }
+
+        if (~(m_max_length > 0))
+        {
+            do Sys.error(19);
+        }
+        let digits = Array.new(m_max_length);
+        let i = 0;
+        while (~(number = 0))
+        {
+            let value = number / 10;
+            let digit = number - (10 * value);
+            let number = value;
+            if (i < m_max_length)
+            {
+                let digits[i] = digit + 48;
+            }
+            let i = i + 1;
+        }
+
+        let m_length = i;
+        let i = 0;
+        if (negative)
+        {
+            let m_data[i] = 45;
+            let m_length = m_length + 1;
+            let i = i + 1;
+        }
+        if (m_length > m_max_length)
+        {
+            do Sys.error(19);
+        }
+        while (i < m_length)
+        {
+            let m_data[i] = digits[m_length - 1 - i];
+            let i = i + 1;
+        }
+        do digits.dispose();
+        return;
+    }
+
+    /** Returns the new line character. */
+    function char newLine()
+    {
+        return 128;
+    }
+
+    /** Returns the backspace character. */
+    function char backSpace()
+    {
+        return 129;
+    }
+
+    /** Returns the double quote (") character. */
+    function char doubleQuote()
+    {
+        return 34;
+    }
+}

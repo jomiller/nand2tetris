@@ -1,0 +1,17 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/Or8Way.hdl
+
+/**
+ * 3-way And gate: out = in[0] And in[1] And in[2].
+ */
+
+CHIP And3Way {
+    IN in[3];
+    OUT out;
+
+    PARTS:
+    And(a=in[0], b=in[1], out=x);
+    And(a=in[2], b=x, out=out);
+}

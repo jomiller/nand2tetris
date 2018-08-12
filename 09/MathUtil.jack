@@ -1,0 +1,7 @@
+class MathUtil
+{
+    function int mod(int numer, int denom)
+    {
+        return (numer - (denom * (numer / denom)));
+    }
+}

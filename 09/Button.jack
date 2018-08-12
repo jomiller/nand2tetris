@@ -1,0 +1,38 @@
+class Button
+{
+    field boolean m_opened;
+    field boolean m_mined;
+    field boolean m_flagged;
+    field char m_label;
+
+    constructor Button new()
+    {
+        let m_opened = false;
+        let m_mined = false;
+        let m_flagged = false;
+        let m_label = 0;
+        return this;
+    }
+
+    method void dispose()
+    {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method void setOpened(boolean opened) { let m_opened = opened; return; }
+
+    method boolean isOpened() { return m_opened; }
+
+    method void setMined(boolean mined) { let m_mined = mined; return; }
+
+    method boolean isMined() { return m_mined; }
+
+    method void setFlagged(boolean flagged) { let m_flagged = flagged; return; }
+
+    method boolean isFlagged() { return m_flagged; }
+
+    method void setLabel(char label) { let m_label = label; return; }
+
+    method char getLabel() { return m_label; }
+}

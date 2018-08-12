@@ -1,0 +1,241 @@
+class Minesweeper
+{
+    field MineField m_mine_field;
+    field boolean m_game_over;
+
+    constructor Minesweeper new(int font_height, int font_width, int screen_height, int screen_width,
+                                int num_rows, int num_columns, int num_mines, int seed)
+    {
+        let font_height = Math.max(font_height, 11);
+        let font_width = Math.max(font_width, 8);
+        let screen_height = Math.max(screen_height, font_height);
+        let screen_width = Math.max(screen_width, font_width);
+        let num_rows = Math.max(num_rows, 1);
+        let num_columns = Math.max(num_columns, 1);
+        let num_mines = Math.max(num_mines, 0);
+        let num_rows = Math.min(num_rows, screen_height / font_height);
+        let num_columns = Math.min(num_columns, screen_width / font_width);
+        let num_mines = Math.min(num_mines, num_rows * num_columns);
+        let m_mine_field = MineField.new(font_height, font_width, num_rows, num_columns, num_mines, seed);
+        let m_game_over = false;
+        return this;
+    }
+
+    method void dispose()
+    {
+        do m_mine_field.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method void run()
+    {
+        var int cursor_row;
+        var int cursor_col;
+        var char key;
+        var boolean exit;
+
+        do Screen.clearScreen();
+        let cursor_row = 0;
+        let cursor_col = 0;
+        let key = 0;
+        let exit = false;
+        while (~exit)
+        {
+            do m_mine_field.draw(cursor_row, cursor_col);
+
+            while (key = 0)
+            {
+                let key = Keyboard.keyPressed();
+            }
+
+            // Esc
+            if (key = 140)
+            {
+                let exit = true;
+            }
+
+            if (m_game_over)
+            {
+                let key = 0;
+            }
+
+            // Left
+            if (key = 130)
+            {
+                let cursor_col = moveCursor(0, cursor_row, cursor_col);
+            }
+
+            // Up
+            if (key = 131)
+            {
+                let cursor_row = moveCursor(1, cursor_row, cursor_col);
+            }
+
+            // Right
+            if (key = 132)
+            {
+                let cursor_col = moveCursor(2, cursor_row, cursor_col);
+            }
+
+            // Down
+            if (key = 133)
+            {
+                let cursor_row = moveCursor(3, cursor_row, cursor_col);
+            }
+
+            // Enter
+            if (key = 128)
+            {
+                do openButton(cursor_row, cursor_col);
+            }
+
+            // Space
+            if (key = 32)
+            {
+                do flagButton(cursor_row, cursor_col);
+            }
+
+            while (~(key = 0))
+            {
+                let key = Keyboard.keyPressed();
+            }
+        }
+        return;
+    }
+
+    method int moveCursor(int direction, int cursor_row, int cursor_col)
+    {
+        // move left
+        if (direction = 0)
+        {
+            if (cursor_col > 0)
+            {
+                let cursor_col = cursor_col - 1;
+            }
+            return cursor_col;
+        }
+
+        // move up
+        if (direction = 1)
+        {
+            if (cursor_row > 0)
+            {
+                let cursor_row = cursor_row - 1;
+            }
+            return cursor_row;
+        }
+
+        // move right
+        if (direction = 2)
+        {
+            if (cursor_col < (m_mine_field.getNumColumns() - 1))
+            {
+                let cursor_col = cursor_col + 1;
+            }
+            return cursor_col;
+        }
+
+        // move down
+        if (direction = 3)
+        {
+            if (cursor_row < (m_mine_field.getNumRows() - 1))
+            {
+                let cursor_row = cursor_row + 1;
+            }
+            return cursor_row;
+        }
+        return 0;
+    }
+
+    method void openButton(int row, int col)
+    {
+        var Button button;
+        let button = m_mine_field.getButton(row, col);
+        if (button.isOpened() | button.isFlagged())
+        {
+            // do nothing if the clicked button has already been opened or flagged
+            return;
+        }
+        else
+        {
+            if (button.isMined())
+            {
+                // lose the game if the clicked button is mined
+                do m_mine_field.finish(false);
+                let m_game_over = true;
+            }
+            else
+            {
+                // open the clicked button
+                do m_mine_field.open(row, col);
+
+                // check whether the game has been won
+                if (isGameWon())
+                {
+                    do m_mine_field.finish(true);
+                    let m_game_over = true;
+                }
+            }
+        }
+        return;
+    }
+
+    method void flagButton(int row, int col)
+    {
+        var Button button;
+        let button = m_mine_field.getButton(row, col);
+        if (button.isOpened())
+        {
+            // do nothing if the clicked button has already been opened
+            return;
+        }
+        else
+        {
+            if (~button.isFlagged())
+            {
+                // flag the button if it has not already been flagged
+                do m_mine_field.flag(row, col);
+
+                // check whether the game has been won
+                if (isGameWon())
+                {
+                    do m_mine_field.finish(true);
+                    let m_game_over = true;
+                }
+            }
+            else
+            {
+                // remove the flag from the button
+                do m_mine_field.unflag(row, col);
+            }
+        }
+        return;
+    }
+
+    // Check whether the game has been won
+    method boolean isGameWon()
+    {
+        var int row;
+        var int col;
+        var Button button;
+
+        let row = 0;
+        while (row < m_mine_field.getNumRows())
+        {
+            let col = 0;
+            while (col < m_mine_field.getNumColumns())
+            {
+                // check whether the game has not been won
+                let button = m_mine_field.getButton(row, col);
+                if (~(button.isOpened() | (button.isFlagged() & button.isMined())))
+                {
+                    return false;
+                }
+                let col = col + 1;
+            }
+            let row = row + 1;
+        }
+        return true;
+    }
+}
