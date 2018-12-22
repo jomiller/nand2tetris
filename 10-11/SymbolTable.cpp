@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <limits>
 
 n2t::SymbolTable::SymbolTable() : m_nextVarIndices()
 {
