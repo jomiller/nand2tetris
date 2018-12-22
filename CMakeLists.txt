@@ -13,7 +13,7 @@ set (CMAKE_CXX_EXTENSIONS FALSE)
 set (CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set (CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}")
+    set (CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Install path prefix, prepended onto install directories." FORCE)
 endif ()
 
 option (CPPCHECK "Enable Cppcheck static analysis tool" FALSE)
