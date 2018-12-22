@@ -730,7 +730,6 @@ void n2t::CompilationEngine::compileSubroutineCall(const std::string& identifier
 
     subroutineCall.name       = subroutineName;
     bool         thisArgument = false;
-    VariableKind objectKind   = VariableKind::None;
     if (classObjectName.empty())
     {
         // a method is invoked for the current object
@@ -743,15 +742,19 @@ void n2t::CompilationEngine::compileSubroutineCall(const std::string& identifier
         m_vmWriter.writePush(SegmentType::Pointer, 0);
         classObjectName = m_className;
     }
-    else if ((objectKind = getKindOf(classObjectName)) != VariableKind::None)
+    else
     {
-        // a method is invoked for a non-current object
-        subroutineCall.type = Keyword::Method;
+        const VariableKind objectKind = getKindOf(classObjectName);
+        if (objectKind != VariableKind::None)
+        {
+            // a method is invoked for a non-current object
+            subroutineCall.type = Keyword::Method;
 
-        // set the first argument to be a pointer to the object
-        thisArgument = true;
-        m_vmWriter.writePush(getSegmentType(objectKind), m_symbolTable.indexOf(classObjectName));
-        classObjectName = m_symbolTable.typeOf(classObjectName);
+            // set the first argument to be a pointer to the object
+            thisArgument = true;
+            m_vmWriter.writePush(getSegmentType(objectKind), m_symbolTable.indexOf(classObjectName));
+            classObjectName = m_symbolTable.typeOf(classObjectName);
+        }
     }
 
     m_argumentCounts.push(0);
