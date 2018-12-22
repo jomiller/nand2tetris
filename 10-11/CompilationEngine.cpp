@@ -27,6 +27,7 @@
 #include "JackUtil.h"
 
 #include <cassert>
+#include <limits>
 #include <map>
 
 n2t::CompilationEngine::CompilationEngine(const std::filesystem::path& inputFilename,
@@ -458,8 +459,14 @@ void n2t::CompilationEngine::compileTerm()
     }
     else if (tokenType == TokenType::StringConst)
     {
-        const std::string stringConst = compileStringConstant();
-        m_vmWriter.writePush(SegmentType::Constant, static_cast<int16_t>(stringConst.length()));
+        const std::string stringConst          = compileStringConstant();
+        const auto        stringConstLength    = stringConst.length();
+        const int16_t     maxStringConstLength = std::numeric_limits<int16_t>::max();
+        JACK_THROW_COND(stringConstLength <= static_cast<std::string::size_type>(maxStringConstLength),
+                        "Length of string constant (" + stringConst + ") exceeds the limit (" +
+                            std::to_string(maxStringConstLength) + ")");
+
+        m_vmWriter.writePush(SegmentType::Constant, static_cast<int16_t>(stringConstLength));
         m_vmWriter.writeCall("String.new", 1);
         for (auto c : stringConst)
         {
@@ -728,8 +735,8 @@ void n2t::CompilationEngine::compileSubroutineCall(const std::string& identifier
         subroutineName  = compileIdentifier("subroutine");
     }
 
-    subroutineCall.name       = subroutineName;
-    bool         thisArgument = false;
+    subroutineCall.name = subroutineName;
+    bool thisArgument   = false;
     if (classObjectName.empty())
     {
         // a method is invoked for the current object
