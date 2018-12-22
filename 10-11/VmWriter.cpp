@@ -100,7 +100,7 @@ void n2t::VmWriter::writeIf(const std::string& label)
     m_file << "if-goto " << label << '\n';
 }
 
-void n2t::VmWriter::writeFunction(const std::string& functionName, unsigned int numLocals)
+void n2t::VmWriter::writeFunction(const std::string& functionName, int16_t numLocals)
 {
     m_file << "function " << functionName << " " << numLocals << '\n';
 }
@@ -110,7 +110,7 @@ void n2t::VmWriter::writeReturn()
     m_file << "return\n";
 }
 
-void n2t::VmWriter::writeCall(const std::string& functionName, unsigned int numArguments)
+void n2t::VmWriter::writeCall(const std::string& functionName, int16_t numArguments)
 {
     m_file << "call " << functionName << " " << numArguments << '\n';
 }

@@ -35,6 +35,7 @@
 #include <bitset>
 #include <cstdint>
 #include <fstream>
+#include <limits>
 #include <locale>
 #include <utility>
 
@@ -72,6 +73,8 @@ void n2t::AssemblyEngine::buildSymbolTable()
 
     try
     {
+        const int16_t maxRomAddress = std::numeric_limits<int16_t>::max();
+
         // ROM address to advance when a C-instruction or an A-instruction is encountered,
         // but does not change when a label pseudocommand or a comment is encountered
         int16_t nextRomAddress = 0;
@@ -81,6 +84,8 @@ void n2t::AssemblyEngine::buildSymbolTable()
             const CommandType commandType = symbolParser.commandType();
             if ((commandType == CommandType::A) || (commandType == CommandType::C))
             {
+                ASM_THROW_COND(nextRomAddress < maxRomAddress,
+                               "Instruction count exceeds the limit (" + std::to_string(maxRomAddress) + ")");
                 ++nextRomAddress;
             }
             else if (commandType == CommandType::L)
@@ -110,6 +115,8 @@ void n2t::AssemblyEngine::generateCode()
 
     try
     {
+        const int16_t maxRamAddress = std::numeric_limits<int16_t>::max();
+
         // starting RAM memory address for mapped variables
         int16_t nextRamAddress = 0x0010;
 
@@ -157,6 +164,9 @@ void n2t::AssemblyEngine::generateCode()
                         // associate the variable with the next available RAM address
                         m_symbolTable.addEntry(symbol, nextRamAddress);
                         targetAddress = nextRamAddress;
+
+                        ASM_THROW_COND(nextRamAddress < maxRamAddress,
+                                       "Symbol count exceeds the limit (" + std::to_string(maxRamAddress) + ")");
                         ++nextRamAddress;
                     }
                 }

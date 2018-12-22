@@ -50,6 +50,11 @@ void n2t::JackTokenizer::TokenizerFunction::reset()
     m_lineCount = 0;
 }
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4706)  // assignment within conditional expression
+#endif
+
 bool n2t::JackTokenizer::TokenizerFunction::operator()(std::istreambuf_iterator<char>& next,
                                                        std::istreambuf_iterator<char>  end,
                                                        std::string&                    tok)
@@ -162,6 +167,10 @@ bool n2t::JackTokenizer::TokenizerFunction::operator()(std::istreambuf_iterator<
     }
     return true;
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 bool n2t::JackTokenizer::TokenizerFunction::isDelimiter(char c)
 {

@@ -67,13 +67,13 @@ public:
     void writeIf(const std::string& label);
 
     // Writes a VM function command.
-    void writeFunction(const std::string& functionName, unsigned int numLocals);
+    void writeFunction(const std::string& functionName, int16_t numLocals);
 
     // Writes a VM return command.
     void writeReturn();
 
     // Writes a VM call command.
-    void writeCall(const std::string& functionName, unsigned int numArguments);
+    void writeCall(const std::string& functionName, int16_t numArguments);
 
     // Closes the output file.
     void close();

@@ -115,3 +115,20 @@ const std::string& n2t::JackUtil::toString(TokenType tokenType)
     assert((key != tokenTypes.end()) && "Invalid token type");
     return key->second;
 }
+
+const std::string& n2t::JackUtil::toString(VariableKind kind)
+{
+    // clang-format off
+    static const std::map<VariableKind, std::string> variableKinds =
+    {
+        {VariableKind::Static,   "static"},
+        {VariableKind::Field,    "field"},
+        {VariableKind::Argument, "argument"},
+        {VariableKind::Local,    "local"}
+    };
+    // clang-format on
+
+    const auto key = variableKinds.find(kind);
+    assert((key != variableKinds.end()) && "Invalid variable kind");
+    return key->second;
+}

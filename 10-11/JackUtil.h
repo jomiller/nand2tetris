@@ -43,6 +43,7 @@ public:
     static std::pair<Keyword, bool> toKeyword(const std::string& keyword);
     static const std::string&       toString(Keyword keyword);
     static const std::string&       toString(TokenType tokenType);
+    static const std::string&       toString(VariableKind kind);
 
     template<typename Enum>
     static constexpr std::underlying_type_t<Enum> toUnderType(Enum enumerator) noexcept

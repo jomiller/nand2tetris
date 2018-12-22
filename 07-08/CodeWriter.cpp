@@ -196,7 +196,7 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
         case SegmentType::Argument:
             if (!m_currentFunction.name.empty())
             {
-                m_currentFunction.numParameters = std::max<unsigned int>(m_currentFunction.numParameters, index + 1);
+                m_currentFunction.numParameters = std::max<int16_t>(m_currentFunction.numParameters, index + 1);
             }
             break;
 
@@ -310,9 +310,11 @@ void n2t::CodeWriter::writeIf(const std::string& label)
     // clang-format on
 }
 
-void n2t::CodeWriter::writeFunction(const std::string& functionName, unsigned int numLocals)
+void n2t::CodeWriter::writeFunction(const std::string& functionName, int16_t numLocals)
 {
     validateFunction();
+
+    VM_THROW_COND(numLocals >= 0, "Number of function local variables (" + std::to_string(numLocals) + ") is negative");
 
     VM_THROW_COND(!std::isdigit(functionName.front(), std::locale()),
                   "Function name (" + functionName + ") begins with a digit");
@@ -331,7 +333,7 @@ void n2t::CodeWriter::writeFunction(const std::string& functionName, unsigned in
     {
         m_file << "D=0\n";
     }
-    for (unsigned int lcl = 0; lcl < numLocals; ++lcl)
+    for (int16_t lcl = 0; lcl < numLocals; ++lcl)
     {
         pushFromD();
     }
@@ -406,8 +408,10 @@ void n2t::CodeWriter::writeReturn()
     // clang-format on
 }
 
-void n2t::CodeWriter::writeCall(const std::string& functionName, unsigned int numArguments)
+void n2t::CodeWriter::writeCall(const std::string& functionName, int16_t numArguments)
 {
+    VM_THROW_COND(numArguments >= 0, "Number of function arguments (" + std::to_string(numArguments) + ") is negative");
+
     m_calledFunctions.emplace(functionName, numArguments);
     const std::string label = makeLabel("RETURN" + std::to_string(getNextLabelId()));
 

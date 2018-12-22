@@ -29,6 +29,7 @@
 #include "JackUtil.h"
 
 #include <array>
+#include <cstdint>
 #include <map>
 #include <string>
 #include <utility>
@@ -48,7 +49,7 @@ public:
     void define(const std::string& name, const std::string& type, VariableKind kind);
 
     // Returns the number of variables of the given kind already defined in the current scope.
-    unsigned int varCount(VariableKind kind) const;
+    int16_t varCount(VariableKind kind) const;
 
     // Returns the type of the named identifier in the current scope.
     const std::string& typeOf(const std::string& name) const;
@@ -58,18 +59,18 @@ public:
     VariableKind kindOf(const std::string& name) const;
 
     // Returns the index assigned to the named identifier.
-    unsigned int indexOf(const std::string& name) const;
+    int16_t indexOf(const std::string& name) const;
 
 private:
     struct HashTableEntry
     {
         std::string  type;
         VariableKind kind  = VariableKind::None;
-        unsigned int index = 0;
+        int16_t      index = 0;
 
         HashTableEntry() = default;
 
-        HashTableEntry(std::string t, VariableKind k, unsigned int i) : type(std::move(t)), kind(k), index(i)
+        HashTableEntry(std::string t, VariableKind k, int16_t i) : type(std::move(t)), kind(k), index(i)
         {
         }
     };
@@ -79,11 +80,11 @@ private:
     HashTable&            getHashTable(VariableKind kind);
     const HashTable&      getHashTable(VariableKind kind) const;
     const HashTableEntry& getHashTableEntry(const std::string& name) const;
-    unsigned int          getNextIndex(VariableKind kind);
+    int16_t               getNextVarIndex(VariableKind kind);
 
-    HashTable                                                            m_classTable;
-    HashTable                                                            m_subroutineTable;
-    std::array<unsigned int, JackUtil::toUnderType(VariableKind::Count)> m_nextIndices;
+    HashTable                                                       m_classTable;
+    HashTable                                                       m_subroutineTable;
+    std::array<int16_t, JackUtil::toUnderType(VariableKind::Count)> m_nextVarIndices;
 };
 }  // namespace n2t
 

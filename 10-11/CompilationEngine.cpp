@@ -459,7 +459,7 @@ void n2t::CompilationEngine::compileTerm()
     else if (tokenType == TokenType::StringConst)
     {
         const std::string stringConst = compileStringConstant();
-        m_vmWriter.writePush(SegmentType::Constant, stringConst.length());
+        m_vmWriter.writePush(SegmentType::Constant, static_cast<int16_t>(stringConst.length()));
         m_vmWriter.writeCall("String.new", 1);
         for (auto c : stringConst)
         {
@@ -671,7 +671,7 @@ void n2t::CompilationEngine::compileSubroutineBody()
     if (m_currentSubroutine.type == Keyword::Constructor)
     {
         // allocate at least one word so that objects of field-less classes will still have valid addresses
-        const unsigned int numFields = std::max(m_symbolTable.varCount(VariableKind::Field), 1u);
+        const int16_t numFields = std::max(m_symbolTable.varCount(VariableKind::Field), int16_t{1});
         m_vmWriter.writePush(SegmentType::Constant, numFields);
         m_vmWriter.writeCall("Memory.alloc", 1);
 
@@ -758,11 +758,12 @@ void n2t::CompilationEngine::compileSubroutineCall(const std::string& identifier
     compileSymbol('(');
     compileExpressionList();
     compileSymbol(')');
-    subroutineCall.numArguments = m_argumentCounts.top();
+    const int16_t currentArgumentCount = m_argumentCounts.top();
+    subroutineCall.numArguments        = currentArgumentCount;
 
     // the number of arguments is determined from the number of expressions in the expression list
     m_vmWriter.writeCall(classObjectName + "." + subroutineName,
-                         m_argumentCounts.top() + static_cast<unsigned int>(thisArgument));
+                         currentArgumentCount + static_cast<int16_t>(thisArgument));
 
     if (classObjectName == m_className)
     {
@@ -773,10 +774,10 @@ void n2t::CompilationEngine::compileSubroutineCall(const std::string& identifier
 
 void n2t::CompilationEngine::validateSubroutineCalls() const
 {
-    const auto sub = m_definedSubroutines.find("main");
-    JACK_THROW_COND(
-        (m_className != "Main") || ((sub != m_definedSubroutines.end()) && (sub->second.type == Keyword::Function)),
-        "Class does not contain a function named 'main'");
+    const auto mainSub = m_definedSubroutines.find("main");
+    JACK_THROW_COND((m_className != "Main") ||
+                        ((mainSub != m_definedSubroutines.end()) && (mainSub->second.type == Keyword::Function)),
+                    "Class does not contain a function named 'main'");
 
     for (const SubroutineCallInfo& call : m_calledSubroutines)
     {

@@ -75,13 +75,13 @@ public:
     void writeIf(const std::string& label);
 
     // Writes assembly code that effects the function command.
-    void writeFunction(const std::string& functionName, unsigned int numLocals);
+    void writeFunction(const std::string& functionName, int16_t numLocals);
 
     // Writes assembly code that effects the return command.
     void writeReturn();
 
     // Writes assembly code that effects the call command.
-    void writeCall(const std::string& functionName, unsigned int numArguments);
+    void writeCall(const std::string& functionName, int16_t numArguments);
 
     // Closes the output file.
     void close();
@@ -95,24 +95,24 @@ public:
 private:
     struct FunctionInfo
     {
-        std::string  name;
-        unsigned int numParameters = 0;
+        std::string name;
+        int16_t     numParameters = 0;
 
         FunctionInfo() = default;
 
-        FunctionInfo(std::string n, unsigned int p) : name(std::move(n)), numParameters(p)
+        FunctionInfo(std::string n, int16_t p) : name(std::move(n)), numParameters(p)
         {
         }
     };
 
     struct FunctionCallInfo
     {
-        std::string  name;
-        unsigned int numArguments = 0;
+        std::string name;
+        int16_t     numArguments = 0;
 
         FunctionCallInfo() = default;
 
-        FunctionCallInfo(std::string n, unsigned int a) : name(std::move(n)), numArguments(a)
+        FunctionCallInfo(std::string n, int16_t a) : name(std::move(n)), numArguments(a)
         {
         }
 
@@ -133,16 +133,16 @@ private:
     void         validateFunction();
     void         validateFunctionCalls() const;
 
-    std::filesystem::path               m_outputFilename;
-    std::ofstream                       m_file;
-    std::string                         m_currentInputFilename;
-    FunctionInfo                        m_currentFunction;
-    std::set<std::string>               m_labels;
-    std::set<std::string>               m_gotoDestinations;
-    std::map<std::string, unsigned int> m_definedFunctions;
-    std::set<FunctionCallInfo>          m_calledFunctions;
-    unsigned int                        m_nextLabelId = 0;
-    bool                                m_closed      = false;
+    std::filesystem::path          m_outputFilename;
+    std::ofstream                  m_file;
+    std::string                    m_currentInputFilename;
+    FunctionInfo                   m_currentFunction;
+    std::set<std::string>          m_labels;
+    std::set<std::string>          m_gotoDestinations;
+    std::map<std::string, int16_t> m_definedFunctions;
+    std::set<FunctionCallInfo>     m_calledFunctions;
+    unsigned int                   m_nextLabelId = 0;
+    bool                           m_closed      = false;
 };
 }  // namespace n2t
 

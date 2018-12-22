@@ -87,7 +87,7 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" M
 
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
-    add_compile_options (/Wall /WX)
+    add_compile_options (/W4 /WX)
 
 endif ()
 

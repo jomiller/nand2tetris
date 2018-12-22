@@ -55,14 +55,14 @@ public:
 private:
     struct SubroutineInfo
     {
-        Keyword      type   = Keyword::Constructor;
-        bool         isVoid = false;
-        std::string  name;
-        unsigned int numParameters = 0;
+        Keyword     type   = Keyword::Constructor;
+        bool        isVoid = false;
+        std::string name;
+        int16_t     numParameters = 0;
 
         SubroutineInfo() = default;
 
-        SubroutineInfo(Keyword t, bool v, std::string n, unsigned int p) :
+        SubroutineInfo(Keyword t, bool v, std::string n, int16_t p) :
             type(t),
             isVoid(v),
             name(std::move(n)),
@@ -73,14 +73,14 @@ private:
 
     struct SubroutineCallInfo
     {
-        Keyword      type = Keyword::Function;
-        std::string  name;
-        unsigned int numArguments = 0;
-        bool         expression   = false;
+        Keyword     type = Keyword::Function;
+        std::string name;
+        int16_t     numArguments = 0;
+        bool        expression   = false;
 
         SubroutineCallInfo() = default;
 
-        SubroutineCallInfo(Keyword t, std::string n, unsigned int a, bool e) :
+        SubroutineCallInfo(Keyword t, std::string n, int16_t a, bool e) :
             type(t),
             name(std::move(n)),
             numArguments(a),
@@ -180,7 +180,7 @@ private:
     SubroutineInfo                        m_currentSubroutine;
     std::map<std::string, SubroutineInfo> m_definedSubroutines;
     std::set<SubroutineCallInfo>          m_calledSubroutines;
-    std::stack<unsigned int>              m_argumentCounts;
+    std::stack<int16_t>                   m_argumentCounts;
     bool                                  m_inReturnStatement = false;
     unsigned int                          m_nextLabelId       = 0;
 };
