@@ -132,5 +132,5 @@ int16_t n2t::SymbolTable::getNextVarIndex(VariableKind kind)
                     "Variable count for kind (" + JackUtil::toString(kind) + ") exceeds the limit (" +
                         std::to_string(maxVarIndex + 1) + ")");
 
-    return *nextVarIndex++;
+    return (*nextVarIndex)++;
 }
