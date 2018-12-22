@@ -73,7 +73,7 @@ void n2t::AssemblyEngine::buildSymbolTable()
 
     try
     {
-        const int16_t maxRomAddress = std::numeric_limits<int16_t>::max();
+        const int16_t maxRomAddress = std::numeric_limits<int16_t>::max() - 1;
 
         // ROM address to advance when a C-instruction or an A-instruction is encountered,
         // but does not change when a label pseudocommand or a comment is encountered
@@ -85,7 +85,7 @@ void n2t::AssemblyEngine::buildSymbolTable()
             if ((commandType == CommandType::A) || (commandType == CommandType::C))
             {
                 ASM_THROW_COND(nextRomAddress < maxRomAddress,
-                               "Instruction count exceeds the limit (" + std::to_string(maxRomAddress) + ")");
+                               "Instruction count exceeds the limit (" + std::to_string(maxRomAddress + 1) + ")");
                 ++nextRomAddress;
             }
             else if (commandType == CommandType::L)
@@ -115,7 +115,7 @@ void n2t::AssemblyEngine::generateCode()
 
     try
     {
-        const int16_t maxRamAddress = std::numeric_limits<int16_t>::max();
+        const int16_t maxRamAddress = std::numeric_limits<int16_t>::max() - 1;
 
         // starting RAM memory address for mapped variables
         int16_t nextRamAddress = 0x0010;
@@ -166,7 +166,7 @@ void n2t::AssemblyEngine::generateCode()
                         targetAddress = nextRamAddress;
 
                         ASM_THROW_COND(nextRamAddress < maxRamAddress,
-                                       "Symbol count exceeds the limit (" + std::to_string(maxRamAddress) + ")");
+                                       "Variable count exceeds the limit (" + std::to_string(maxRamAddress + 1) + ")");
                         ++nextRamAddress;
                     }
                 }

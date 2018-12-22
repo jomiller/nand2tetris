@@ -32,7 +32,6 @@
 #include <iostream>
 #include <stdexcept>
 #include <thread>
-#include <type_traits>
 #include <vector>
 
 namespace
@@ -171,7 +170,7 @@ int main(int argc, char* argv[])
         options.outputParseTree = outputParseTree;
 
         const auto numFiles = inputFilenames.size();
-        const auto numTasks = std::min(static_cast<std::remove_const_t<decltype(numFiles)>>(numJobs), numFiles);
+        const auto numTasks = std::min(static_cast<n2t::PathList::size_type>(numJobs), numFiles);
         const auto taskSize = numFiles / numTasks;
 
         std::vector<n2t::CompilationTask> tasks;

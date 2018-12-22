@@ -125,12 +125,12 @@ int16_t n2t::SymbolTable::getNextVarIndex(VariableKind kind)
 {
     assert(kind < VariableKind::Count);
 
-    const int16_t maxVarIndex  = std::numeric_limits<int16_t>::max();
+    const int16_t maxVarIndex  = std::numeric_limits<int16_t>::max() - 1;
     int16_t*      nextVarIndex = &m_nextVarIndices[JackUtil::toUnderType(kind)];
 
     JACK_THROW_COND(*nextVarIndex < maxVarIndex,
                     "Variable count for kind (" + JackUtil::toString(kind) + ") exceeds the limit (" +
-                        std::to_string(maxVarIndex) + ")");
+                        std::to_string(maxVarIndex + 1) + ")");
 
     return *nextVarIndex++;
 }

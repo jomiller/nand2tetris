@@ -27,6 +27,7 @@
 #include "VmUtil.h"
 
 #include <array>
+#include <cassert>
 #include <locale>
 
 n2t::CodeWriter::CodeWriter(std::filesystem::path filename) :
@@ -312,9 +313,9 @@ void n2t::CodeWriter::writeIf(const std::string& label)
 
 void n2t::CodeWriter::writeFunction(const std::string& functionName, int16_t numLocals)
 {
-    validateFunction();
+    assert((numLocals >= 0) && "Number of function local variables is negative");
 
-    VM_THROW_COND(numLocals >= 0, "Number of function local variables (" + std::to_string(numLocals) + ") is negative");
+    validateFunction();
 
     VM_THROW_COND(!std::isdigit(functionName.front(), std::locale()),
                   "Function name (" + functionName + ") begins with a digit");
@@ -410,7 +411,7 @@ void n2t::CodeWriter::writeReturn()
 
 void n2t::CodeWriter::writeCall(const std::string& functionName, int16_t numArguments)
 {
-    VM_THROW_COND(numArguments >= 0, "Number of function arguments (" + std::to_string(numArguments) + ") is negative");
+    assert((numArguments >= 0) && "Number of function arguments is negative");
 
     m_calledFunctions.emplace(functionName, numArguments);
     const std::string label = makeLabel("RETURN" + std::to_string(getNextLabelId()));
