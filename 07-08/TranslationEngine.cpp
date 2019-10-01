@@ -44,7 +44,7 @@ n2t::TranslationEngine::TranslationEngine(PathList              inputFilenames,
 
 void n2t::TranslationEngine::translate()
 {
-    VM_THROW_COND(!m_codeWriter.isClosed(), "Input files have already been translated");
+    N2T_VM_THROW_COND(!m_codeWriter.isClosed(), "Input files have already been translated");
 
     for (const auto& path : m_inputFilenames)
     {

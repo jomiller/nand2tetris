@@ -81,6 +81,7 @@ void n2t::VmWriter::writeArithmetic(ArithmeticCommand command)
     // clang-format on
 
     const auto cmd = commands.find(command);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     assert((cmd != commands.end()) && "Invalid arithmetic command");
     m_file << cmd->second << '\n';
 }
@@ -138,6 +139,7 @@ const std::string& n2t::VmWriter::toString(SegmentType segment)
     // clang-format on
 
     const auto seg = segments.find(segment);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     assert((seg != segments.end()) && "Invalid memory segment");
     return seg->second;
 }

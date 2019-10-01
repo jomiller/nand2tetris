@@ -61,7 +61,7 @@ bool n2t::Parser::advance()
     std::vector<std::string> args;
     boost::algorithm::split(args, currentCommand, boost::algorithm::is_space(), boost::algorithm::token_compress_on);
 
-    VM_THROW_COND(!args.empty(), "Unable to parse command (" + currentCommand + ")");
+    N2T_VM_THROW_COND(!args.empty(), "Unable to parse command (" + currentCommand + ")");
 
     // clang-format off
     static const std::map<std::string_view, CommandType> commandTypes =
@@ -87,7 +87,7 @@ bool n2t::Parser::advance()
     // clang-format on
 
     const auto iter = commandTypes.find(args[0]);
-    VM_THROW_COND(iter != commandTypes.end(), "Invalid command type (" + args[0] + ")");
+    N2T_VM_THROW_COND(iter != commandTypes.end(), "Invalid command type (" + args[0] + ")");
 
     m_commandType = iter->second;
     m_arg1.clear();
@@ -113,7 +113,7 @@ bool n2t::Parser::advance()
                 VmUtil::throwUncond("Command argument (" + args[2] + ") is too large or is not an integer");
             }
 
-            VM_THROW_COND(m_arg2 >= 0, "Command argument (" + args[2] + ") is a negative integer");
+            N2T_VM_THROW_COND(m_arg2 >= 0, "Command argument (" + args[2] + ") is a negative integer");
         }
     }
 

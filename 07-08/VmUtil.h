@@ -73,12 +73,12 @@ public:
 };
 }  // namespace n2t
 
-#define VM_THROW_COND(condition, message) \
-    if (!(condition))                     \
-    {                                     \
-        VmUtil::throwUncond(message);     \
-    }                                     \
-    else                                  \
+#define N2T_VM_THROW_COND(condition, message) \
+    if (!(condition))                         \
+    {                                         \
+        VmUtil::throwUncond(message);         \
+    }                                         \
+    else                                      \
         (void)0
 
 #endif

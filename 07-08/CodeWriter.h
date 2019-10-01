@@ -93,23 +93,22 @@ public:
     }
 
 private:
-    struct FunctionInfo
+    class FunctionInfo
     {
-        std::string name;
-        int16_t     numParameters = 0;
-
+    public:
         FunctionInfo() = default;
 
         FunctionInfo(std::string n, int16_t p) : name(std::move(n)), numParameters(p)
         {
         }
+
+        std::string name;
+        int16_t     numParameters = 0;
     };
 
-    struct FunctionCallInfo
+    class FunctionCallInfo
     {
-        std::string name;
-        int16_t     numArguments = 0;
-
+    public:
         FunctionCallInfo() = default;
 
         FunctionCallInfo(std::string n, int16_t a) : name(std::move(n)), numArguments(a)
@@ -124,6 +123,9 @@ private:
             }
             return (numArguments < rhs.numArguments);
         }
+
+        std::string name;
+        int16_t     numArguments = 0;
     };
 
     void         pushFromD();

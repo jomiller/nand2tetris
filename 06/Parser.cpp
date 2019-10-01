@@ -57,17 +57,17 @@ bool n2t::Parser::advance()
 
     if (currentCommand.front() == '@')
     {
-        ASM_THROW_COND(currentCommand.length() != 1, "Address or symbol not specified in addressing instruction");
+        N2T_ASM_THROW_COND(currentCommand.length() != 1, "Address or symbol not specified in addressing instruction");
 
         m_commandType = CommandType::A;
         m_symbol      = currentCommand.substr(1);  // @Xxx
     }
     else if (currentCommand.front() == '(')
     {
-        ASM_THROW_COND(currentCommand.back() == ')',
-                       "Expected closing parenthesis in label command (" + currentCommand + ")");
+        N2T_ASM_THROW_COND(currentCommand.back() == ')',
+                           "Expected closing parenthesis in label command (" + currentCommand + ")");
 
-        ASM_THROW_COND(currentCommand.length() != 2, "Symbol not specified in label command");
+        N2T_ASM_THROW_COND(currentCommand.length() != 2, "Symbol not specified in label command");
 
         m_commandType = CommandType::L;
         m_symbol      = currentCommand.substr(1, currentCommand.length() - 2);  // (Xxx)

@@ -53,13 +53,9 @@ public:
     void compileClass();
 
 private:
-    struct SubroutineInfo
+    class SubroutineInfo
     {
-        Keyword     type   = Keyword::Constructor;
-        bool        isVoid = false;
-        std::string name;
-        int16_t     numParameters = 0;
-
+    public:
         SubroutineInfo() = default;
 
         SubroutineInfo(Keyword t, bool v, std::string n, int16_t p) :
@@ -69,15 +65,16 @@ private:
             numParameters(p)
         {
         }
+
+        Keyword     type   = Keyword::Constructor;
+        bool        isVoid = false;
+        std::string name;
+        int16_t     numParameters = 0;
     };
 
-    struct SubroutineCallInfo
+    class SubroutineCallInfo
     {
-        Keyword     type = Keyword::Function;
-        std::string name;
-        int16_t     numArguments = 0;
-        bool        expression   = false;
-
+    public:
         SubroutineCallInfo() = default;
 
         SubroutineCallInfo(Keyword t, std::string n, int16_t a, bool e) :
@@ -104,6 +101,11 @@ private:
             }
             return (!expression && rhs.expression);
         }
+
+        Keyword     type = Keyword::Function;
+        std::string name;
+        int16_t     numArguments = 0;
+        bool        expression   = false;
     };
 
     static bool              isClassVarDec(Keyword keyword);

@@ -30,43 +30,28 @@
 
 uint16_t n2t::Code::dest(const std::string& dest)
 {
-    uint16_t destCode = 0b000;
-    if (!dest.empty())
+    if (dest.empty())
     {
-        if (dest == "M")
-        {
-            destCode = 0b001;
-        }
-        else if (dest == "D")
-        {
-            destCode = 0b010;
-        }
-        else if (dest == "MD")
-        {
-            destCode = 0b011;
-        }
-        else if (dest == "A")
-        {
-            destCode = 0b100;
-        }
-        else if (dest == "AM")
-        {
-            destCode = 0b101;
-        }
-        else if (dest == "AD")
-        {
-            destCode = 0b110;
-        }
-        else if (dest == "AMD")
-        {
-            destCode = 0b111;
-        }
-        else
-        {
-            AsmUtil::throwUncond("Invalid 'dest' mnemonic (" + dest + ")");
-        }
+        return 0b000;
     }
-    return destCode;
+
+    // clang-format off
+    static const std::map<std::string_view, uint16_t> destCodes =
+    {
+        {"M",   uint16_t{0b001}},
+        {"D",   uint16_t{0b010}},
+        {"MD",  uint16_t{0b011}},
+        {"A",   uint16_t{0b100}},
+        {"AM",  uint16_t{0b101}},
+        {"AD",  uint16_t{0b110}},
+        {"AMD", uint16_t{0b111}}
+    };
+    // clang-format on
+
+    const auto iter = destCodes.find(dest);
+    N2T_ASM_THROW_COND(iter != destCodes.end(), "Invalid 'dest' mnemonic (" + dest + ")");
+
+    return iter->second;
 }
 
 uint16_t n2t::Code::comp(const std::string& comp)
@@ -106,48 +91,33 @@ uint16_t n2t::Code::comp(const std::string& comp)
     // clang-format on
 
     const auto iter = compCodes.find(comp);
-    ASM_THROW_COND(iter != compCodes.end(), "Invalid 'comp' mnemonic (" + comp + ")");
+    N2T_ASM_THROW_COND(iter != compCodes.end(), "Invalid 'comp' mnemonic (" + comp + ")");
 
     return iter->second;
 }
 
 uint16_t n2t::Code::jump(const std::string& jump)
 {
-    uint16_t jumpCode = 0b000;
-    if (!jump.empty())
+    if (jump.empty())
     {
-        if (jump == "JGT")
-        {
-            jumpCode = 0b001;
-        }
-        else if (jump == "JEQ")
-        {
-            jumpCode = 0b010;
-        }
-        else if (jump == "JGE")
-        {
-            jumpCode = 0b011;
-        }
-        else if (jump == "JLT")
-        {
-            jumpCode = 0b100;
-        }
-        else if (jump == "JNE")
-        {
-            jumpCode = 0b101;
-        }
-        else if (jump == "JLE")
-        {
-            jumpCode = 0b110;
-        }
-        else if (jump == "JMP")
-        {
-            jumpCode = 0b111;
-        }
-        else
-        {
-            AsmUtil::throwUncond("Invalid 'jump' mnemonic (" + jump + ")");
-        }
+        return 0b000;
     }
-    return jumpCode;
+
+    // clang-format off
+    static const std::map<std::string_view, uint16_t> jumpCodes =
+    {
+        {"JGT", uint16_t{0b001}},
+        {"JEQ", uint16_t{0b010}},
+        {"JGE", uint16_t{0b011}},
+        {"JLT", uint16_t{0b100}},
+        {"JNE", uint16_t{0b101}},
+        {"JLE", uint16_t{0b110}},
+        {"JMP", uint16_t{0b111}}
+    };
+    // clang-format on
+
+    const auto iter = jumpCodes.find(jump);
+    N2T_ASM_THROW_COND(iter != jumpCodes.end(), "Invalid 'jump' mnemonic (" + jump + ")");
+
+    return iter->second;
 }

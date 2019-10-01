@@ -25,8 +25,7 @@ if (${CPPCHECK})
         list (APPEND CMAKE_CXX_CPPCHECK #"--project=${CMAKE_BINARY_DIR}/compile_commands.json"
                                         "--enable=warning,style,performance,portability"
                                         "--suppress=passedByValue"
-                                        #"--std=c++17"
-                                        "--std=c++14"
+                                        "--std=c++17"
                                         "--quiet")
     else ()
         message (FATAL_ERROR "Could not find program: cppcheck")

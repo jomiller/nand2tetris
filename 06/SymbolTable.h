@@ -41,10 +41,10 @@ public:
     void addEntry(const std::string& symbol, int16_t address);
 
     // Does the symbol table contain the given symbol?
-    bool contains(const std::string& symbol) const;
+    [[nodiscard]] bool contains(const std::string& symbol) const;
 
     // Returns the address associated with the symbol.
-    int16_t getAddress(const std::string& symbol) const;
+    [[nodiscard]] int16_t getAddress(const std::string& symbol) const;
 
 private:
     std::map<std::string, int16_t> m_table;

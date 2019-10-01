@@ -61,7 +61,8 @@ n2t::AssemblyEngine::~AssemblyEngine() noexcept
 
 void n2t::AssemblyEngine::assemble()
 {
-    ASM_THROW_COND(!m_assembled, "Input file (" + m_inputFilename.filename().string() + ") has already been assembled");
+    N2T_ASM_THROW_COND(!m_assembled,
+                       "Input file (" + m_inputFilename.filename().string() + ") has already been assembled");
     buildSymbolTable();
     generateCode();
     m_assembled = true;
@@ -84,15 +85,15 @@ void n2t::AssemblyEngine::buildSymbolTable()
             const CommandType commandType = symbolParser.commandType();
             if ((commandType == CommandType::A) || (commandType == CommandType::C))
             {
-                ASM_THROW_COND(nextRomAddress < maxRomAddress,
-                               "Instruction count exceeds the limit (" + std::to_string(maxRomAddress + 1) + ")");
+                N2T_ASM_THROW_COND(nextRomAddress < maxRomAddress,
+                                   "Instruction count exceeds the limit (" + std::to_string(maxRomAddress + 1) + ")");
                 ++nextRomAddress;
             }
             else if (commandType == CommandType::L)
             {
                 const std::string& symbol = symbolParser.symbol();
-                ASM_THROW_COND(!std::isdigit(symbol.front(), std::locale()),
-                               "Symbol (" + symbol + ") begins with a digit in label command");
+                N2T_ASM_THROW_COND(!std::isdigit(symbol.front(), std::locale()),
+                                   "Symbol (" + symbol + ") begins with a digit in label command");
 
                 // associate the symbol with the ROM address that will store the next command in the program
                 m_symbolTable.addEntry(symbol, nextRomAddress);
@@ -115,10 +116,10 @@ void n2t::AssemblyEngine::generateCode()
 
     try
     {
-        const int16_t maxRamAddress = std::numeric_limits<int16_t>::max() - 1;
+        const int16_t baseRamAddress = 0x0010;
+        const int16_t maxRamAddress  = std::numeric_limits<int16_t>::max() - 1;
 
-        // starting RAM memory address for mapped variables
-        int16_t nextRamAddress = 0x0010;
+        int16_t nextRamAddress = baseRamAddress;
 
         while (codeParser.advance())
         {
@@ -149,8 +150,8 @@ void n2t::AssemblyEngine::generateCode()
                 }
                 else
                 {
-                    ASM_THROW_COND((symbol.front() != '-') || (symbol.length() <= 1) || !digits,
-                                   "Address (" + symbol + ") is negative in addressing instruction");
+                    N2T_ASM_THROW_COND((symbol.front() != '-') || (symbol.length() <= 1) || !digits,
+                                       "Address (" + symbol + ") is negative in addressing instruction");
 
                     // this is a symbolic A-instruction, i.e. @Xxx where Xxx is a symbol rather than an integer
                     if (m_symbolTable.contains(symbol))
@@ -165,12 +166,15 @@ void n2t::AssemblyEngine::generateCode()
                         m_symbolTable.addEntry(symbol, nextRamAddress);
                         targetAddress = nextRamAddress;
 
-                        ASM_THROW_COND(nextRamAddress < maxRamAddress,
-                                       "Variable count exceeds the limit (" + std::to_string(maxRamAddress + 1) + ")");
+                        N2T_ASM_THROW_COND(
+                            nextRamAddress < maxRamAddress,
+                            "Variable count exceeds the limit (" + std::to_string(maxRamAddress + 1) + ")");
+
                         ++nextRamAddress;
                     }
                 }
 
+                // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
                 outputFile << "0" << std::bitset<15>(targetAddress) << '\n';
             }
             else if (commandType == CommandType::C)
@@ -181,6 +185,7 @@ void n2t::AssemblyEngine::generateCode()
 
                 const uint16_t instruction = (uint16_t(0b111) << 13) | (compCode << 6) | (destCode << 3) | jumpCode;
 
+                // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
                 outputFile << std::bitset<16>(instruction) << '\n';
             }
         }

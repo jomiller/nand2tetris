@@ -75,15 +75,16 @@ void n2t::CodeWriter::writeInit()
 
 void n2t::CodeWriter::writeArithmetic(const std::string& command)
 {
-    struct ArithmeticInfo
+    class ArithmeticInfo
     {
-        bool             unary;
-        bool             logic;
-        std::string_view inst;
-
+    public:
         ArithmeticInfo(bool u, bool l, std::string_view i) : unary(u), logic(l), inst(i)
         {
         }
+
+        bool             unary;
+        bool             logic;
+        std::string_view inst;
     };
 
     // clang-format off
@@ -102,7 +103,7 @@ void n2t::CodeWriter::writeArithmetic(const std::string& command)
     // clang-format on
 
     const auto iter = arithmeticInfo.find(command);
-    VM_THROW_COND(iter != arithmeticInfo.end(), "Invalid arithmetic command type (" + command + ")");
+    N2T_VM_THROW_COND(iter != arithmeticInfo.end(), "Invalid arithmetic command type (" + command + ")");
 
     const ArithmeticInfo& info = iter->second;
     if (info.unary)
@@ -146,24 +147,30 @@ void n2t::CodeWriter::writeArithmetic(const std::string& command)
 
 void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segment, int16_t index)
 {
-    struct SegmentInfo
+    class SegmentInfo
     {
-        SegmentType      type;
-        bool             indirect;
-        std::string_view base;
-
-        SegmentInfo(SegmentType t, bool i, std::string_view b) : type(t), indirect(i), base(b)
+    public:
+        SegmentInfo(SegmentType t, bool i, std::string_view n = {}, int16_t a = 0) :
+            type(t),
+            indirect(i),
+            name(n),
+            address(a)
         {
         }
+
+        SegmentType      type;
+        bool             indirect;
+        std::string_view name;
+        int16_t          address;
     };
 
     // clang-format off
     static const std::map<std::string_view, SegmentInfo> segmentInfo =
     {
-        {"constant", SegmentInfo(SegmentType::Constant, false, "")},
-        {"static",   SegmentInfo(SegmentType::Static,   false, "")},
-        {"pointer",  SegmentInfo(SegmentType::Pointer,  false, "R")},
-        {"temp",     SegmentInfo(SegmentType::Temp,     false, "R")},
+        {"constant", SegmentInfo(SegmentType::Constant, false)},
+        {"static",   SegmentInfo(SegmentType::Static,   false)},
+        {"pointer",  SegmentInfo(SegmentType::Pointer,  false, "R", 0x0003)},
+        {"temp",     SegmentInfo(SegmentType::Temp,     false, "R", 0x0005)},
         {"argument", SegmentInfo(SegmentType::Argument, true,  "ARG")},
         {"local",    SegmentInfo(SegmentType::Local,    true,  "LCL")},
         {"this",     SegmentInfo(SegmentType::This,     true,  "THIS")},
@@ -172,10 +179,10 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
     // clang-format on
 
     const auto iter = segmentInfo.find(segment);
-    VM_THROW_COND(iter != segmentInfo.end(), "Invalid memory segment (" + segment + ")");
+    N2T_VM_THROW_COND(iter != segmentInfo.end(), "Invalid memory segment (" + segment + ")");
 
     const SegmentInfo& info = iter->second;
-    std::string        symbol(info.base);
+    std::string        symbol(info.name);
     switch (info.type)
     {
         case SegmentType::Constant:
@@ -187,11 +194,8 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
             break;
 
         case SegmentType::Pointer:
-            symbol += std::to_string(0x0003 + index);
-            break;
-
         case SegmentType::Temp:
-            symbol += std::to_string(0x0005 + index);
+            symbol += std::to_string(info.address + index);
             break;
 
         case SegmentType::Argument:
@@ -239,7 +243,7 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
     }
     else  // (command == CommandType::Pop)
     {
-        VM_THROW_COND(info.type != SegmentType::Constant, "Cannot pop to the constant segment");
+        N2T_VM_THROW_COND(info.type != SegmentType::Constant, "Cannot pop to the constant segment");
 
         if (info.indirect && (index > 1))
         {
@@ -273,7 +277,7 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
 
 void n2t::CodeWriter::writeLabel(const std::string& label)
 {
-    VM_THROW_COND(!std::isdigit(label.front(), std::locale()), "Label (" + label + ") begins with a digit");
+    N2T_VM_THROW_COND(!std::isdigit(label.front(), std::locale()), "Label (" + label + ") begins with a digit");
 
     if (!m_labels.insert(label).second)
     {
@@ -313,15 +317,16 @@ void n2t::CodeWriter::writeIf(const std::string& label)
 
 void n2t::CodeWriter::writeFunction(const std::string& functionName, int16_t numLocals)
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     assert((numLocals >= 0) && "Number of function local variables is negative");
 
     validateFunction();
 
-    VM_THROW_COND(!std::isdigit(functionName.front(), std::locale()),
-                  "Function name (" + functionName + ") begins with a digit");
+    N2T_VM_THROW_COND(!std::isdigit(functionName.front(), std::locale()),
+                      "Function name (" + functionName + ") begins with a digit");
 
-    VM_THROW_COND(m_definedFunctions.find(functionName) == m_definedFunctions.end(),
-                  "Function with name (" + functionName + ") already exists");
+    N2T_VM_THROW_COND(m_definedFunctions.find(functionName) == m_definedFunctions.end(),
+                      "Function with name (" + functionName + ") already exists");
 
     m_currentFunction.name          = functionName;
     m_currentFunction.numParameters = 0;
@@ -342,7 +347,7 @@ void n2t::CodeWriter::writeFunction(const std::string& functionName, int16_t num
 
 void n2t::CodeWriter::writeReturn()
 {
-    VM_THROW_COND(!m_currentFunction.name.empty(), "Return command is outside of a function");
+    N2T_VM_THROW_COND(!m_currentFunction.name.empty(), "Return command is outside of a function");
 
     // save the base address of the calling function's saved state into R13
     // clang-format off
@@ -411,6 +416,7 @@ void n2t::CodeWriter::writeReturn()
 
 void n2t::CodeWriter::writeCall(const std::string& functionName, int16_t numArguments)
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     assert((numArguments >= 0) && "Number of function arguments is negative");
 
     m_calledFunctions.emplace(functionName, numArguments);
@@ -445,11 +451,13 @@ void n2t::CodeWriter::writeCall(const std::string& functionName, int16_t numArgu
         pushFromD();
     }
 
+    const int16_t savedStateSize = 1 + static_cast<int16_t>(segments.size());
+
     // reposition the 'argument' memory segment
     // clang-format off
     m_file << "@SP\n"
            << "D=M\n"
-           << "@" << (numArguments + 5) << '\n'
+           << "@" << (numArguments + savedStateSize) << '\n'
            << "D=D-A\n"
            << "@ARG\n"
            << "M=D\n";
@@ -541,10 +549,10 @@ void n2t::CodeWriter::validateFunctionCalls() const
     for (const FunctionCallInfo& call : m_calledFunctions)
     {
         const auto func = m_definedFunctions.find(call.name);
-        VM_THROW_COND(func != m_definedFunctions.end(), "Undefined reference to function (" + call.name + ")");
+        N2T_VM_THROW_COND(func != m_definedFunctions.end(), "Undefined reference to function (" + call.name + ")");
 
-        VM_THROW_COND(call.numArguments >= func->second,
-                      "Function (" + func->first + ") requires at least " + std::to_string(func->second) +
-                          " argument(s) but called with " + std::to_string(call.numArguments) + " argument(s)");
+        N2T_VM_THROW_COND(call.numArguments >= func->second,
+                          "Function (" + func->first + ") requires at least " + std::to_string(func->second) +
+                              " argument(s) but called with " + std::to_string(call.numArguments) + " argument(s)");
     }
 }

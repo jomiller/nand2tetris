@@ -94,6 +94,7 @@ const std::string& n2t::JackUtil::toString(Keyword keyword)
     // clang-format on
 
     const auto key = keywords.find(keyword);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     assert((key != keywords.end()) && "Invalid keyword");
     return key->second;
 }
@@ -112,6 +113,7 @@ const std::string& n2t::JackUtil::toString(TokenType tokenType)
     // clang-format on
 
     const auto key = tokenTypes.find(tokenType);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     assert((key != tokenTypes.end()) && "Invalid token type");
     return key->second;
 }
@@ -129,6 +131,7 @@ const std::string& n2t::JackUtil::toString(VariableKind kind)
     // clang-format on
 
     const auto key = variableKinds.find(kind);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     assert((key != variableKinds.end()) && "Invalid variable kind");
     return key->second;
 }

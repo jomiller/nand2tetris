@@ -49,38 +49,39 @@ public:
     void define(const std::string& name, const std::string& type, VariableKind kind);
 
     // Returns the number of variables of the given kind already defined in the current scope.
-    int16_t varCount(VariableKind kind) const;
+    [[nodiscard]] int16_t varCount(VariableKind kind) const;
 
     // Returns the type of the named identifier in the current scope.
-    const std::string& typeOf(const std::string& name) const;
+    [[nodiscard]] const std::string& typeOf(const std::string& name) const;
 
     // Returns the kind of the named identifier in the current scope.
     // If the identifier is unknown in the current scope, returns None.
-    VariableKind kindOf(const std::string& name) const;
+    [[nodiscard]] VariableKind kindOf(const std::string& name) const;
 
     // Returns the index assigned to the named identifier.
-    int16_t indexOf(const std::string& name) const;
+    [[nodiscard]] int16_t indexOf(const std::string& name) const;
 
 private:
-    struct HashTableEntry
+    class HashTableEntry
     {
-        std::string  type;
-        VariableKind kind  = VariableKind::None;
-        int16_t      index = 0;
-
+    public:
         HashTableEntry() = default;
 
         HashTableEntry(std::string t, VariableKind k, int16_t i) : type(std::move(t)), kind(k), index(i)
         {
         }
+
+        std::string  type;
+        VariableKind kind  = VariableKind::None;
+        int16_t      index = 0;
     };
 
     using HashTable = std::map<std::string, HashTableEntry>;
 
-    HashTable&            getHashTable(VariableKind kind);
-    const HashTable&      getHashTable(VariableKind kind) const;
-    const HashTableEntry& getHashTableEntry(const std::string& name) const;
-    int16_t               getNextVarIndex(VariableKind kind);
+    HashTable&                          getHashTable(VariableKind kind);
+    [[nodiscard]] const HashTable&      getHashTable(VariableKind kind) const;
+    [[nodiscard]] const HashTableEntry& getHashTableEntry(const std::string& name) const;
+    int16_t                             getNextVarIndex(VariableKind kind);
 
     HashTable                                                       m_classTable;
     HashTable                                                       m_subroutineTable;

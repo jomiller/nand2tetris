@@ -46,8 +46,8 @@ n2t::CompilationEngine::CompilationEngine(const std::filesystem::path& inputFile
 
 void n2t::CompilationEngine::compileClass()
 {
-    JACK_THROW_COND(!m_vmWriter.isClosed() && (!m_xmlWriter || !m_xmlWriter->isClosed()),
-                    "Input file (" + m_inputTokenizer.filename() + ") has already been compiled");
+    N2T_JACK_THROW_COND(!m_vmWriter.isClosed() && (!m_xmlWriter || !m_xmlWriter->isClosed()),
+                        "Input file (" + m_inputTokenizer.filename() + ") has already been compiled");
 
     try
     {
@@ -55,8 +55,8 @@ void n2t::CompilationEngine::compileClass()
 
         compileKeyword(Keyword::Class);
         const std::string className = compileIdentifier("class");
-        JACK_THROW_COND(className == m_className,
-                        "Class name (" + className + ") does not match filename (" + m_className + ")");
+        N2T_JACK_THROW_COND(className == m_className,
+                            "Class name (" + className + ") does not match filename (" + m_className + ")");
 
         compileSymbol('{');
         while ((m_inputTokenizer.tokenType() == TokenType::Keyword) && isClassVarDec(m_inputTokenizer.keyword()))
@@ -69,7 +69,7 @@ void n2t::CompilationEngine::compileClass()
         }
         compileSymbol('}', false, false);
 
-        JACK_THROW_COND(!m_inputTokenizer.hasMoreTokens(), "Expected end of file");
+        N2T_JACK_THROW_COND(!m_inputTokenizer.hasMoreTokens(), "Expected end of file");
     }
     catch (const std::exception& e)
     {
@@ -131,6 +131,7 @@ n2t::VariableKind n2t::CompilationEngine::getVariableKind(Keyword variableKind)
         case Keyword::Static: return VariableKind::Static;
         case Keyword::Field:  return VariableKind::Field;
         case Keyword::Var:    return VariableKind::Local;
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
         default:              assert(!"Invalid variable kind"); return VariableKind::None;
     }
     // clang-format on
@@ -145,6 +146,7 @@ n2t::SegmentType n2t::CompilationEngine::getSegmentType(VariableKind kind)
         case VariableKind::Field:    return SegmentType::This;
         case VariableKind::Argument: return SegmentType::Argument;
         case VariableKind::Local:    return SegmentType::Local;
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
         default:                     assert(!"No memory segment associated with variable kind");
                                      return SegmentType(0);
     }
@@ -168,6 +170,7 @@ n2t::ArithmeticCommand n2t::CompilationEngine::getArithmeticCommand(char symbol,
     // clang-format on
 
     const auto cmd = commands.find(symbol);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     assert((cmd != commands.end()) && "Invalid arithmetic operator");
     if (unary && (cmd->second == ArithmeticCommand::Sub))
     {
@@ -199,8 +202,9 @@ void n2t::CompilationEngine::compileSubroutine()
     m_currentSubroutine.isVoid          = (returnTypeKeyword.second && (returnTypeKeyword.first == Keyword::Void));
     if (m_currentSubroutine.type == Keyword::Constructor)
     {
-        JACK_THROW_COND(returnType == m_className,
-                        "Constructor return type (" + returnType + ") is not of the class type (" + m_className + ")");
+        N2T_JACK_THROW_COND(
+            returnType == m_className,
+            "Constructor return type (" + returnType + ") is not of the class type (" + m_className + ")");
     }
     else if (m_currentSubroutine.type == Keyword::Method)
     {
@@ -209,8 +213,8 @@ void n2t::CompilationEngine::compileSubroutine()
     }
 
     m_currentSubroutine.name = compileIdentifier("subroutine");
-    JACK_THROW_COND(m_definedSubroutines.find(m_currentSubroutine.name) == m_definedSubroutines.end(),
-                    "Subroutine with name (" + m_currentSubroutine.name + ") already defined");
+    N2T_JACK_THROW_COND(m_definedSubroutines.find(m_currentSubroutine.name) == m_definedSubroutines.end(),
+                        "Subroutine with name (" + m_currentSubroutine.name + ") already defined");
 
     m_currentSubroutine.numParameters = 0;
     compileSymbol('(');
@@ -295,8 +299,8 @@ void n2t::CompilationEngine::compileLet()
     {
         // store the expression value to the destination variable
         const VariableKind kind = getKindOf(variableName);
-        JACK_THROW_COND(kind != VariableKind::None,
-                        "Identifier (" + variableName + ") not defined in the current scope");
+        N2T_JACK_THROW_COND(kind != VariableKind::None,
+                            "Identifier (" + variableName + ") not defined in the current scope");
 
         m_vmWriter.writePop(getSegmentType(kind), m_symbolTable.indexOf(variableName));
     }
@@ -372,15 +376,15 @@ void n2t::CompilationEngine::compileReturn()
     compileKeyword(Keyword::Return);
     if ((m_inputTokenizer.tokenType() != TokenType::Symbol) || (m_inputTokenizer.symbol() != ';'))
     {
-        JACK_THROW_COND(!m_currentSubroutine.isVoid, "Void subroutine returns a value");
+        N2T_JACK_THROW_COND(!m_currentSubroutine.isVoid, "Void subroutine returns a value");
 
         compileExpression();
     }
     else
     {
-        JACK_THROW_COND(m_currentSubroutine.type != Keyword::Constructor, "Constructor does not return 'this'");
+        N2T_JACK_THROW_COND(m_currentSubroutine.type != Keyword::Constructor, "Constructor does not return 'this'");
 
-        JACK_THROW_COND(m_currentSubroutine.isVoid, "Non-void subroutine does not return a value");
+        N2T_JACK_THROW_COND(m_currentSubroutine.isVoid, "Non-void subroutine does not return a value");
 
         // return constant 0 from void subroutine
         m_vmWriter.writePush(SegmentType::Constant, 0);
@@ -397,8 +401,8 @@ void n2t::CompilationEngine::compileExpression()
     compileTerm();
     while ((m_inputTokenizer.tokenType() == TokenType::Symbol) && isBinaryOperator(m_inputTokenizer.symbol()))
     {
-        JACK_THROW_COND(!m_inReturnStatement || (m_currentSubroutine.type != Keyword::Constructor),
-                        "Constructor does not return 'this'");
+        N2T_JACK_THROW_COND(!m_inReturnStatement || (m_currentSubroutine.type != Keyword::Constructor),
+                            "Constructor does not return 'this'");
 
         const char symbol = m_inputTokenizer.symbol();
         compileSymbol(symbol);
@@ -441,8 +445,8 @@ void n2t::CompilationEngine::compileTerm()
                 break;
 
             case Keyword::This:
-                JACK_THROW_COND(m_currentSubroutine.type != Keyword::Function,
-                                "'this' referenced from within a function");
+                N2T_JACK_THROW_COND(m_currentSubroutine.type != Keyword::Function,
+                                    "'this' referenced from within a function");
 
                 m_vmWriter.writePush(SegmentType::Pointer, 0);
                 thisKeyword = true;
@@ -462,9 +466,9 @@ void n2t::CompilationEngine::compileTerm()
         const std::string stringConst          = compileStringConstant();
         const auto        stringConstLength    = stringConst.length();
         const int16_t     maxStringConstLength = std::numeric_limits<int16_t>::max();
-        JACK_THROW_COND(stringConstLength <= static_cast<std::string::size_type>(maxStringConstLength),
-                        "Length of string constant (" + stringConst + ") exceeds the limit (" +
-                            std::to_string(maxStringConstLength) + ")");
+        N2T_JACK_THROW_COND(stringConstLength <= static_cast<std::string::size_type>(maxStringConstLength),
+                            "Length of string constant (" + stringConst + ") exceeds the limit (" +
+                                std::to_string(maxStringConstLength) + ")");
 
         m_vmWriter.writePush(SegmentType::Constant, static_cast<int16_t>(stringConstLength));
         m_vmWriter.writeCall("String.new", 1);
@@ -512,8 +516,8 @@ void n2t::CompilationEngine::compileTerm()
         else
         {
             const VariableKind kind = getKindOf(identifier);
-            JACK_THROW_COND(kind != VariableKind::None,
-                            "Identifier (" + identifier + ") not defined in the current scope");
+            N2T_JACK_THROW_COND(kind != VariableKind::None,
+                                "Identifier (" + identifier + ") not defined in the current scope");
 
             m_vmWriter.writePush(getSegmentType(kind), m_symbolTable.indexOf(identifier));
         }
@@ -523,8 +527,8 @@ void n2t::CompilationEngine::compileTerm()
         JackUtil::throwUncond("Expected expression before " + getTokenDescription());
     }
 
-    JACK_THROW_COND(!m_inReturnStatement || (m_currentSubroutine.type != Keyword::Constructor) || thisKeyword,
-                    "Constructor does not return 'this'");
+    N2T_JACK_THROW_COND(!m_inReturnStatement || (m_currentSubroutine.type != Keyword::Constructor) || thisKeyword,
+                        "Constructor does not return 'this'");
 }
 
 void n2t::CompilationEngine::compileExpressionList()
@@ -585,8 +589,8 @@ bool n2t::CompilationEngine::compileSymbol(char expected, bool optional, bool ad
 
 std::string n2t::CompilationEngine::compileIdentifier(const std::string& type)
 {
-    JACK_THROW_COND(m_inputTokenizer.tokenType() == TokenType::Identifier,
-                    "Expected " + type + " name before " + getTokenDescription());
+    N2T_JACK_THROW_COND(m_inputTokenizer.tokenType() == TokenType::Identifier,
+                        "Expected " + type + " name before " + getTokenDescription());
 
     const std::string identifier = m_inputTokenizer.identifier();
     if (m_xmlWriter)
@@ -599,8 +603,8 @@ std::string n2t::CompilationEngine::compileIdentifier(const std::string& type)
 
 int16_t n2t::CompilationEngine::compileIntegerConstant()
 {
-    JACK_THROW_COND(m_inputTokenizer.tokenType() == TokenType::IntConst,
-                    "Expected integer constant before " + getTokenDescription());
+    N2T_JACK_THROW_COND(m_inputTokenizer.tokenType() == TokenType::IntConst,
+                        "Expected integer constant before " + getTokenDescription());
 
     const int16_t intConst = m_inputTokenizer.intVal();
     if (m_xmlWriter)
@@ -613,8 +617,8 @@ int16_t n2t::CompilationEngine::compileIntegerConstant()
 
 std::string n2t::CompilationEngine::compileStringConstant()
 {
-    JACK_THROW_COND(m_inputTokenizer.tokenType() == TokenType::StringConst,
-                    "Expected string constant before " + getTokenDescription());
+    N2T_JACK_THROW_COND(m_inputTokenizer.tokenType() == TokenType::StringConst,
+                        "Expected string constant before " + getTokenDescription());
 
     const std::string stringConst = m_inputTokenizer.stringVal();
     if (m_xmlWriter)
@@ -647,8 +651,8 @@ std::string n2t::CompilationEngine::compileVarType(bool orVoid)
     {
         return compileIdentifier();
     }
-    JACK_THROW_COND((tokenType == TokenType::Keyword) && isVarType(m_inputTokenizer.keyword(), orVoid),
-                    "Expected class name or variable type before " + getTokenDescription());
+    N2T_JACK_THROW_COND((tokenType == TokenType::Keyword) && isVarType(m_inputTokenizer.keyword(), orVoid),
+                        "Expected class name or variable type before " + getTokenDescription());
 
     const Keyword keyword = m_inputTokenizer.keyword();
     compileKeyword(keyword);
@@ -698,8 +702,8 @@ void n2t::CompilationEngine::compileSubroutineBody()
 
 void n2t::CompilationEngine::compileArrayEntry(const std::string& variableName)
 {
-    JACK_THROW_COND(m_symbolTable.typeOf(variableName) == "Array",
-                    "Array entry accessed in variable (" + variableName + ") that is not of type Array");
+    N2T_JACK_THROW_COND(m_symbolTable.typeOf(variableName) == "Array",
+                        "Array entry accessed in variable (" + variableName + ") that is not of type Array");
 
     // the expression value is the index of the array entry
     compileSymbol('[');
@@ -708,7 +712,8 @@ void n2t::CompilationEngine::compileArrayEntry(const std::string& variableName)
 
     // add the index of the array entry to the array base address
     const VariableKind kind = getKindOf(variableName);
-    JACK_THROW_COND(kind != VariableKind::None, "Identifier (" + variableName + ") not defined in the current scope");
+    N2T_JACK_THROW_COND(kind != VariableKind::None,
+                        "Identifier (" + variableName + ") not defined in the current scope");
 
     m_vmWriter.writePush(getSegmentType(kind), m_symbolTable.indexOf(variableName));
     m_vmWriter.writeArithmetic(ArithmeticCommand::Add);
@@ -741,8 +746,8 @@ void n2t::CompilationEngine::compileSubroutineCall(const std::string& identifier
     {
         // a method is invoked for the current object
         subroutineCall.type = Keyword::Method;
-        JACK_THROW_COND(m_currentSubroutine.type != Keyword::Function,
-                        "Subroutine (" + subroutineName + ") called as a method from within a function");
+        N2T_JACK_THROW_COND(m_currentSubroutine.type != Keyword::Function,
+                            "Subroutine (" + subroutineName + ") called as a method from within a function");
 
         // set the first argument to be a pointer to the current object
         thisArgument = true;
@@ -785,39 +790,39 @@ void n2t::CompilationEngine::compileSubroutineCall(const std::string& identifier
 void n2t::CompilationEngine::validateSubroutineCalls() const
 {
     const auto mainSub = m_definedSubroutines.find("main");
-    JACK_THROW_COND((m_className != "Main") ||
-                        ((mainSub != m_definedSubroutines.end()) && (mainSub->second.type == Keyword::Function)),
-                    "Class does not contain a function named 'main'");
+    N2T_JACK_THROW_COND((m_className != "Main") ||
+                            ((mainSub != m_definedSubroutines.end()) && (mainSub->second.type == Keyword::Function)),
+                        "Class does not contain a function named 'main'");
 
     for (const SubroutineCallInfo& call : m_calledSubroutines)
     {
         const auto sub = m_definedSubroutines.find(call.name);
-        JACK_THROW_COND(sub != m_definedSubroutines.end(), "Undefined reference to subroutine (" + call.name + ")");
+        N2T_JACK_THROW_COND(sub != m_definedSubroutines.end(), "Undefined reference to subroutine (" + call.name + ")");
 
-        JACK_THROW_COND((sub->second.type != Keyword::Constructor) || (call.type != Keyword::Method),
-                        "Constructor (" + sub->first + ") called as a method");
+        N2T_JACK_THROW_COND((sub->second.type != Keyword::Constructor) || (call.type != Keyword::Method),
+                            "Constructor (" + sub->first + ") called as a method");
 
-        JACK_THROW_COND((sub->second.type != Keyword::Function) || (call.type != Keyword::Method),
-                        "Function (" + sub->first + ") called as a method");
+        N2T_JACK_THROW_COND((sub->second.type != Keyword::Function) || (call.type != Keyword::Method),
+                            "Function (" + sub->first + ") called as a method");
 
-        JACK_THROW_COND((sub->second.type != Keyword::Method) || (call.type != Keyword::Function),
-                        "Method (" + sub->first + ") called as a constructor/function");
+        N2T_JACK_THROW_COND((sub->second.type != Keyword::Method) || (call.type != Keyword::Function),
+                            "Method (" + sub->first + ") called as a constructor/function");
 
-        JACK_THROW_COND(sub->second.numParameters == call.numArguments,
-                        "Subroutine (" + sub->first + ") declared to accept " +
-                            std::to_string(sub->second.numParameters) + " parameter(s) but called with " +
-                            std::to_string(call.numArguments) + " argument(s)");
+        N2T_JACK_THROW_COND(sub->second.numParameters == call.numArguments,
+                            "Subroutine (" + sub->first + ") declared to accept " +
+                                std::to_string(sub->second.numParameters) + " parameter(s) but called with " +
+                                std::to_string(call.numArguments) + " argument(s)");
 
-        JACK_THROW_COND(!sub->second.isVoid || !call.expression,
-                        "Void subroutine (" + sub->first + ") used in an expression");
+        N2T_JACK_THROW_COND(!sub->second.isVoid || !call.expression,
+                            "Void subroutine (" + sub->first + ") used in an expression");
     }
 }
 
 n2t::VariableKind n2t::CompilationEngine::getKindOf(const std::string& variableName) const
 {
     const VariableKind kind = m_symbolTable.kindOf(variableName);
-    JACK_THROW_COND((kind != VariableKind::Field) || (m_currentSubroutine.type != Keyword::Function),
-                    "Field variable (" + variableName + ") referenced from within a function");
+    N2T_JACK_THROW_COND((kind != VariableKind::Field) || (m_currentSubroutine.type != Keyword::Function),
+                        "Field variable (" + variableName + ") referenced from within a function");
 
     return kind;
 }
@@ -840,6 +845,7 @@ std::string n2t::CompilationEngine::getTokenDescription() const
         case TokenType::Identifier:  token = m_inputTokenizer.identifier(); break;
         case TokenType::IntConst:    token = std::to_string(m_inputTokenizer.intVal()); break;
         case TokenType::StringConst: token = m_inputTokenizer.stringVal(); break;
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
         default:                     assert(!"Invalid token type"); break;
     }
     // clang-format on

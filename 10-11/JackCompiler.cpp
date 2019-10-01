@@ -46,6 +46,7 @@ void displayHelp(const std::filesystem::path& programPath, const po::options_des
     std::cout << options << '\n';
 }
 
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, modernize-avoid-c-arrays)
 po::variables_map parseOptions(int argc, char* argv[], const po::options_description& visibleOptions)
 {
     po::options_description hiddenOptions("Hidden Options");
@@ -109,6 +110,7 @@ int main(int argc, char* argv[])
 {
     int result = EXIT_SUCCESS;
 
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     const std::filesystem::path programPath(argv[0]);
     po::options_description     visibleOptions("Options");
 

@@ -84,12 +84,12 @@ public:
 };
 }  // namespace n2t
 
-#define JACK_THROW_COND(condition, message) \
-    if (!(condition))                       \
-    {                                       \
-        JackUtil::throwUncond(message);     \
-    }                                       \
-    else                                    \
+#define N2T_JACK_THROW_COND(condition, message) \
+    if (!(condition))                           \
+    {                                           \
+        JackUtil::throwUncond(message);         \
+    }                                           \
+    else                                        \
         (void)0
 
 #endif

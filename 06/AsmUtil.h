@@ -69,12 +69,12 @@ public:
 };
 }  // namespace n2t
 
-#define ASM_THROW_COND(condition, message) \
-    if (!(condition))                      \
-    {                                      \
-        AsmUtil::throwUncond(message);     \
-    }                                      \
-    else                                   \
+#define N2T_ASM_THROW_COND(condition, message) \
+    if (!(condition))                          \
+    {                                          \
+        AsmUtil::throwUncond(message);         \
+    }                                          \
+    else                                       \
         (void)0
 
 #endif

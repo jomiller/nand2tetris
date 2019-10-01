@@ -228,8 +228,8 @@ void n2t::JackTokenizer::advance()
 
     if (currentToken.front() == '"')
     {
-        JACK_THROW_COND(currentToken.back() == '"',
-                        "Expected closing double quotation mark in string constant (" + currentToken + ")");
+        N2T_JACK_THROW_COND(currentToken.back() == '"',
+                            "Expected closing double quotation mark in string constant (" + currentToken + ")");
 
         m_tokenType = TokenType::StringConst;
         m_stringVal = currentToken.substr(1, currentToken.length() - 2);
@@ -250,8 +250,8 @@ void n2t::JackTokenizer::advance()
     }
     else
     {
-        JACK_THROW_COND(!std::isdigit(currentToken.front(), std::locale()),
-                        "Identifier (" + currentToken + ") begins with a digit");
+        N2T_JACK_THROW_COND(!std::isdigit(currentToken.front(), std::locale()),
+                            "Identifier (" + currentToken + ") begins with a digit");
 
         m_tokenType  = TokenType::Identifier;
         m_identifier = std::move(currentToken);
@@ -265,36 +265,41 @@ n2t::TokenType n2t::JackTokenizer::tokenType() const
 
 n2t::Keyword n2t::JackTokenizer::keyword() const
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     assert(m_tokenType == TokenType::Keyword);
     return m_keyword;
 }
 
 char n2t::JackTokenizer::symbol() const
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     assert(m_tokenType == TokenType::Symbol);
     return m_symbol;
 }
 
 const std::string& n2t::JackTokenizer::identifier() const
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     assert(m_tokenType == TokenType::Identifier);
     return m_identifier;
 }
 
 int16_t n2t::JackTokenizer::intVal() const
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     assert(m_tokenType == TokenType::IntConst);
     return m_intVal;
 }
 
 const std::string& n2t::JackTokenizer::stringVal() const
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     assert(m_tokenType == TokenType::StringConst);
     return m_stringVal;
 }
 
 std::string n2t::JackTokenizer::readNextToken()
 {
-    JACK_THROW_COND(hasMoreTokens(), "Unexpected end of file reached");
+    N2T_JACK_THROW_COND(hasMoreTokens(), "Unexpected end of file reached");
     return *m_fileIter++;
 }

@@ -45,6 +45,7 @@ const std::string& n2t::VmUtil::toString(CommandType command)
     // clang-format on
 
     const auto key = commands.find(command);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     assert((key != commands.end()) && "Invalid command type");
     return key->second;
 }
