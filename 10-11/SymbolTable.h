@@ -62,9 +62,8 @@ public:
     [[nodiscard]] int16_t indexOf(const std::string& name) const;
 
 private:
-    class HashTableEntry
+    struct HashTableEntry
     {
-    public:
         HashTableEntry() = default;
 
         HashTableEntry(std::string t, VariableKind k, int16_t i) : type(std::move(t)), kind(k), index(i)

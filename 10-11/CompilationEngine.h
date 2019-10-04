@@ -53,9 +53,8 @@ public:
     void compileClass();
 
 private:
-    class SubroutineInfo
+    struct SubroutineInfo
     {
-    public:
         SubroutineInfo() = default;
 
         SubroutineInfo(Keyword t, bool v, std::string n, int16_t p) :
@@ -72,9 +71,8 @@ private:
         int16_t     numParameters = 0;
     };
 
-    class SubroutineCallInfo
+    struct SubroutineCallInfo
     {
-    public:
         SubroutineCallInfo() = default;
 
         SubroutineCallInfo(Keyword t, std::string n, int16_t a, bool e) :

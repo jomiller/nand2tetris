@@ -93,9 +93,8 @@ public:
     }
 
 private:
-    class FunctionInfo
+    struct FunctionInfo
     {
-    public:
         FunctionInfo() = default;
 
         FunctionInfo(std::string n, int16_t p) : name(std::move(n)), numParameters(p)
@@ -106,9 +105,8 @@ private:
         int16_t     numParameters = 0;
     };
 
-    class FunctionCallInfo
+    struct FunctionCallInfo
     {
-    public:
         FunctionCallInfo() = default;
 
         FunctionCallInfo(std::string n, int16_t a) : name(std::move(n)), numArguments(a)

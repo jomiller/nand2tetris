@@ -32,9 +32,8 @@
 
 namespace n2t
 {
-class CompilationOptions
+struct CompilationOptions
 {
-public:
     bool outputParseTree = false;
 };
 

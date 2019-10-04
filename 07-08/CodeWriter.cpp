@@ -75,9 +75,8 @@ void n2t::CodeWriter::writeInit()
 
 void n2t::CodeWriter::writeArithmetic(const std::string& command)
 {
-    class ArithmeticInfo
+    struct ArithmeticInfo
     {
-    public:
         ArithmeticInfo(bool u, bool l, std::string_view i) : unary(u), logic(l), inst(i)
         {
         }
@@ -147,9 +146,8 @@ void n2t::CodeWriter::writeArithmetic(const std::string& command)
 
 void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segment, int16_t index)
 {
-    class SegmentInfo
+    struct SegmentInfo
     {
-    public:
         SegmentInfo(SegmentType t, bool i, std::string_view n = {}, int16_t a = 0) :
             type(t),
             indirect(i),
