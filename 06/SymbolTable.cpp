@@ -40,8 +40,8 @@ n2t::SymbolTable::SymbolTable()
     m_table["ARG"]    = 0x0002;
     m_table["THIS"]   = 0x0003;
     m_table["THAT"]   = 0x0004;
-    m_table["SCREEN"] = 0x4000;  // NOLINT(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    m_table["KBD"]    = 0x6000;  // NOLINT(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+    m_table["SCREEN"] = 0x4000;  // NOLINT(readability-magic-numbers)
+    m_table["KBD"]    = 0x6000;  // NOLINT(readability-magic-numbers)
 }
 
 void n2t::SymbolTable::addEntry(const std::string& symbol, int16_t address)

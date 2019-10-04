@@ -56,7 +56,7 @@ n2t::CodeWriter::~CodeWriter() noexcept
 void n2t::CodeWriter::setFilename(std::string_view inputFilename)
 {
     validateFunction();
-    m_currentInputFilename = inputFilename.substr(0, inputFilename.rfind('.') + 1);
+    m_currentInputFilename = inputFilename.substr(/* __pos = */ 0, inputFilename.rfind('.') + 1);
 }
 
 void n2t::CodeWriter::writeInit()
@@ -70,7 +70,7 @@ void n2t::CodeWriter::writeInit()
     // clang-format on
 
     // start executing the translated code of Sys.init()
-    writeCall("Sys.init", 0);
+    writeCall("Sys.init", /* numArguments = */ 0);
 }
 
 void n2t::CodeWriter::writeArithmetic(const std::string& command)
@@ -90,15 +90,15 @@ void n2t::CodeWriter::writeArithmetic(const std::string& command)
     // clang-format off
     static const std::map<std::string_view, ArithmeticInfo> arithmeticInfo =
     {
-        {"add", ArithmeticInfo(false, false, "M=D+M")},
-        {"sub", ArithmeticInfo(false, false, "M=M-D")},
-        {"neg", ArithmeticInfo(true,  false, "M=-M")},
-        {"and", ArithmeticInfo(false, false, "M=D&M")},
-        {"or",  ArithmeticInfo(false, false, "M=D|M")},
-        {"not", ArithmeticInfo(true,  false, "M=!M")},
-        {"lt",  ArithmeticInfo(false, true,  "D;JLT")},
-        {"eq",  ArithmeticInfo(false, true,  "D;JEQ")},
-        {"gt",  ArithmeticInfo(false, true,  "D;JGT")}
+        {"add", ArithmeticInfo(/* u = */ false, /* l = */ false, "M=D+M")},
+        {"sub", ArithmeticInfo(/* u = */ false, /* l = */ false, "M=M-D")},
+        {"neg", ArithmeticInfo(/* u = */ true,  /* l = */ false, "M=-M")},
+        {"and", ArithmeticInfo(/* u = */ false, /* l = */ false, "M=D&M")},
+        {"or",  ArithmeticInfo(/* u = */ false, /* l = */ false, "M=D|M")},
+        {"not", ArithmeticInfo(/* u = */ true,  /* l = */ false, "M=!M")},
+        {"lt",  ArithmeticInfo(/* u = */ false, /* l = */ true,  "D;JLT")},
+        {"eq",  ArithmeticInfo(/* u = */ false, /* l = */ true,  "D;JEQ")},
+        {"gt",  ArithmeticInfo(/* u = */ false, /* l = */ true,  "D;JGT")}
     };
     // clang-format on
 
@@ -167,14 +167,14 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
     // clang-format off
     static const std::map<std::string_view, SegmentInfo> segmentInfo =
     {
-        {"constant", SegmentInfo(SegmentType::Constant, false)},
-        {"static",   SegmentInfo(SegmentType::Static,   false)},
-        {"pointer",  SegmentInfo(SegmentType::Pointer,  false, "R", 0x0003)},
-        {"temp",     SegmentInfo(SegmentType::Temp,     false, "R", 0x0005)},
-        {"argument", SegmentInfo(SegmentType::Argument, true,  "ARG")},
-        {"local",    SegmentInfo(SegmentType::Local,    true,  "LCL")},
-        {"this",     SegmentInfo(SegmentType::This,     true,  "THIS")},
-        {"that",     SegmentInfo(SegmentType::That,     true,  "THAT")}
+        {"constant", SegmentInfo(SegmentType::Constant, /* i = */ false)},
+        {"static",   SegmentInfo(SegmentType::Static,   /* i = */ false)},
+        {"pointer",  SegmentInfo(SegmentType::Pointer,  /* i = */ false,   "R",     /* a = */ 0x0003)},
+        {"temp",     SegmentInfo(SegmentType::Temp,     /* i = */ false,   "R",     /* a = */ 0x0005)},
+        {"argument", SegmentInfo(SegmentType::Argument, /* i = */ true,    "ARG")},
+        {"local",    SegmentInfo(SegmentType::Local,    /* i = */ true,    "LCL")},
+        {"this",     SegmentInfo(SegmentType::This,     /* i = */ true,    "THIS")},
+        {"that",     SegmentInfo(SegmentType::That,     /* i = */ true,    "THAT")}
     };
     // clang-format on
 

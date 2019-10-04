@@ -60,7 +60,7 @@ bool n2t::Parser::advance()
         N2T_ASM_THROW_COND(currentCommand.length() != 1, "Address or symbol not specified in addressing instruction");
 
         m_commandType = CommandType::A;
-        m_symbol      = currentCommand.substr(1);  // @Xxx
+        m_symbol      = currentCommand.substr(/* __pos = */ 1);  // @Xxx
     }
     else if (currentCommand.front() == '(')
     {
@@ -70,7 +70,7 @@ bool n2t::Parser::advance()
         N2T_ASM_THROW_COND(currentCommand.length() != 2, "Symbol not specified in label command");
 
         m_commandType = CommandType::L;
-        m_symbol      = currentCommand.substr(1, currentCommand.length() - 2);  // (Xxx)
+        m_symbol      = currentCommand.substr(/* __pos = */ 1, currentCommand.length() - 2);  // (Xxx)
     }
     else
     {
@@ -82,7 +82,7 @@ bool n2t::Parser::advance()
         m_dest.clear();
         if (equalsignPos != std::string::npos)
         {
-            m_dest = currentCommand.substr(0, equalsignPos);
+            m_dest = currentCommand.substr(/* __pos = */ 0, equalsignPos);
         }
 
         m_jump.clear();

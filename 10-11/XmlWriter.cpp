@@ -82,7 +82,7 @@ void n2t::XmlWriter::writeKeyword(Keyword keyword)
 
 void n2t::XmlWriter::writeSymbol(char symbol)
 {
-    std::string_view xmlSymbol(&symbol, 1);
+    std::string_view xmlSymbol(&symbol, /* __len = */ 1);
 
     // clang-format off
     switch (symbol)

@@ -67,7 +67,7 @@ void n2t::CompilationEngine::compileClass()
         {
             compileSubroutine();
         }
-        compileSymbol('}', false, false);
+        compileSymbol('}', /* optional = */ false, /* advance = */ false);
 
         N2T_JACK_THROW_COND(!m_inputTokenizer.hasMoreTokens(), "Expected end of file");
     }
@@ -197,7 +197,7 @@ void n2t::CompilationEngine::compileSubroutine()
     m_currentSubroutine.type = m_inputTokenizer.keyword();
     compileKeyword(m_currentSubroutine.type);
 
-    const std::string returnType        = compileVarType(true);
+    const std::string returnType        = compileVarType(/* orVoid = */ true);
     const auto        returnTypeKeyword = JackUtil::toKeyword(returnType);
     m_currentSubroutine.isVoid          = (returnTypeKeyword.second && (returnTypeKeyword.first == Keyword::Void));
     if (m_currentSubroutine.type == Keyword::Constructor)
@@ -233,7 +233,7 @@ void n2t::CompilationEngine::compileParameterList()
     if ((m_inputTokenizer.tokenType() != TokenType::Symbol) || (m_inputTokenizer.symbol() != ')'))
     {
         compileParameter();
-        while (compileSymbol(',', true))
+        while (compileSymbol(',', /* optional = */ true))
         {
             compileParameter();
         }
@@ -286,14 +286,14 @@ void n2t::CompilationEngine::compileLet()
     if (arrayEntry)
     {
         // store the expression value to the 'temp' memory segment
-        m_vmWriter.writePop(SegmentType::Temp, 0);
+        m_vmWriter.writePop(SegmentType::Temp, /* index = */ 0);
 
         // store a pointer to the destination array entry into the 'that' memory segment
-        m_vmWriter.writePop(SegmentType::Pointer, 1);
+        m_vmWriter.writePop(SegmentType::Pointer, /* index = */ 1);
 
         // store the expression value to the destination array entry
-        m_vmWriter.writePush(SegmentType::Temp, 0);
-        m_vmWriter.writePop(SegmentType::That, 0);
+        m_vmWriter.writePush(SegmentType::Temp, /* index = */ 0);
+        m_vmWriter.writePop(SegmentType::That, /* index = */ 0);
     }
     else
     {
@@ -315,7 +315,7 @@ void n2t::CompilationEngine::compileDo()
     compileSymbol(';');
 
     // discard the return value
-    m_vmWriter.writePop(SegmentType::Temp, 0);
+    m_vmWriter.writePop(SegmentType::Temp, /* index = */ 0);
 }
 
 void n2t::CompilationEngine::compileIf()
@@ -334,7 +334,7 @@ void n2t::CompilationEngine::compileIf()
     compileStatements();
     compileSymbol('}');
 
-    if (compileKeyword(Keyword::Else, true))
+    if (compileKeyword(Keyword::Else, /* optional = */ true))
     {
         const std::string elseLabel = endLabel;
         endLabel                    = "IF" + std::to_string(getNextLabelId());
@@ -387,7 +387,7 @@ void n2t::CompilationEngine::compileReturn()
         N2T_JACK_THROW_COND(m_currentSubroutine.isVoid, "Non-void subroutine does not return a value");
 
         // return constant 0 from void subroutine
-        m_vmWriter.writePush(SegmentType::Constant, 0);
+        m_vmWriter.writePush(SegmentType::Constant, /* index = */ 0);
     }
     compileSymbol(';');
     m_inReturnStatement = false;
@@ -409,15 +409,15 @@ void n2t::CompilationEngine::compileExpression()
         compileTerm();
         if (symbol == '*')
         {
-            m_vmWriter.writeCall("Math.multiply", 2);
+            m_vmWriter.writeCall("Math.multiply", /* numArguments = */ 2);
         }
         else if (symbol == '/')
         {
-            m_vmWriter.writeCall("Math.divide", 2);
+            m_vmWriter.writeCall("Math.divide", /* numArguments = */ 2);
         }
         else
         {
-            m_vmWriter.writeArithmetic(getArithmeticCommand(symbol, false));
+            m_vmWriter.writeArithmetic(getArithmeticCommand(symbol, /* unary = */ false));
         }
     }
 }
@@ -435,20 +435,20 @@ void n2t::CompilationEngine::compileTerm()
         switch (keyword)
         {
             case Keyword::True:
-                m_vmWriter.writePush(SegmentType::Constant, 0);
+                m_vmWriter.writePush(SegmentType::Constant, /* index = */ 0);
                 m_vmWriter.writeArithmetic(ArithmeticCommand::Not);
                 break;
 
             case Keyword::False:
             case Keyword::Null:
-                m_vmWriter.writePush(SegmentType::Constant, 0);
+                m_vmWriter.writePush(SegmentType::Constant, /* index = */ 0);
                 break;
 
             case Keyword::This:
                 N2T_JACK_THROW_COND(m_currentSubroutine.type != Keyword::Function,
                                     "'this' referenced from within a function");
 
-                m_vmWriter.writePush(SegmentType::Pointer, 0);
+                m_vmWriter.writePush(SegmentType::Pointer, /* index = */ 0);
                 thisKeyword = true;
                 break;
 
@@ -471,17 +471,17 @@ void n2t::CompilationEngine::compileTerm()
                                 std::to_string(maxStringConstLength) + ")");
 
         m_vmWriter.writePush(SegmentType::Constant, static_cast<int16_t>(stringConstLength));
-        m_vmWriter.writeCall("String.new", 1);
+        m_vmWriter.writeCall("String.new", /* numArguments = */ 1);
         for (auto c : stringConst)
         {
             m_vmWriter.writePush(SegmentType::Constant, c);
-            m_vmWriter.writeCall("String.appendChar", 2);
+            m_vmWriter.writeCall("String.appendChar", /* numArguments = */ 2);
         }
     }
     else if ((tokenType == TokenType::Symbol) &&
              ((m_inputTokenizer.symbol() == '(') || isUnaryOperator(m_inputTokenizer.symbol())))
     {
-        if (compileSymbol('(', true))
+        if (compileSymbol('(', /* optional = */ true))
         {
             compileExpression();
             compileSymbol(')');
@@ -492,7 +492,7 @@ void n2t::CompilationEngine::compileTerm()
             const char symbol = m_inputTokenizer.symbol();
             compileSymbol(symbol);
             compileTerm();
-            m_vmWriter.writeArithmetic(getArithmeticCommand(symbol, true));
+            m_vmWriter.writeArithmetic(getArithmeticCommand(symbol, /* unary = */ true));
         }
     }
     else if (tokenType == TokenType::Identifier)
@@ -505,8 +505,8 @@ void n2t::CompilationEngine::compileTerm()
             if (m_inputTokenizer.symbol() == '[')
             {
                 compileArrayEntry(identifier);
-                m_vmWriter.writePop(SegmentType::Pointer, 1);
-                m_vmWriter.writePush(SegmentType::That, 0);
+                m_vmWriter.writePop(SegmentType::Pointer, /* index = */ 1);
+                m_vmWriter.writePush(SegmentType::That, /* index = */ 0);
             }
             else
             {
@@ -539,7 +539,7 @@ void n2t::CompilationEngine::compileExpressionList()
     {
         compileExpression();
         ++m_argumentCounts.top();
-        while (compileSymbol(',', true))
+        while (compileSymbol(',', /* optional = */ true))
         {
             compileExpression();
             ++m_argumentCounts.top();
@@ -636,7 +636,7 @@ void n2t::CompilationEngine::compileVarDecImpl(Keyword variableKind)
     const std::string  type = compileVarType();
     const std::string  name = compileIdentifier("variable");
     m_symbolTable.define(name, type, kind);
-    while (compileSymbol(',', true))
+    while (compileSymbol(',', /* optional = */ true))
     {
         const std::string nextName = compileIdentifier("variable");
         m_symbolTable.define(nextName, type, kind);
@@ -684,16 +684,16 @@ void n2t::CompilationEngine::compileSubroutineBody()
         // allocate at least one word so that objects of field-less classes will still have valid addresses
         const int16_t numFields = std::max(m_symbolTable.varCount(VariableKind::Field), int16_t{1});
         m_vmWriter.writePush(SegmentType::Constant, numFields);
-        m_vmWriter.writeCall("Memory.alloc", 1);
+        m_vmWriter.writeCall("Memory.alloc", /* numArguments = */ 1);
 
         // store a pointer to the new object into the 'this' memory segment
-        m_vmWriter.writePop(SegmentType::Pointer, 0);
+        m_vmWriter.writePop(SegmentType::Pointer, /* index = */ 0);
     }
     else if (m_currentSubroutine.type == Keyword::Method)
     {
         // store a pointer to the object for which the method is invoked into the 'this' memory segment
-        m_vmWriter.writePush(SegmentType::Argument, 0);
-        m_vmWriter.writePop(SegmentType::Pointer, 0);
+        m_vmWriter.writePush(SegmentType::Argument, /* index = */ 0);
+        m_vmWriter.writePop(SegmentType::Pointer, /* index = */ 0);
     }
 
     compileStatements();
@@ -733,7 +733,7 @@ void n2t::CompilationEngine::compileSubroutineCall(const std::string& identifier
     }
 
     std::string classObjectName;
-    if (compileSymbol('.', true))
+    if (compileSymbol('.', /* optional = */ true))
     {
         // either a method is invoked for a non-current object or a constructor/function is invoked
         classObjectName = subroutineName;
@@ -751,7 +751,7 @@ void n2t::CompilationEngine::compileSubroutineCall(const std::string& identifier
 
         // set the first argument to be a pointer to the current object
         thisArgument = true;
-        m_vmWriter.writePush(SegmentType::Pointer, 0);
+        m_vmWriter.writePush(SegmentType::Pointer, /* index = */ 0);
         classObjectName = m_className;
     }
     else

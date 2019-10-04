@@ -174,7 +174,7 @@ void n2t::AssemblyEngine::generateCode()
                     }
                 }
 
-                // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+                // NOLINTNEXTLINE(readability-magic-numbers)
                 outputFile << "0" << std::bitset<15>(targetAddress) << '\n';
             }
             else if (commandType == CommandType::C)
@@ -185,7 +185,7 @@ void n2t::AssemblyEngine::generateCode()
 
                 const uint16_t instruction = (uint16_t(0b111) << 13) | (compCode << 6) | (destCode << 3) | jumpCode;
 
-                // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+                // NOLINTNEXTLINE(readability-magic-numbers)
                 outputFile << std::bitset<16>(instruction) << '\n';
             }
         }

@@ -232,7 +232,7 @@ void n2t::JackTokenizer::advance()
                             "Expected closing double quotation mark in string constant (" + currentToken + ")");
 
         m_tokenType = TokenType::StringConst;
-        m_stringVal = currentToken.substr(1, currentToken.length() - 2);
+        m_stringVal = currentToken.substr(/* __pos = */ 1, currentToken.length() - 2);
         return;
     }
 

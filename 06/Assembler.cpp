@@ -41,7 +41,7 @@ void displayHelp(const std::filesystem::path& programPath, const po::options_des
     std::cout << options << '\n';
 }
 
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, modernize-avoid-c-arrays)
+// NOLINTNEXTLINE(modernize-avoid-c-arrays)
 po::variables_map parseOptions(int argc, char* argv[], const po::options_description& visibleOptions)
 {
     po::options_description hiddenOptions("Hidden Options");
@@ -54,7 +54,7 @@ po::variables_map parseOptions(int argc, char* argv[], const po::options_descrip
     cmdlineOptions.add(visibleOptions).add(hiddenOptions);
 
     po::positional_options_description positionalOptions;
-    positionalOptions.add("input-file", 1);
+    positionalOptions.add("input-file", /* max_count = */ 1);
 
     po::variables_map optionsMap;
 
