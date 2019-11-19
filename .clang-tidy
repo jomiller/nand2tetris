@@ -267,9 +267,11 @@ CheckOptions:
     value:           's_'
   - key:             readability-identifier-naming.ClassMemberPrefix
     value:           's_'
-  - key:             readability-identifier-naming.PrivateMemberPrefix
+  - key:             readability-identifier-naming.ConstantMemberPrefix
     value:           'm_'
   - key:             readability-identifier-naming.ProtectedMemberPrefix
+    value:           'm_'
+  - key:             readability-identifier-naming.PrivateMemberPrefix
     value:           'm_'
   - key:             readability-identifier-naming.IgnoreFailedSplit
     value:           '0'
