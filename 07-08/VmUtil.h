@@ -45,6 +45,7 @@ public:
                                          std::string_view filename   = {},
                                          unsigned int     lineNumber = 0)
     {
+        static_assert(std::is_base_of_v<std::exception, Exception>);
         std::string msg;
         if (!filename.empty())
         {
