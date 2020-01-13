@@ -82,7 +82,7 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" M
         add_compile_options (-fno-omit-frame-pointer)
     endif ()
 
-    add_compile_options (-Wall -Wextra -Werror -pedantic)
+    add_compile_options (-Wall -Wextra -Wpedantic -Werror)
 
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
