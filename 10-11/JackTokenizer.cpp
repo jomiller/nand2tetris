@@ -24,13 +24,13 @@
 
 #include "JackTokenizer.h"
 
+#include "JackAssert.h"
 #include "JackUtil.h"
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <algorithm>
-#include <cassert>
 #include <locale>
 #include <map>
 #include <set>
@@ -265,36 +265,31 @@ n2t::TokenType n2t::JackTokenizer::tokenType() const
 
 n2t::Keyword n2t::JackTokenizer::keyword() const
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-    assert(m_tokenType == TokenType::Keyword);
+    N2T_JACK_ASSERT(m_tokenType == TokenType::Keyword);
     return m_keyword;
 }
 
 char n2t::JackTokenizer::symbol() const
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-    assert(m_tokenType == TokenType::Symbol);
+    N2T_JACK_ASSERT(m_tokenType == TokenType::Symbol);
     return m_symbol;
 }
 
 const std::string& n2t::JackTokenizer::identifier() const
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-    assert(m_tokenType == TokenType::Identifier);
+    N2T_JACK_ASSERT(m_tokenType == TokenType::Identifier);
     return m_identifier;
 }
 
 int16_t n2t::JackTokenizer::intVal() const
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-    assert(m_tokenType == TokenType::IntConst);
+    N2T_JACK_ASSERT(m_tokenType == TokenType::IntConst);
     return m_intVal;
 }
 
 const std::string& n2t::JackTokenizer::stringVal() const
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-    assert(m_tokenType == TokenType::StringConst);
+    N2T_JACK_ASSERT(m_tokenType == TokenType::StringConst);
     return m_stringVal;
 }
 

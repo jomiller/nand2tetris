@@ -24,10 +24,10 @@
 
 #include "CodeWriter.h"
 
+#include "VmAssert.h"
 #include "VmUtil.h"
 
 #include <array>
-#include <cassert>
 #include <locale>
 
 n2t::CodeWriter::CodeWriter(std::filesystem::path filename) :
@@ -315,8 +315,7 @@ void n2t::CodeWriter::writeIf(const std::string& label)
 
 void n2t::CodeWriter::writeFunction(const std::string& functionName, int16_t numLocals)
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-    assert((numLocals >= 0) && "Number of function local variables is negative");
+    N2T_VM_ASSERT((numLocals >= 0) && "Number of function local variables is negative");
 
     validateFunction();
 
@@ -414,8 +413,7 @@ void n2t::CodeWriter::writeReturn()
 
 void n2t::CodeWriter::writeCall(const std::string& functionName, int16_t numArguments)
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-    assert((numArguments >= 0) && "Number of function arguments is negative");
+    N2T_VM_ASSERT((numArguments >= 0) && "Number of function arguments is negative");
 
     m_calledFunctions.emplace(functionName, numArguments);
     const std::string label = makeLabel("RETURN" + std::to_string(getNextLabelId()));

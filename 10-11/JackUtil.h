@@ -46,7 +46,7 @@ public:
     static const std::string&       toString(VariableKind kind);
 
     template<typename Enum>
-    static constexpr std::underlying_type_t<Enum> toUnderType(Enum enumerator) noexcept
+    static constexpr std::underlying_type_t<Enum> toUnderlyingType(Enum enumerator) noexcept
     {
         return static_cast<std::underlying_type_t<Enum>>(enumerator);
     }

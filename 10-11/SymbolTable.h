@@ -82,9 +82,9 @@ private:
     [[nodiscard]] const HashTableEntry& getHashTableEntry(const std::string& name) const;
     int16_t                             getNextVarIndex(VariableKind kind);
 
-    HashTable                                                       m_classTable;
-    HashTable                                                       m_subroutineTable;
-    std::array<int16_t, JackUtil::toUnderType(VariableKind::Count)> m_nextVarIndices;
+    HashTable                                                            m_classTable;
+    HashTable                                                            m_subroutineTable;
+    std::array<int16_t, JackUtil::toUnderlyingType(VariableKind::Count)> m_nextVarIndices;
 };
 }  // namespace n2t
 

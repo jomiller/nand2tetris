@@ -24,8 +24,9 @@
 
 #include "SymbolTable.h"
 
+#include "JackAssert.h"
+
 #include <algorithm>
-#include <cassert>
 #include <limits>
 
 n2t::SymbolTable::SymbolTable() : m_nextVarIndices()
@@ -35,8 +36,8 @@ n2t::SymbolTable::SymbolTable() : m_nextVarIndices()
 void n2t::SymbolTable::startSubroutine()
 {
     m_subroutineTable.clear();
-    m_nextVarIndices[JackUtil::toUnderType(VariableKind::Argument)] = 0;
-    m_nextVarIndices[JackUtil::toUnderType(VariableKind::Local)]    = 0;
+    m_nextVarIndices[JackUtil::toUnderlyingType(VariableKind::Argument)] = 0;
+    m_nextVarIndices[JackUtil::toUnderlyingType(VariableKind::Local)]    = 0;
 }
 
 void n2t::SymbolTable::define(const std::string& name, const std::string& type, VariableKind kind)
@@ -123,13 +124,11 @@ const n2t::SymbolTable::HashTableEntry& n2t::SymbolTable::getHashTableEntry(cons
 
 int16_t n2t::SymbolTable::getNextVarIndex(VariableKind kind)
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-    assert(kind < VariableKind::Count);
+    N2T_JACK_ASSERT(kind < VariableKind::Count);
 
     const int16_t maxVarIndex = std::numeric_limits<int16_t>::max() - 1;
 
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-    int16_t* nextVarIndex = &m_nextVarIndices[JackUtil::toUnderType(kind)];
+    int16_t* nextVarIndex = &m_nextVarIndices.at(JackUtil::toUnderlyingType(kind));
 
     N2T_JACK_THROW_COND(*nextVarIndex < maxVarIndex,
                         "Variable count for kind (" + JackUtil::toString(kind) + ") exceeds the limit (" +

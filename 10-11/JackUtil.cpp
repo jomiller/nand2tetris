@@ -24,7 +24,8 @@
 
 #include "JackUtil.h"
 
-#include <cassert>
+#include "JackAssert.h"
+
 #include <map>
 
 std::pair<n2t::Keyword, bool> n2t::JackUtil::toKeyword(const std::string& keyword)
@@ -94,8 +95,7 @@ const std::string& n2t::JackUtil::toString(Keyword keyword)
     // clang-format on
 
     const auto key = keywords.find(keyword);
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-    assert((key != keywords.end()) && "Invalid keyword");
+    N2T_JACK_ASSERT((key != keywords.end()) && "Invalid keyword");
     return key->second;
 }
 
@@ -113,8 +113,7 @@ const std::string& n2t::JackUtil::toString(TokenType tokenType)
     // clang-format on
 
     const auto key = tokenTypes.find(tokenType);
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-    assert((key != tokenTypes.end()) && "Invalid token type");
+    N2T_JACK_ASSERT((key != tokenTypes.end()) && "Invalid token type");
     return key->second;
 }
 
@@ -131,7 +130,6 @@ const std::string& n2t::JackUtil::toString(VariableKind kind)
     // clang-format on
 
     const auto key = variableKinds.find(kind);
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-    assert((key != variableKinds.end()) && "Invalid variable kind");
+    N2T_JACK_ASSERT((key != variableKinds.end()) && "Invalid variable kind");
     return key->second;
 }

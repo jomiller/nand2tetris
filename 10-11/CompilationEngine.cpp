@@ -24,9 +24,9 @@
 
 #include "CompilationEngine.h"
 
+#include "JackAssert.h"
 #include "JackUtil.h"
 
-#include <cassert>
 #include <limits>
 #include <map>
 
@@ -131,8 +131,7 @@ n2t::VariableKind n2t::CompilationEngine::getVariableKind(Keyword variableKind)
         case Keyword::Static: return VariableKind::Static;
         case Keyword::Field:  return VariableKind::Field;
         case Keyword::Var:    return VariableKind::Local;
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-        default:              assert(!"Invalid variable kind"); return VariableKind::None;
+        default:              N2T_JACK_ASSERT(!"Invalid variable kind"); return VariableKind::None;
     }
     // clang-format on
 }
@@ -146,8 +145,7 @@ n2t::SegmentType n2t::CompilationEngine::getSegmentType(VariableKind kind)
         case VariableKind::Field:    return SegmentType::This;
         case VariableKind::Argument: return SegmentType::Argument;
         case VariableKind::Local:    return SegmentType::Local;
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-        default:                     assert(!"No memory segment associated with variable kind");
+        default:                     N2T_JACK_ASSERT(!"No memory segment associated with variable kind");
                                      return SegmentType(0);
     }
     // clang-format on
@@ -170,8 +168,7 @@ n2t::ArithmeticCommand n2t::CompilationEngine::getArithmeticCommand(char symbol,
     // clang-format on
 
     const auto cmd = commands.find(symbol);
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-    assert((cmd != commands.end()) && "Invalid arithmetic operator");
+    N2T_JACK_ASSERT((cmd != commands.end()) && "Invalid arithmetic operator");
     if (unary && (cmd->second == ArithmeticCommand::Sub))
     {
         return ArithmeticCommand::Neg;
@@ -845,8 +842,7 @@ std::string n2t::CompilationEngine::getTokenDescription() const
         case TokenType::Identifier:  token = m_inputTokenizer.identifier(); break;
         case TokenType::IntConst:    token = std::to_string(m_inputTokenizer.intVal()); break;
         case TokenType::StringConst: token = m_inputTokenizer.stringVal(); break;
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-        default:                     assert(!"Invalid token type"); break;
+        default:                     N2T_JACK_ASSERT(!"Invalid token type"); break;
     }
     // clang-format on
 
