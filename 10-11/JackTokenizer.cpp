@@ -199,7 +199,7 @@ bool n2t::JackTokenizer::hasMoreTokens() const
 
 void n2t::JackTokenizer::advance()
 {
-    std::string currentToken = readNextToken();
+    auto currentToken = readNextToken();
 
     const auto key = JackUtil::toKeyword(currentToken);
     if (key.second)
@@ -250,7 +250,7 @@ void n2t::JackTokenizer::advance()
     }
     else
     {
-        N2T_JACK_THROW_COND(!std::isdigit(currentToken.front(), std::locale()),
+        N2T_JACK_THROW_COND(!std::isdigit(currentToken.front(), std::locale{}),
                             "Identifier (" + currentToken + ") begins with a digit");
 
         m_tokenType  = TokenType::Identifier;

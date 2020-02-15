@@ -82,7 +82,7 @@ void n2t::AssemblyEngine::buildSymbolTable()
 
         while (symbolParser.advance())
         {
-            const CommandType commandType = symbolParser.commandType();
+            const auto commandType = symbolParser.commandType();
             if ((commandType == CommandType::A) || (commandType == CommandType::C))
             {
                 N2T_ASM_THROW_COND(nextRomAddress < maxRomAddress,
@@ -91,8 +91,8 @@ void n2t::AssemblyEngine::buildSymbolTable()
             }
             else if (commandType == CommandType::L)
             {
-                const std::string& symbol = symbolParser.symbol();
-                N2T_ASM_THROW_COND(!std::isdigit(symbol.front(), std::locale()),
+                const auto& symbol = symbolParser.symbol();
+                N2T_ASM_THROW_COND(!std::isdigit(symbol.front(), std::locale{}),
                                    "Symbol (" + symbol + ") begins with a digit in label command");
 
                 // associate the symbol with the ROM address that will store the next command in the program
@@ -123,14 +123,14 @@ void n2t::AssemblyEngine::generateCode()
 
         while (codeParser.advance())
         {
-            const CommandType commandType = codeParser.commandType();
+            const auto commandType = codeParser.commandType();
             if (commandType == CommandType::A)
             {
-                const std::string& symbol = codeParser.symbol();
-                const bool         digits = std::all_of(symbol.begin() + 1, symbol.end(), boost::algorithm::is_digit());
-                int16_t            targetAddress = 0;
+                const auto& symbol        = codeParser.symbol();
+                const auto  digits        = std::all_of(symbol.begin() + 1, symbol.end(), boost::algorithm::is_digit());
+                int16_t     targetAddress = 0;
 
-                if (std::isdigit(symbol.front(), std::locale()))
+                if (std::isdigit(symbol.front(), std::locale{}))
                 {
                     if (digits)
                     {
@@ -179,11 +179,12 @@ void n2t::AssemblyEngine::generateCode()
             }
             else if (commandType == CommandType::C)
             {
-                const uint16_t compCode = Code::comp(codeParser.comp());  // 7 bits
-                const uint16_t destCode = Code::dest(codeParser.dest());  // 3 bits
-                const uint16_t jumpCode = Code::jump(codeParser.jump());  // 3 bits
+                const auto compCode = Code::comp(codeParser.comp());  // 7 bits
+                const auto destCode = Code::dest(codeParser.dest());  // 3 bits
+                const auto jumpCode = Code::jump(codeParser.jump());  // 3 bits
 
-                const uint16_t instruction = (uint16_t{0b111} << 13) | (compCode << 6) | (destCode << 3) | jumpCode;
+                const auto instruction =
+                    static_cast<uint16_t>((uint16_t{0b111} << 13) | (compCode << 6) | (destCode << 3) | jumpCode);
 
                 // NOLINTNEXTLINE(readability-magic-numbers)
                 outputFile << std::bitset<16>(instruction) << '\n';

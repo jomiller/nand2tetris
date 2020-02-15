@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
             ("output-file,o", po::value<std::filesystem::path>(&outputFilename), "Output file");
         // clang-format on
 
-        po::variables_map optionsMap = parseOptions(argc, argv, visibleOptions);
+        auto optionsMap = parseOptions(argc, argv, visibleOptions);
 
         if (optionsMap.count("help") != 0)
         {

@@ -40,7 +40,7 @@ namespace po = boost::program_options;
 
 void displayHelp(const std::filesystem::path& programPath, const po::options_description& options)
 {
-    const std::string programName = programPath.filename().string();
+    const auto programName = programPath.filename().string();
     std::cout << "Usage: " << programName << " [options] <filename>.jack\n";
     std::cout << "       " << programName << " [options] <directory>\n\n";
     std::cout << options << '\n';
@@ -76,7 +76,7 @@ n2t::PathList findInputFiles(const std::filesystem::path& inputPath)
     {
         for (const auto& entry : std::filesystem::directory_iterator(inputPath))
         {
-            const std::filesystem::path& path = entry.path();
+            const auto& path = entry.path();
             if (std::filesystem::is_regular_file(path) && (path.extension() == ".jack"))
             {
                 inputFilenames.push_back(path);
@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
          */
 
         const int maxThreads      = std::max<int>(std::thread::hardware_concurrency(), 1);
-        int       numJobs         = maxThreads;
+        auto      numJobs         = maxThreads;
         bool      outputParseTree = false;
 
         // clang-format off
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
             ("parse-tree,t", po::bool_switch(&outputParseTree), "Output parse tree in XML format");
         // clang-format on
 
-        po::variables_map optionsMap = parseOptions(argc, argv, visibleOptions);
+        auto optionsMap = parseOptions(argc, argv, visibleOptions);
 
         if (optionsMap.count("help") != 0)
         {
@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
             throw std::invalid_argument{"Input path (" + inputPath.string() + ") does not exist"};
         }
 
-        const n2t::PathList inputFilenames = findInputFiles(inputPath);
+        const auto inputFilenames = findInputFiles(inputPath);
 
         /*
          * Execute compilation tasks

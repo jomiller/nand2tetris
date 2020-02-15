@@ -48,8 +48,8 @@ void n2t::TranslationEngine::translate()
 
     for (const auto& path : m_inputFilenames)
     {
-        const std::string inputFilename = path.filename().string();
-        Parser            parser{path.string()};
+        const auto inputFilename = path.filename().string();
+        Parser     parser{path.string()};
 
         try
         {

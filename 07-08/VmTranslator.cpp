@@ -39,7 +39,7 @@ namespace po = boost::program_options;
 
 void displayHelp(const std::filesystem::path& programPath, const po::options_description& options)
 {
-    const std::string programName = programPath.filename().string();
+    const auto programName = programPath.filename().string();
     std::cout << "Usage: " << programName << " <filename>.vm\n";
     std::cout << "       " << programName << " <directory>\n\n";
     std::cout << options << '\n';
@@ -77,7 +77,7 @@ n2t::PathList findInputFiles(const std::filesystem::path& inputPath,
     {
         for (const auto& entry : std::filesystem::directory_iterator(inputPath))
         {
-            const std::filesystem::path& path = entry.path();
+            const auto& path = entry.path();
             if (std::filesystem::is_regular_file(path) && (path.extension() == ".vm"))
             {
                 inputFilenames.push_back(path);
@@ -91,7 +91,7 @@ n2t::PathList findInputFiles(const std::filesystem::path& inputPath,
 
         if (outputFilename.empty())
         {
-            const std::filesystem::path inputPathAbsolute = std::filesystem::absolute(inputPath);
+            const auto inputPathAbsolute = std::filesystem::absolute(inputPath);
             if (inputPathAbsolute.stem().empty() || (inputPathAbsolute.stem() == "."))
             {
                 // path contains a trailing slash
@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
             ("output-file,o", po::value<std::filesystem::path>(&outputFilename), "Output file");
         // clang-format on
 
-        po::variables_map optionsMap = parseOptions(argc, argv, visibleOptions);
+        auto optionsMap = parseOptions(argc, argv, visibleOptions);
 
         if (optionsMap.count("help") != 0)
         {
@@ -170,10 +170,10 @@ int main(int argc, char* argv[])
             throw std::invalid_argument{"Input path (" + inputPath.string() + ") does not exist"};
         }
 
-        const bool isInputDirectory = std::filesystem::is_directory(inputPath);
+        const auto isInputDirectory = std::filesystem::is_directory(inputPath);
         const auto writeInit        = static_cast<n2t::TranslationEngine::WriteInit>(isInputDirectory);
 
-        n2t::PathList inputFilenames = findInputFiles(inputPath, isInputDirectory, outputFilename);
+        auto inputFilenames = findInputFiles(inputPath, isInputDirectory, outputFilename);
 
         /*
          * Translate input files

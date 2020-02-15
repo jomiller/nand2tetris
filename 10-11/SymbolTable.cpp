@@ -42,7 +42,7 @@ void n2t::SymbolTable::startSubroutine()
 
 void n2t::SymbolTable::define(const std::string& name, const std::string& type, VariableKind kind)
 {
-    HashTable&     table = getHashTable(kind);
+    auto&          table = getHashTable(kind);
     HashTableEntry entry{type, kind, getNextVarIndex(kind)};
     N2T_JACK_THROW_COND(table.emplace(name, std::move(entry)).second,
                         "Identifier with name (" + name + ") already defined in the current scope");
@@ -50,7 +50,7 @@ void n2t::SymbolTable::define(const std::string& name, const std::string& type, 
 
 int16_t n2t::SymbolTable::varCount(VariableKind kind) const
 {
-    const HashTable& table = getHashTable(kind);
+    const auto& table = getHashTable(kind);
 
     // clang-format off
     const auto count = std::count_if(table.begin(),
@@ -66,7 +66,7 @@ int16_t n2t::SymbolTable::varCount(VariableKind kind) const
 
 const std::string& n2t::SymbolTable::typeOf(const std::string& name) const
 {
-    const HashTableEntry& entry = getHashTableEntry(name);
+    const auto& entry = getHashTableEntry(name);
     N2T_JACK_THROW_COND(entry.kind != VariableKind::None, "Identifier (" + name + ") not defined in the current scope");
 
     return entry.type;
@@ -74,13 +74,13 @@ const std::string& n2t::SymbolTable::typeOf(const std::string& name) const
 
 n2t::VariableKind n2t::SymbolTable::kindOf(const std::string& name) const
 {
-    const HashTableEntry& entry = getHashTableEntry(name);
+    const auto& entry = getHashTableEntry(name);
     return entry.kind;
 }
 
 int16_t n2t::SymbolTable::indexOf(const std::string& name) const
 {
-    const HashTableEntry& entry = getHashTableEntry(name);
+    const auto& entry = getHashTableEntry(name);
     N2T_JACK_THROW_COND(entry.kind != VariableKind::None, "Identifier (" + name + ") not defined in the current scope");
 
     return entry.index;
@@ -128,7 +128,7 @@ int16_t n2t::SymbolTable::getNextVarIndex(VariableKind kind)
 
     const int16_t maxVarIndex = std::numeric_limits<int16_t>::max() - 1;
 
-    int16_t* nextVarIndex = &m_nextVarIndices.at(JackUtil::toUnderlyingType(kind));
+    auto* nextVarIndex = &m_nextVarIndices.at(JackUtil::toUnderlyingType(kind));
 
     N2T_JACK_THROW_COND(*nextVarIndex < maxVarIndex,
                         "Variable count for kind (" + JackUtil::toString(kind) + ") exceeds the limit (" +

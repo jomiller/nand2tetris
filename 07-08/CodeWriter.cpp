@@ -89,22 +89,22 @@ void n2t::CodeWriter::writeArithmetic(const std::string& command)
     // clang-format off
     static const std::map<std::string_view, ArithmeticInfo> arithmeticInfo =
     {
-        {"add", ArithmeticInfo(/* u = */ false, /* l = */ false, "M=D+M")},
-        {"sub", ArithmeticInfo(/* u = */ false, /* l = */ false, "M=M-D")},
-        {"neg", ArithmeticInfo(/* u = */ true,  /* l = */ false, "M=-M")},
-        {"and", ArithmeticInfo(/* u = */ false, /* l = */ false, "M=D&M")},
-        {"or",  ArithmeticInfo(/* u = */ false, /* l = */ false, "M=D|M")},
-        {"not", ArithmeticInfo(/* u = */ true,  /* l = */ false, "M=!M")},
-        {"lt",  ArithmeticInfo(/* u = */ false, /* l = */ true,  "D;JLT")},
-        {"eq",  ArithmeticInfo(/* u = */ false, /* l = */ true,  "D;JEQ")},
-        {"gt",  ArithmeticInfo(/* u = */ false, /* l = */ true,  "D;JGT")}
+        {"add", ArithmeticInfo{/* u = */ false, /* l = */ false, "M=D+M"}},
+        {"sub", ArithmeticInfo{/* u = */ false, /* l = */ false, "M=M-D"}},
+        {"neg", ArithmeticInfo{/* u = */ true,  /* l = */ false, "M=-M"}},
+        {"and", ArithmeticInfo{/* u = */ false, /* l = */ false, "M=D&M"}},
+        {"or",  ArithmeticInfo{/* u = */ false, /* l = */ false, "M=D|M"}},
+        {"not", ArithmeticInfo{/* u = */ true,  /* l = */ false, "M=!M"}},
+        {"lt",  ArithmeticInfo{/* u = */ false, /* l = */ true,  "D;JLT"}},
+        {"eq",  ArithmeticInfo{/* u = */ false, /* l = */ true,  "D;JEQ"}},
+        {"gt",  ArithmeticInfo{/* u = */ false, /* l = */ true,  "D;JGT"}}
     };
     // clang-format on
 
     const auto iter = arithmeticInfo.find(command);
     N2T_VM_THROW_COND(iter != arithmeticInfo.end(), "Invalid arithmetic command type (" + command + ")");
 
-    const ArithmeticInfo& info = iter->second;
+    const auto& info = iter->second;
     if (info.unary)
     {
         // clang-format off
@@ -124,7 +124,7 @@ void n2t::CodeWriter::writeArithmetic(const std::string& command)
 
         if (info.logic)
         {
-            const std::string label = makeLabel("LOGIC" + std::to_string(getNextLabelId()));
+            const auto label = makeLabel("LOGIC" + std::to_string(getNextLabelId()));
 
             // clang-format off
             m_file << "D=M-D\n"
@@ -165,22 +165,22 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
     // clang-format off
     static const std::map<std::string_view, SegmentInfo> segmentInfo =
     {
-        {"constant", SegmentInfo(SegmentType::Constant, /* i = */ false)},
-        {"static",   SegmentInfo(SegmentType::Static,   /* i = */ false)},
-        {"pointer",  SegmentInfo(SegmentType::Pointer,  /* i = */ false,   "R",     /* a = */ 0x0003)},
-        {"temp",     SegmentInfo(SegmentType::Temp,     /* i = */ false,   "R",     /* a = */ 0x0005)},
-        {"argument", SegmentInfo(SegmentType::Argument, /* i = */ true,    "ARG")},
-        {"local",    SegmentInfo(SegmentType::Local,    /* i = */ true,    "LCL")},
-        {"this",     SegmentInfo(SegmentType::This,     /* i = */ true,    "THIS")},
-        {"that",     SegmentInfo(SegmentType::That,     /* i = */ true,    "THAT")}
+        {"constant", SegmentInfo{SegmentType::Constant, /* i = */ false}},
+        {"static",   SegmentInfo{SegmentType::Static,   /* i = */ false}},
+        {"pointer",  SegmentInfo{SegmentType::Pointer,  /* i = */ false,   "R",     /* a = */ 0x0003}},
+        {"temp",     SegmentInfo{SegmentType::Temp,     /* i = */ false,   "R",     /* a = */ 0x0005}},
+        {"argument", SegmentInfo{SegmentType::Argument, /* i = */ true,    "ARG"}},
+        {"local",    SegmentInfo{SegmentType::Local,    /* i = */ true,    "LCL"}},
+        {"this",     SegmentInfo{SegmentType::This,     /* i = */ true,    "THIS"}},
+        {"that",     SegmentInfo{SegmentType::That,     /* i = */ true,    "THAT"}}
     };
     // clang-format on
 
     const auto iter = segmentInfo.find(segment);
     N2T_VM_THROW_COND(iter != segmentInfo.end(), "Invalid memory segment (" + segment + ")");
 
-    const SegmentInfo& info = iter->second;
-    std::string        symbol{info.name};
+    const auto& info = iter->second;
+    std::string symbol{info.name};
     switch (info.type)
     {
         case SegmentType::Constant:
@@ -319,7 +319,7 @@ void n2t::CodeWriter::writeFunction(const std::string& functionName, int16_t num
 
     validateFunction();
 
-    N2T_VM_THROW_COND(!std::isdigit(functionName.front(), std::locale()),
+    N2T_VM_THROW_COND(!std::isdigit(functionName.front(), std::locale{}),
                       "Function name (" + functionName + ") begins with a digit");
 
     N2T_VM_THROW_COND(m_definedFunctions.find(functionName) == m_definedFunctions.end(),
@@ -416,7 +416,7 @@ void n2t::CodeWriter::writeCall(const std::string& functionName, int16_t numArgu
     N2T_VM_ASSERT((numArguments >= 0) && "Number of function arguments is negative");
 
     m_calledFunctions.emplace(functionName, numArguments);
-    const std::string label = makeLabel("RETURN" + std::to_string(getNextLabelId()));
+    const auto label = makeLabel("RETURN" + std::to_string(getNextLabelId()));
 
     // push the return address onto the stack
     // clang-format off

@@ -54,7 +54,7 @@ void n2t::CompilationEngine::compileClass()
         XmlWriter::Element element{m_xmlWriter.get(), "class"};
 
         compileKeyword(Keyword::Class);
-        const std::string className = compileIdentifier("class");
+        const auto className = compileIdentifier("class");
         N2T_JACK_THROW_COND(className == m_className,
                             "Class name (" + className + ") does not match filename (" + m_className + ")");
 
@@ -194,9 +194,9 @@ void n2t::CompilationEngine::compileSubroutine()
     m_currentSubroutine.type = m_inputTokenizer.keyword();
     compileKeyword(m_currentSubroutine.type);
 
-    const std::string returnType        = compileVarType(/* orVoid = */ true);
-    const auto        returnTypeKeyword = JackUtil::toKeyword(returnType);
-    m_currentSubroutine.isVoid          = (returnTypeKeyword.second && (returnTypeKeyword.first == Keyword::Void));
+    const auto returnType        = compileVarType(/* orVoid = */ true);
+    const auto returnTypeKeyword = JackUtil::toKeyword(returnType);
+    m_currentSubroutine.isVoid   = (returnTypeKeyword.second && (returnTypeKeyword.first == Keyword::Void));
     if (m_currentSubroutine.type == Keyword::Constructor)
     {
         N2T_JACK_THROW_COND(
@@ -269,8 +269,8 @@ void n2t::CompilationEngine::compileLet()
     XmlWriter::Element element{m_xmlWriter.get(), "letStatement"};
 
     compileKeyword(Keyword::Let);
-    const std::string variableName = compileIdentifier("variable");
-    bool              arrayEntry   = false;
+    const auto variableName = compileIdentifier("variable");
+    bool       arrayEntry   = false;
     if ((m_inputTokenizer.tokenType() == TokenType::Symbol) && (m_inputTokenizer.symbol() == '['))
     {
         arrayEntry = true;
@@ -333,8 +333,8 @@ void n2t::CompilationEngine::compileIf()
 
     if (compileKeyword(Keyword::Else, /* optional = */ true))
     {
-        const std::string elseLabel = endLabel;
-        endLabel                    = "IF" + std::to_string(getNextLabelId());
+        const auto elseLabel = endLabel;
+        endLabel             = "IF" + std::to_string(getNextLabelId());
         m_vmWriter.writeGoto(endLabel);
         m_vmWriter.writeLabel(elseLabel);
         compileSymbol('{');
@@ -401,7 +401,7 @@ void n2t::CompilationEngine::compileExpression()
         N2T_JACK_THROW_COND(!m_inReturnStatement || (m_currentSubroutine.type != Keyword::Constructor),
                             "Constructor does not return 'this'");
 
-        const char symbol = m_inputTokenizer.symbol();
+        const auto symbol = m_inputTokenizer.symbol();
         compileSymbol(symbol);
         compileTerm();
         if (symbol == '*')
@@ -423,11 +423,11 @@ void n2t::CompilationEngine::compileTerm()
 {
     XmlWriter::Element element{m_xmlWriter.get(), "term"};
 
-    bool            thisKeyword = false;
-    const TokenType tokenType   = m_inputTokenizer.tokenType();
+    bool       thisKeyword = false;
+    const auto tokenType   = m_inputTokenizer.tokenType();
     if ((tokenType == TokenType::Keyword) && isKeywordConstant(m_inputTokenizer.keyword()))
     {
-        const Keyword keyword = m_inputTokenizer.keyword();
+        const auto keyword = m_inputTokenizer.keyword();
         compileKeyword(keyword);
         switch (keyword)
         {
@@ -455,14 +455,14 @@ void n2t::CompilationEngine::compileTerm()
     }
     else if (tokenType == TokenType::IntConst)
     {
-        const int16_t intConst = compileIntegerConstant();
+        const auto intConst = compileIntegerConstant();
         m_vmWriter.writePush(SegmentType::Constant, intConst);
     }
     else if (tokenType == TokenType::StringConst)
     {
-        const std::string stringConst          = compileStringConstant();
-        const auto        stringConstLength    = stringConst.length();
-        const int16_t     maxStringConstLength = std::numeric_limits<int16_t>::max();
+        const auto    stringConst          = compileStringConstant();
+        const auto    stringConstLength    = stringConst.length();
+        const int16_t maxStringConstLength = std::numeric_limits<int16_t>::max();
         N2T_JACK_THROW_COND(stringConstLength <= static_cast<std::string::size_type>(maxStringConstLength),
                             "Length of string constant (" + stringConst + ") exceeds the limit (" +
                                 std::to_string(maxStringConstLength) + ")");
@@ -486,7 +486,7 @@ void n2t::CompilationEngine::compileTerm()
         }
         else  // unary arithmetic operator
         {
-            const char symbol = m_inputTokenizer.symbol();
+            const auto symbol = m_inputTokenizer.symbol();
             compileSymbol(symbol);
             compileTerm();
             m_vmWriter.writeArithmetic(getArithmeticCommand(symbol, /* unary = */ true));
@@ -494,7 +494,7 @@ void n2t::CompilationEngine::compileTerm()
     }
     else if (tokenType == TokenType::Identifier)
     {
-        const std::string identifier = compileIdentifier();
+        const auto identifier = compileIdentifier();
         if ((m_inputTokenizer.tokenType() == TokenType::Symbol) &&
             ((m_inputTokenizer.symbol() == '[') || (m_inputTokenizer.symbol() == '(') ||
              (m_inputTokenizer.symbol() == '.')))
@@ -512,7 +512,7 @@ void n2t::CompilationEngine::compileTerm()
         }
         else
         {
-            const VariableKind kind = getKindOf(identifier);
+            const auto kind = getKindOf(identifier);
             N2T_JACK_THROW_COND(kind != VariableKind::None,
                                 "Identifier (" + identifier + ") not defined in the current scope");
 
@@ -589,7 +589,7 @@ std::string n2t::CompilationEngine::compileIdentifier(const std::string& type)
     N2T_JACK_THROW_COND(m_inputTokenizer.tokenType() == TokenType::Identifier,
                         "Expected " + type + " name before " + getTokenDescription());
 
-    const std::string identifier = m_inputTokenizer.identifier();
+    const auto identifier = m_inputTokenizer.identifier();
     if (m_xmlWriter)
     {
         m_xmlWriter->writeIdentifier(identifier);
@@ -603,7 +603,7 @@ int16_t n2t::CompilationEngine::compileIntegerConstant()
     N2T_JACK_THROW_COND(m_inputTokenizer.tokenType() == TokenType::IntConst,
                         "Expected integer constant before " + getTokenDescription());
 
-    const int16_t intConst = m_inputTokenizer.intVal();
+    const auto intConst = m_inputTokenizer.intVal();
     if (m_xmlWriter)
     {
         m_xmlWriter->writeIntegerConstant(intConst);
@@ -617,7 +617,7 @@ std::string n2t::CompilationEngine::compileStringConstant()
     N2T_JACK_THROW_COND(m_inputTokenizer.tokenType() == TokenType::StringConst,
                         "Expected string constant before " + getTokenDescription());
 
-    const std::string stringConst = m_inputTokenizer.stringVal();
+    const auto stringConst = m_inputTokenizer.stringVal();
     if (m_xmlWriter)
     {
         m_xmlWriter->writeStringConstant(stringConst);
@@ -629,9 +629,9 @@ std::string n2t::CompilationEngine::compileStringConstant()
 void n2t::CompilationEngine::compileVarDecImpl(Keyword variableKind)
 {
     compileKeyword(variableKind);
-    const VariableKind kind = getVariableKind(variableKind);
-    const std::string  type = compileVarType();
-    const std::string  name = compileIdentifier("variable");
+    const auto kind = getVariableKind(variableKind);
+    const auto type = compileVarType();
+    const auto name = compileIdentifier("variable");
     m_symbolTable.define(name, type, kind);
     while (compileSymbol(',', /* optional = */ true))
     {
@@ -643,7 +643,7 @@ void n2t::CompilationEngine::compileVarDecImpl(Keyword variableKind)
 
 std::string n2t::CompilationEngine::compileVarType(bool orVoid)
 {
-    const TokenType tokenType = m_inputTokenizer.tokenType();
+    const auto tokenType = m_inputTokenizer.tokenType();
     if (tokenType == TokenType::Identifier)
     {
         return compileIdentifier();
@@ -651,15 +651,15 @@ std::string n2t::CompilationEngine::compileVarType(bool orVoid)
     N2T_JACK_THROW_COND((tokenType == TokenType::Keyword) && isVarType(m_inputTokenizer.keyword(), orVoid),
                         "Expected class name or variable type before " + getTokenDescription());
 
-    const Keyword keyword = m_inputTokenizer.keyword();
+    const auto keyword = m_inputTokenizer.keyword();
     compileKeyword(keyword);
     return JackUtil::toString(keyword);
 }
 
 void n2t::CompilationEngine::compileParameter()
 {
-    const std::string type = compileVarType();
-    const std::string name = compileIdentifier("variable");
+    const auto type = compileVarType();
+    const auto name = compileIdentifier("variable");
     m_symbolTable.define(name, type, VariableKind::Argument);
     ++m_currentSubroutine.numParameters;
 }
@@ -708,7 +708,7 @@ void n2t::CompilationEngine::compileArrayEntry(const std::string& variableName)
     compileSymbol(']');
 
     // add the index of the array entry to the array base address
-    const VariableKind kind = getKindOf(variableName);
+    const auto kind = getKindOf(variableName);
     N2T_JACK_THROW_COND(kind != VariableKind::None,
                         "Identifier (" + variableName + ") not defined in the current scope");
 
@@ -719,7 +719,7 @@ void n2t::CompilationEngine::compileArrayEntry(const std::string& variableName)
 void n2t::CompilationEngine::compileSubroutineCall(const std::string& identifier)
 {
     SubroutineCallInfo subroutineCall;
-    std::string        subroutineName = identifier;
+    auto               subroutineName = identifier;
     if (subroutineName.empty())
     {
         subroutineName = compileIdentifier("subroutine, class or object");
@@ -753,7 +753,7 @@ void n2t::CompilationEngine::compileSubroutineCall(const std::string& identifier
     }
     else
     {
-        const VariableKind objectKind = getKindOf(classObjectName);
+        const auto objectKind = getKindOf(classObjectName);
         if (objectKind != VariableKind::None)
         {
             // a method is invoked for a non-current object
@@ -770,8 +770,8 @@ void n2t::CompilationEngine::compileSubroutineCall(const std::string& identifier
     compileSymbol('(');
     compileExpressionList();
     compileSymbol(')');
-    const int16_t currentArgumentCount = m_argumentCounts.top();
-    subroutineCall.numArguments        = currentArgumentCount;
+    const auto currentArgumentCount = m_argumentCounts.top();
+    subroutineCall.numArguments     = currentArgumentCount;
 
     // the number of arguments is determined from the number of expressions in the expression list
     m_vmWriter.writeCall(classObjectName + "." + subroutineName,
@@ -817,7 +817,7 @@ void n2t::CompilationEngine::validateSubroutineCalls() const
 
 n2t::VariableKind n2t::CompilationEngine::getKindOf(const std::string& variableName) const
 {
-    const VariableKind kind = m_symbolTable.kindOf(variableName);
+    const auto kind = m_symbolTable.kindOf(variableName);
     N2T_JACK_THROW_COND((kind != VariableKind::Field) || (m_currentSubroutine.type != Keyword::Function),
                         "Field variable (" + variableName + ") referenced from within a function");
 
@@ -831,8 +831,8 @@ unsigned int n2t::CompilationEngine::getNextLabelId()
 
 std::string n2t::CompilationEngine::getTokenDescription() const
 {
-    const TokenType tokenType = m_inputTokenizer.tokenType();
-    std::string     token;
+    const auto  tokenType = m_inputTokenizer.tokenType();
+    std::string token;
 
     // clang-format off
     switch (tokenType)

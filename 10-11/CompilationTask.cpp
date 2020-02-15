@@ -92,7 +92,7 @@ void n2t::CompilationTask::compileFileRange(PathList::const_iterator firstFilena
 
 void n2t::CompilationTask::compileFile(const std::filesystem::path& inputFilename, CompilationOptions options)
 {
-    std::filesystem::path vmOutputFilename = inputFilename;
+    auto vmOutputFilename = inputFilename;
     vmOutputFilename.replace_extension(".vm");
     std::filesystem::path xmlOutputFilename;
     if (options.outputParseTree)
