@@ -32,8 +32,8 @@
 #include <utility>
 
 n2t::VmWriter::VmWriter(std::filesystem::path filename) :
-    m_filename(std::move(filename)),
-    m_file(m_filename.string().data())
+    m_filename{std::move(filename)},
+    m_file{m_filename.string().data()}
 {
     JackUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open output file (" + m_filename.string() + ")");
 }

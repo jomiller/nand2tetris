@@ -33,8 +33,8 @@
 n2t::TranslationEngine::TranslationEngine(PathList              inputFilenames,
                                           std::filesystem::path outputFilename,
                                           WriteInit             writeInit) :
-    m_inputFilenames(std::move(inputFilenames)),
-    m_codeWriter(std::move(outputFilename))
+    m_inputFilenames{std::move(inputFilenames)},
+    m_codeWriter{std::move(outputFilename)}
 {
     if (writeInit == WriteInit::True)
     {
@@ -49,7 +49,7 @@ void n2t::TranslationEngine::translate()
     for (const auto& path : m_inputFilenames)
     {
         const std::string inputFilename = path.filename().string();
-        Parser            parser(path.string());
+        Parser            parser{path.string()};
 
         try
         {
@@ -97,9 +97,9 @@ void n2t::TranslationEngine::translate()
                 }
             }
         }
-        catch (const std::exception& e)
+        catch (const std::exception& ex)
         {
-            VmUtil::throwUncond(e.what(), inputFilename, parser.lineNumber());
+            VmUtil::throwUncond(ex.what(), inputFilename, parser.lineNumber());
         }
     }
 

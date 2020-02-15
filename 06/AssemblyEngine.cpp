@@ -40,8 +40,8 @@
 #include <utility>
 
 n2t::AssemblyEngine::AssemblyEngine(std::filesystem::path inputFilename, std::filesystem::path outputFilename) :
-    m_inputFilename(std::move(inputFilename)),
-    m_outputFilename(std::move(outputFilename))
+    m_inputFilename{std::move(inputFilename)},
+    m_outputFilename{std::move(outputFilename)}
 {
 }
 
@@ -70,7 +70,7 @@ void n2t::AssemblyEngine::assemble()
 
 void n2t::AssemblyEngine::buildSymbolTable()
 {
-    Parser symbolParser(m_inputFilename.string());
+    Parser symbolParser{m_inputFilename.string()};
 
     try
     {
@@ -100,17 +100,17 @@ void n2t::AssemblyEngine::buildSymbolTable()
             }
         }
     }
-    catch (const std::exception& e)
+    catch (const std::exception& ex)
     {
-        AsmUtil::throwUncond(e.what(), m_inputFilename.filename().string(), symbolParser.lineNumber());
+        AsmUtil::throwUncond(ex.what(), m_inputFilename.filename().string(), symbolParser.lineNumber());
     }
 }
 
 void n2t::AssemblyEngine::generateCode()
 {
-    Parser codeParser(m_inputFilename.string());
+    Parser codeParser{m_inputFilename.string()};
 
-    std::ofstream outputFile(m_outputFilename.string().data());
+    std::ofstream outputFile{m_outputFilename.string().data()};
     AsmUtil::throwCond<std::runtime_error>(outputFile.good(),
                                            "Could not open output file (" + m_outputFilename.string() + ")");
 
@@ -183,15 +183,15 @@ void n2t::AssemblyEngine::generateCode()
                 const uint16_t destCode = Code::dest(codeParser.dest());  // 3 bits
                 const uint16_t jumpCode = Code::jump(codeParser.jump());  // 3 bits
 
-                const uint16_t instruction = (uint16_t(0b111) << 13) | (compCode << 6) | (destCode << 3) | jumpCode;
+                const uint16_t instruction = (uint16_t{0b111} << 13) | (compCode << 6) | (destCode << 3) | jumpCode;
 
                 // NOLINTNEXTLINE(readability-magic-numbers)
                 outputFile << std::bitset<16>(instruction) << '\n';
             }
         }
     }
-    catch (const std::exception& e)
+    catch (const std::exception& ex)
     {
-        AsmUtil::throwUncond(e.what(), m_inputFilename.filename().string(), codeParser.lineNumber());
+        AsmUtil::throwUncond(ex.what(), m_inputFilename.filename().string(), codeParser.lineNumber());
     }
 }

@@ -37,7 +37,7 @@
 #include <string_view>
 #include <utility>
 
-n2t::JackTokenizer::TokenizerFunction::TokenizerFunction(unsigned int* lineNumber) : m_lineNumber(lineNumber)
+n2t::JackTokenizer::TokenizerFunction::TokenizerFunction(unsigned int* lineNumber) : m_lineNumber{lineNumber}
 {
 }
 
@@ -174,14 +174,14 @@ bool n2t::JackTokenizer::TokenizerFunction::operator()(std::istreambuf_iterator<
 
 bool n2t::JackTokenizer::TokenizerFunction::isDelimiter(char c)
 {
-    static const std::string_view delimiters("{}()[].,;+-*/&|~<=>\"");
+    static const std::string_view delimiters{"{}()[].,;+-*/&|~<=>\""};
 
     return (delimiters.find(c) != std::string_view::npos);
 }
 
 n2t::JackTokenizer::JackTokenizer(const std::filesystem::path& filename) :
-    m_filename(filename.filename().string()),
-    m_file(filename.string().data())
+    m_filename{filename.filename().string()},
+    m_file{filename.string().data()}
 {
     JackUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open input file (" + filename.string() + ")");
 

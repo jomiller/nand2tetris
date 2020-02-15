@@ -33,9 +33,9 @@
 n2t::CompilationEngine::CompilationEngine(const std::filesystem::path& inputFilename,
                                           std::filesystem::path        vmOutputFilename,
                                           const std::filesystem::path& xmlOutputFilename) :
-    m_inputTokenizer(inputFilename),
-    m_vmWriter(std::move(vmOutputFilename)),
-    m_className(inputFilename.stem().string())
+    m_inputTokenizer{inputFilename},
+    m_vmWriter{std::move(vmOutputFilename)},
+    m_className{inputFilename.stem().string()}
 {
     if (!xmlOutputFilename.empty())
     {
@@ -51,7 +51,7 @@ void n2t::CompilationEngine::compileClass()
 
     try
     {
-        XmlWriter::Element element(m_xmlWriter.get(), "class");
+        XmlWriter::Element element{m_xmlWriter.get(), "class"};
 
         compileKeyword(Keyword::Class);
         const std::string className = compileIdentifier("class");
@@ -71,9 +71,9 @@ void n2t::CompilationEngine::compileClass()
 
         N2T_JACK_THROW_COND(!m_inputTokenizer.hasMoreTokens(), "Expected end of file");
     }
-    catch (const std::exception& e)
+    catch (const std::exception& ex)
     {
-        JackUtil::throwUncond(e.what(), m_inputTokenizer.filename(), m_inputTokenizer.lineNumber());
+        JackUtil::throwUncond(ex.what(), m_inputTokenizer.filename(), m_inputTokenizer.lineNumber());
     }
 
     validateSubroutineCalls();
@@ -178,14 +178,14 @@ n2t::ArithmeticCommand n2t::CompilationEngine::getArithmeticCommand(char symbol,
 
 void n2t::CompilationEngine::compileClassVarDec()
 {
-    XmlWriter::Element element(m_xmlWriter.get(), "classVarDec");
+    XmlWriter::Element element{m_xmlWriter.get(), "classVarDec"};
 
     compileVarDecImpl(m_inputTokenizer.keyword());
 }
 
 void n2t::CompilationEngine::compileSubroutine()
 {
-    XmlWriter::Element element(m_xmlWriter.get(), "subroutineDec");
+    XmlWriter::Element element{m_xmlWriter.get(), "subroutineDec"};
 
     m_symbolTable.startSubroutine();
     m_nextLabelId = 0;
@@ -225,7 +225,7 @@ void n2t::CompilationEngine::compileSubroutine()
 
 void n2t::CompilationEngine::compileParameterList()
 {
-    XmlWriter::Element element(m_xmlWriter.get(), "parameterList");
+    XmlWriter::Element element{m_xmlWriter.get(), "parameterList"};
 
     if ((m_inputTokenizer.tokenType() != TokenType::Symbol) || (m_inputTokenizer.symbol() != ')'))
     {
@@ -239,14 +239,14 @@ void n2t::CompilationEngine::compileParameterList()
 
 void n2t::CompilationEngine::compileVarDec()
 {
-    XmlWriter::Element element(m_xmlWriter.get(), "varDec");
+    XmlWriter::Element element{m_xmlWriter.get(), "varDec"};
 
     compileVarDecImpl(m_inputTokenizer.keyword());
 }
 
 void n2t::CompilationEngine::compileStatements()
 {
-    XmlWriter::Element element(m_xmlWriter.get(), "statements");
+    XmlWriter::Element element{m_xmlWriter.get(), "statements"};
 
     while ((m_inputTokenizer.tokenType() == TokenType::Keyword) && isStatement(m_inputTokenizer.keyword()))
     {
@@ -266,7 +266,7 @@ void n2t::CompilationEngine::compileStatements()
 
 void n2t::CompilationEngine::compileLet()
 {
-    XmlWriter::Element element(m_xmlWriter.get(), "letStatement");
+    XmlWriter::Element element{m_xmlWriter.get(), "letStatement"};
 
     compileKeyword(Keyword::Let);
     const std::string variableName = compileIdentifier("variable");
@@ -305,7 +305,7 @@ void n2t::CompilationEngine::compileLet()
 
 void n2t::CompilationEngine::compileDo()
 {
-    XmlWriter::Element element(m_xmlWriter.get(), "doStatement");
+    XmlWriter::Element element{m_xmlWriter.get(), "doStatement"};
 
     compileKeyword(Keyword::Do);
     compileSubroutineCall();
@@ -317,7 +317,7 @@ void n2t::CompilationEngine::compileDo()
 
 void n2t::CompilationEngine::compileIf()
 {
-    XmlWriter::Element element(m_xmlWriter.get(), "ifStatement");
+    XmlWriter::Element element{m_xmlWriter.get(), "ifStatement"};
 
     compileKeyword(Keyword::If);
     compileSymbol('(');
@@ -346,7 +346,7 @@ void n2t::CompilationEngine::compileIf()
 
 void n2t::CompilationEngine::compileWhile()
 {
-    XmlWriter::Element element(m_xmlWriter.get(), "whileStatement");
+    XmlWriter::Element element{m_xmlWriter.get(), "whileStatement"};
 
     const std::string beginLabel = "WHILE" + std::to_string(getNextLabelId());
     m_vmWriter.writeLabel(beginLabel);
@@ -367,7 +367,7 @@ void n2t::CompilationEngine::compileWhile()
 
 void n2t::CompilationEngine::compileReturn()
 {
-    XmlWriter::Element element(m_xmlWriter.get(), "returnStatement");
+    XmlWriter::Element element{m_xmlWriter.get(), "returnStatement"};
 
     m_inReturnStatement = true;
     compileKeyword(Keyword::Return);
@@ -393,7 +393,7 @@ void n2t::CompilationEngine::compileReturn()
 
 void n2t::CompilationEngine::compileExpression()
 {
-    XmlWriter::Element element(m_xmlWriter.get(), "expression");
+    XmlWriter::Element element{m_xmlWriter.get(), "expression"};
 
     compileTerm();
     while ((m_inputTokenizer.tokenType() == TokenType::Symbol) && isBinaryOperator(m_inputTokenizer.symbol()))
@@ -421,7 +421,7 @@ void n2t::CompilationEngine::compileExpression()
 
 void n2t::CompilationEngine::compileTerm()
 {
-    XmlWriter::Element element(m_xmlWriter.get(), "term");
+    XmlWriter::Element element{m_xmlWriter.get(), "term"};
 
     bool            thisKeyword = false;
     const TokenType tokenType   = m_inputTokenizer.tokenType();
@@ -530,7 +530,7 @@ void n2t::CompilationEngine::compileTerm()
 
 void n2t::CompilationEngine::compileExpressionList()
 {
-    XmlWriter::Element element(m_xmlWriter.get(), "expressionList");
+    XmlWriter::Element element{m_xmlWriter.get(), "expressionList"};
 
     if ((m_inputTokenizer.tokenType() != TokenType::Symbol) || (m_inputTokenizer.symbol() != ')'))
     {
@@ -666,7 +666,7 @@ void n2t::CompilationEngine::compileParameter()
 
 void n2t::CompilationEngine::compileSubroutineBody()
 {
-    XmlWriter::Element element(m_xmlWriter.get(), "subroutineBody");
+    XmlWriter::Element element{m_xmlWriter.get(), "subroutineBody"};
 
     compileSymbol('{');
     while ((m_inputTokenizer.tokenType() == TokenType::Keyword) && (m_inputTokenizer.keyword() == Keyword::Var))

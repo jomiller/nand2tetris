@@ -34,7 +34,7 @@
 #include <string_view>
 #include <vector>
 
-n2t::Parser::Parser(const std::string& filename) : m_file(filename.data())
+n2t::Parser::Parser(const std::string& filename) : m_file{filename.data()}
 {
     VmUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open input file (" + filename + ")");
 }

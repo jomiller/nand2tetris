@@ -31,8 +31,8 @@
 #include <locale>
 
 n2t::CodeWriter::CodeWriter(std::filesystem::path filename) :
-    m_outputFilename(std::move(filename)),
-    m_file(m_outputFilename.string().data())
+    m_outputFilename{std::move(filename)},
+    m_file{m_outputFilename.string().data()}
 {
     VmUtil::throwCond<std::runtime_error>(m_file.good(),
                                           "Could not open output file (" + m_outputFilename.string() + ")");
@@ -77,7 +77,7 @@ void n2t::CodeWriter::writeArithmetic(const std::string& command)
 {
     struct ArithmeticInfo
     {
-        ArithmeticInfo(bool u, bool l, std::string_view i) : unary(u), logic(l), inst(i)
+        ArithmeticInfo(bool u, bool l, std::string_view i) : unary{u}, logic{l}, inst{i}
         {
         }
 
@@ -149,10 +149,10 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
     struct SegmentInfo
     {
         SegmentInfo(SegmentType t, bool i, std::string_view n = {}, int16_t a = 0) :
-            type(t),
-            indirect(i),
-            name(n),
-            address(a)
+            type{t},
+            indirect{i},
+            name{n},
+            address{a}
         {
         }
 
@@ -180,7 +180,7 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
     N2T_VM_THROW_COND(iter != segmentInfo.end(), "Invalid memory segment (" + segment + ")");
 
     const SegmentInfo& info = iter->second;
-    std::string        symbol(info.name);
+    std::string        symbol{info.name};
     switch (info.type)
     {
         case SegmentType::Constant:
@@ -275,7 +275,7 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
 
 void n2t::CodeWriter::writeLabel(const std::string& label)
 {
-    N2T_VM_THROW_COND(!std::isdigit(label.front(), std::locale()), "Label (" + label + ") begins with a digit");
+    N2T_VM_THROW_COND(!std::isdigit(label.front(), std::locale{}), "Label (" + label + ") begins with a digit");
 
     if (!m_labels.insert(label).second)
     {
@@ -383,7 +383,7 @@ void n2t::CodeWriter::writeReturn()
 
     // restore the 'local', 'argument', 'this' and 'that' memory segments of the calling function
     // clang-format off
-    static const std::array<const char*, 4> segments =
+    static const auto segments = std::array
     {
         "LCL",
         "ARG",
@@ -428,7 +428,7 @@ void n2t::CodeWriter::writeCall(const std::string& functionName, int16_t numArgu
 
     // save the 'local', 'argument', 'this' and 'that' memory segments of the calling function
     // clang-format off
-    static const std::array<const char*, 4> segments =
+    static const auto segments = std::array
     {
         "LCL",
         "ARG",

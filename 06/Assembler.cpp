@@ -43,7 +43,7 @@ void displayHelp(const std::filesystem::path& programPath, const po::options_des
 
 po::variables_map parseOptions(int argc, const char* const* argv, const po::options_description& visibleOptions)
 {
-    po::options_description hiddenOptions("Hidden Options");
+    po::options_description hiddenOptions{"Hidden Options"};
     // clang-format off
     hiddenOptions.add_options()
         ("input-file", po::value<std::string>()->required(), "Input file");
@@ -57,7 +57,7 @@ po::variables_map parseOptions(int argc, const char* const* argv, const po::opti
 
     po::variables_map optionsMap;
 
-    po::store(po::command_line_parser(argc, argv).options(cmdlineOptions).positional(positionalOptions).run(),
+    po::store(po::command_line_parser{argc, argv}.options(cmdlineOptions).positional(positionalOptions).run(),
               optionsMap);
 
     return optionsMap;
@@ -68,8 +68,8 @@ int main(int argc, char* argv[])
 {
     int result = EXIT_FAILURE;
 
-    const std::filesystem::path programPath(*argv);
-    po::options_description     visibleOptions("Options");
+    const std::filesystem::path programPath{*argv};
+    po::options_description     visibleOptions{"Options"};
 
     try
     {
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 
         po::variables_map optionsMap = parseOptions(argc, argv, visibleOptions);
 
-        if (optionsMap.count("help") > 0)
+        if (optionsMap.count("help") != 0)
         {
             displayHelp(programPath, visibleOptions);
             return EXIT_SUCCESS;
@@ -99,14 +99,14 @@ int main(int argc, char* argv[])
          * Get and validate input and output filenames
          */
 
-        std::filesystem::path inputFilename(optionsMap["input-file"].as<std::string>());
+        std::filesystem::path inputFilename{optionsMap["input-file"].as<std::string>()};
         if (!std::filesystem::exists(inputFilename))
         {
-            throw std::invalid_argument("Input file (" + inputFilename.string() + ") does not exist");
+            throw std::invalid_argument{"Input file (" + inputFilename.string() + ") does not exist"};
         }
         if (!std::filesystem::is_regular_file(inputFilename))
         {
-            throw std::invalid_argument("Input file (" + inputFilename.string() + ") is not a file");
+            throw std::invalid_argument{"Input file (" + inputFilename.string() + ") is not a file"};
         }
 
         if (outputFilename.empty())
@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
          * Assemble input file
          */
 
-        n2t::AssemblyEngine engine(std::move(inputFilename), std::move(outputFilename));
+        n2t::AssemblyEngine engine{std::move(inputFilename), std::move(outputFilename)};
         engine.assemble();
 
         result = EXIT_SUCCESS;
@@ -129,14 +129,14 @@ int main(int argc, char* argv[])
         std::cerr << "ERROR: No input file\n\n";
         displayHelp(programPath, visibleOptions);
     }
-    catch (const po::error& e)
+    catch (const po::error& err)
     {
-        std::cerr << "ERROR: " << e.what() << "\n\n";
+        std::cerr << "ERROR: " << err.what() << "\n\n";
         displayHelp(programPath, visibleOptions);
     }
-    catch (const std::exception& e)
+    catch (const std::exception& ex)
     {
-        std::cerr << "ERROR: " << e.what() << '\n';
+        std::cerr << "ERROR: " << ex.what() << '\n';
     }
 
     return result;

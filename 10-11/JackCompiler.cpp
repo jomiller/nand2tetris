@@ -48,7 +48,7 @@ void displayHelp(const std::filesystem::path& programPath, const po::options_des
 
 po::variables_map parseOptions(int argc, const char* const* argv, const po::options_description& visibleOptions)
 {
-    po::options_description hiddenOptions("Hidden Options");
+    po::options_description hiddenOptions{"Hidden Options"};
     // clang-format off
     hiddenOptions.add_options()
         ("input-path", po::value<std::string>()->required(), "Input file/directory");
@@ -62,7 +62,7 @@ po::variables_map parseOptions(int argc, const char* const* argv, const po::opti
 
     po::variables_map optionsMap;
 
-    po::store(po::command_line_parser(argc, argv).options(cmdlineOptions).positional(positionalOptions).run(),
+    po::store(po::command_line_parser{argc, argv}.options(cmdlineOptions).positional(positionalOptions).run(),
               optionsMap);
 
     return optionsMap;
@@ -85,20 +85,20 @@ n2t::PathList findInputFiles(const std::filesystem::path& inputPath)
 
         if (inputFilenames.empty())
         {
-            throw std::invalid_argument("Input directory (" + inputPath.string() + ") does not contain Jack files");
+            throw std::invalid_argument{"Input directory (" + inputPath.string() + ") does not contain Jack files"};
         }
     }
     else if (std::filesystem::is_regular_file(inputPath))
     {
         if (inputPath.extension() != ".jack")
         {
-            throw std::invalid_argument("Input file (" + inputPath.string() + ") is not a Jack file");
+            throw std::invalid_argument{"Input file (" + inputPath.string() + ") is not a Jack file"};
         }
         inputFilenames.push_back(inputPath);
     }
     else
     {
-        throw std::invalid_argument("Input path (" + inputPath.string() + ") is not a file nor a directory");
+        throw std::invalid_argument{"Input path (" + inputPath.string() + ") is not a file nor a directory"};
     }
 
     return inputFilenames;
@@ -109,8 +109,8 @@ int main(int argc, char* argv[])
 {
     int result = EXIT_SUCCESS;
 
-    const std::filesystem::path programPath(*argv);
-    po::options_description     visibleOptions("Options");
+    const std::filesystem::path programPath{*argv};
+    po::options_description     visibleOptions{"Options"};
 
     try
     {
@@ -128,8 +128,8 @@ int main(int argc, char* argv[])
             {
                 if (value <= 0)
                 {
-                    throw po::validation_error(
-                        po::validation_error::invalid_option_value, "j", std::to_string(value));
+                    throw po::validation_error{
+                        po::validation_error::invalid_option_value, "j", std::to_string(value)};
                 }
             };
 
@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
 
         po::variables_map optionsMap = parseOptions(argc, argv, visibleOptions);
 
-        if (optionsMap.count("help") > 0)
+        if (optionsMap.count("help") != 0)
         {
             displayHelp(programPath, visibleOptions);
             return EXIT_SUCCESS;
@@ -154,10 +154,10 @@ int main(int argc, char* argv[])
          * Find and validate input filenames
          */
 
-        const std::filesystem::path inputPath(optionsMap["input-path"].as<std::string>());
+        const std::filesystem::path inputPath{optionsMap["input-path"].as<std::string>()};
         if (!std::filesystem::exists(inputPath))
         {
-            throw std::invalid_argument("Input path (" + inputPath.string() + ") does not exist");
+            throw std::invalid_argument{"Input path (" + inputPath.string() + ") does not exist"};
         }
 
         const n2t::PathList inputFilenames = findInputFiles(inputPath);
@@ -190,16 +190,16 @@ int main(int argc, char* argv[])
         std::cerr << "ERROR: No input path\n\n";
         displayHelp(programPath, visibleOptions);
     }
-    catch (const po::error& e)
+    catch (const po::error& err)
     {
         result = EXIT_FAILURE;
-        std::cerr << "ERROR: " << e.what() << "\n\n";
+        std::cerr << "ERROR: " << err.what() << "\n\n";
         displayHelp(programPath, visibleOptions);
     }
-    catch (const std::exception& e)
+    catch (const std::exception& ex)
     {
         result = EXIT_FAILURE;
-        std::cerr << "ERROR: " << e.what() << '\n';
+        std::cerr << "ERROR: " << ex.what() << '\n';
     }
 
     return result;

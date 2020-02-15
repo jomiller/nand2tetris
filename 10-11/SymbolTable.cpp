@@ -29,7 +29,7 @@
 #include <algorithm>
 #include <limits>
 
-n2t::SymbolTable::SymbolTable() : m_nextVarIndices()
+n2t::SymbolTable::SymbolTable() : m_nextVarIndices{}
 {
 }
 
@@ -43,7 +43,7 @@ void n2t::SymbolTable::startSubroutine()
 void n2t::SymbolTable::define(const std::string& name, const std::string& type, VariableKind kind)
 {
     HashTable&     table = getHashTable(kind);
-    HashTableEntry entry(type, kind, getNextVarIndex(kind));
+    HashTableEntry entry{type, kind, getNextVarIndex(kind)};
     N2T_JACK_THROW_COND(table.emplace(name, std::move(entry)).second,
                         "Identifier with name (" + name + ") already defined in the current scope");
 }

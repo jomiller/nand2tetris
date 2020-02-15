@@ -52,8 +52,8 @@ n2t::XmlWriter::Element::~Element() noexcept
 }
 
 n2t::XmlWriter::XmlWriter(std::filesystem::path filename) :
-    m_filename(std::move(filename)),
-    m_file(m_filename.string().data())
+    m_filename{std::move(filename)},
+    m_file{m_filename.string().data()}
 {
     JackUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open output file (" + m_filename.string() + ")");
 
@@ -82,7 +82,7 @@ void n2t::XmlWriter::writeKeyword(Keyword keyword)
 
 void n2t::XmlWriter::writeSymbol(char symbol)
 {
-    std::string_view xmlSymbol(&symbol, /* __len = */ 1);
+    std::string_view xmlSymbol{&symbol, /* __len = */ 1};
 
     // clang-format off
     switch (symbol)

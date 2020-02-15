@@ -97,7 +97,7 @@ private:
     {
         FunctionInfo() = default;
 
-        FunctionInfo(std::string n, int16_t p) : name(std::move(n)), numParameters(p)
+        FunctionInfo(std::string n, int16_t p) : name{std::move(n)}, numParameters{p}
         {
         }
 
@@ -109,7 +109,7 @@ private:
     {
         FunctionCallInfo() = default;
 
-        FunctionCallInfo(std::string n, int16_t a) : name(std::move(n)), numArguments(a)
+        FunctionCallInfo(std::string n, int16_t a) : name{std::move(n)}, numArguments{a}
         {
         }
 

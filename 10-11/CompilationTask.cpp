@@ -32,7 +32,7 @@
 #include <utility>
 
 n2t::CompilationTask::CompilationTask(const PathList& inputFilenames, CompilationOptions options, int* result) :
-    CompilationTask(inputFilenames.cbegin(), inputFilenames.cend(), options, result)
+    CompilationTask{inputFilenames.cbegin(), inputFilenames.cend(), options, result}
 {
 }
 
@@ -40,8 +40,8 @@ n2t::CompilationTask::CompilationTask(PathList::const_iterator firstFilename,
                                       PathList::const_iterator lastFilename,
                                       CompilationOptions       options,
                                       int*                     result) :
-    m_future(std::async(std::launch::async, compileFileRange, firstFilename, lastFilename, options)),
-    m_result(result)
+    m_future{std::async(std::launch::async, compileFileRange, firstFilename, lastFilename, options)},
+    m_result{result}
 {
 }
 
@@ -54,13 +54,13 @@ n2t::CompilationTask::~CompilationTask() noexcept
             m_future.get();
         }
     }
-    catch (const std::exception& e)
+    catch (const std::exception& ex)
     {
         if (m_result)
         {
             *m_result = EXIT_FAILURE;
         }
-        std::cerr << "ERROR: " << e.what() << '\n';
+        std::cerr << "ERROR: " << ex.what() << '\n';
     }
 }
 
@@ -101,6 +101,6 @@ void n2t::CompilationTask::compileFile(const std::filesystem::path& inputFilenam
         xmlOutputFilename.replace_extension(".xml");
     }
 
-    CompilationEngine engine(inputFilename, std::move(vmOutputFilename), xmlOutputFilename);
+    CompilationEngine engine{inputFilename, std::move(vmOutputFilename), xmlOutputFilename};
     engine.compileClass();
 }

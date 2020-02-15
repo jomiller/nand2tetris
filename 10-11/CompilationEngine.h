@@ -58,10 +58,10 @@ private:
         SubroutineInfo() = default;
 
         SubroutineInfo(Keyword t, bool v, std::string n, int16_t p) :
-            type(t),
-            isVoid(v),
-            name(std::move(n)),
-            numParameters(p)
+            type{t},
+            isVoid{v},
+            name{std::move(n)},
+            numParameters{p}
         {
         }
 
@@ -76,10 +76,10 @@ private:
         SubroutineCallInfo() = default;
 
         SubroutineCallInfo(Keyword t, std::string n, int16_t a, bool e) :
-            type(t),
-            name(std::move(n)),
-            numArguments(a),
-            expression(e)
+            type{t},
+            name{std::move(n)},
+            numArguments{a},
+            expression{e}
         {
         }
 

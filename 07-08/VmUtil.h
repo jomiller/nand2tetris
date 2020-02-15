@@ -57,7 +57,7 @@ public:
             msg += ": ";
         }
         msg += message;
-        throw Exception(msg);
+        throw Exception{msg};
     }
 
     template<typename Exception = std::logic_error>
