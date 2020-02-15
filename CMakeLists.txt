@@ -30,11 +30,9 @@ find_package (Threads REQUIRED)
 
 find_package (Boost REQUIRED COMPONENTS program_options)
 
-set (CMAKE_CXX_STANDARD 17)
-set (CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set (CMAKE_CXX_EXTENSIONS FALSE)
 
-set (CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+set (CMAKE_EXPORT_COMPILE_COMMANDS TRUE CACHE BOOL "Enable/Disable output of compile commands during generation." FORCE)
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set (CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Install path prefix, prepended onto install directories." FORCE)

@@ -30,6 +30,8 @@ add_executable (${target_name} CodeWriter.cpp
                                VmTranslator.cpp
                                VmUtil.cpp)
 
+target_compile_features (${target_name} PRIVATE cxx_std_17)
+
 target_include_directories (${target_name} SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})
 
 target_link_libraries (${target_name} Boost::program_options)
