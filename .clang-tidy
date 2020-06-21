@@ -19,6 +19,8 @@ CheckOptions:
     value:           '0'
   - key:             bugprone-argument-comment.CommentUserDefinedLiterals
     value:           '1'
+  - key:             bugprone-argument-comment.IgnoreSingleArgument
+    value:           '0'
   - key:             bugprone-argument-comment.StrictMode
     value:           '1'
   - key:             bugprone-assert-side-effect.AssertMacros
@@ -27,12 +29,18 @@ CheckOptions:
     value:           '0'
   - key:             bugprone-dangling-handle.HandleClasses
     value:           'std::basic_string_view;std::experimental::basic_string_view'
+  - key:             bugprone-dynamic-static-initializers.HeaderFileExtensions
+    value:           ',h,hh,hpp,hxx'
   - key:             bugprone-exception-escape.FunctionsThatShouldNotThrow
     value:           ''
   - key:             bugprone-exception-escape.IgnoredExceptions
     value:           ''
   - key:             bugprone-misplaced-widening-cast.CheckImplicitCasts
     value:           '0'
+  - key:             bugprone-not-null-terminated-result.WantToUseSafeFunctions
+    value:           '1'
+  - key:             bugprone-signed-char-misuse.CharTypdefsToIgnore
+    value:           ''
   - key:             bugprone-sizeof-expression.WarnOnSizeOfCompareToConstant
     value:           '1'
   - key:             bugprone-sizeof-expression.WarnOnSizeOfConstant
@@ -175,6 +183,8 @@ CheckOptions:
     value:           '1'
   - key:             modernize-use-nullptr.NullMacros
     value:           'NULL'
+  - key:             modernize-use-override.AllowOverrideAndFinal
+    value:           '0'
   - key:             modernize-use-override.FinalSpelling
     value:           final
   - key:             modernize-use-override.IgnoreDestructors
@@ -193,12 +203,16 @@ CheckOptions:
     value:           '1'
   - key:             performance-inefficient-string-concatenation.StrictMode
     value:           '0'
+  - key:             performance-inefficient-vector-operation.EnableProto
+    value:           '0'
   - key:             performance-inefficient-vector-operation.VectorLikeClasses
     value:           '::std::vector'
   - key:             performance-move-const-arg.CheckTriviallyCopyableMove
     value:           '1'
   - key:             performance-move-constructor-init.IncludeStyle
     value:           llvm
+  - key:             performance-no-automatic-move.AllowedTypes
+    value:           ''
   - key:             performance-type-promotion-in-math-fn.IncludeStyle
     value:           llvm
   - key:             performance-unnecessary-copy-initialization.AllowedTypes
@@ -212,6 +226,8 @@ CheckOptions:
   - key:             portability-simd-intrinsics.Suggest
     value:           '0'
   - key:             readability-braces-around-statements.ShortStatementLines
+    value:           '0'
+  - key:             readability-else-after-return.WarnOnUnfixable
     value:           '1'
   - key:             readability-function-size.BranchThreshold
     value:           '64'
@@ -289,8 +305,12 @@ CheckOptions:
     value:           '1.0;100.0;'
   - key:             readability-magic-numbers.IgnoredIntegerValues
     value:           '1;2;3;4;'
+  - key:             readability-redundant-member-init.IgnoreBaseInCopyConstructors
+    value:           '0'
   - key:             readability-redundant-smartptr-get.IgnoreMacros
     value:           '1'
+  - key:             readability-redundant-string-init.StringNames
+    value:           '::std::basic_string'
   - key:             readability-simplify-boolean-expr.ChainedConditionalAssignment
     value:           '0'
   - key:             readability-simplify-boolean-expr.ChainedConditionalReturn

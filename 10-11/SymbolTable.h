@@ -40,7 +40,7 @@ class SymbolTable
 {
 public:
     // Creates a new empty symbol table.
-    SymbolTable();
+    SymbolTable() = default;
 
     // Starts a new subroutine scope (i.e., resets the subroutine's symbol table).
     void startSubroutine();
@@ -84,7 +84,7 @@ private:
 
     HashTable                                                            m_classTable;
     HashTable                                                            m_subroutineTable;
-    std::array<int16_t, JackUtil::toUnderlyingType(VariableKind::Count)> m_nextVarIndices;
+    std::array<int16_t, JackUtil::toUnderlyingType(VariableKind::Count)> m_nextVarIndices = {};
 };
 }  // namespace n2t
 

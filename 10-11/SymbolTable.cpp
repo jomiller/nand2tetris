@@ -29,10 +29,6 @@
 #include <algorithm>
 #include <limits>
 
-n2t::SymbolTable::SymbolTable() : m_nextVarIndices{}
-{
-}
-
 void n2t::SymbolTable::startSubroutine()
 {
     m_subroutineTable.clear();

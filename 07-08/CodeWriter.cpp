@@ -392,7 +392,7 @@ void n2t::CodeWriter::writeReturn()
     };
     // clang-format on
 
-    for (auto seg : segments)
+    for (const auto* seg : segments)
     {
         // clang-format off
         m_file << "@R13\n"
@@ -437,7 +437,7 @@ void n2t::CodeWriter::writeCall(const std::string& functionName, int16_t numArgu
     };
     // clang-format on
 
-    for (auto seg : segments)
+    for (const auto* seg : segments)
     {
         // clang-format off
         m_file << "@" << seg << '\n'

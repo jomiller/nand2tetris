@@ -43,7 +43,8 @@ public:
     class TokenizerFunction
     {
     public:
-        explicit TokenizerFunction(unsigned int* lineNumber = nullptr);
+        TokenizerFunction() = default;
+        explicit TokenizerFunction(unsigned int* lineNumber);
 
         void reset();
         bool operator()(std::istreambuf_iterator<char>& next, std::istreambuf_iterator<char> end, std::string& tok);
@@ -51,7 +52,7 @@ public:
     private:
         static bool isDelimiter(char c);
 
-        unsigned int* m_lineNumber;
+        unsigned int* m_lineNumber = nullptr;
         unsigned int  m_lineCount = 0;
     };
 

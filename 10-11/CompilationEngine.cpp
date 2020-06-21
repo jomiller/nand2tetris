@@ -589,7 +589,7 @@ std::string n2t::CompilationEngine::compileIdentifier(const std::string& type)
     N2T_JACK_THROW_COND(m_inputTokenizer.tokenType() == TokenType::Identifier,
                         "Expected " + type + " name before " + getTokenDescription());
 
-    const auto identifier = m_inputTokenizer.identifier();
+    auto identifier = m_inputTokenizer.identifier();
     if (m_xmlWriter)
     {
         m_xmlWriter->writeIdentifier(identifier);
@@ -617,7 +617,7 @@ std::string n2t::CompilationEngine::compileStringConstant()
     N2T_JACK_THROW_COND(m_inputTokenizer.tokenType() == TokenType::StringConst,
                         "Expected string constant before " + getTokenDescription());
 
-    const auto stringConst = m_inputTokenizer.stringVal();
+    auto stringConst = m_inputTokenizer.stringVal();
     if (m_xmlWriter)
     {
         m_xmlWriter->writeStringConstant(stringConst);
