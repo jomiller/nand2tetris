@@ -117,7 +117,7 @@ private:
         {
             if (name != rhs.name)
             {
-                return (name < rhs.name);
+                return (name < rhs.name);  // NOLINT(modernize-use-nullptr)
             }
             return (numArguments < rhs.numArguments);
         }

@@ -143,7 +143,8 @@ bool n2t::JackTokenizer::TokenizerFunction::operator()(std::istreambuf_iterator<
             {
                 tok += *next;
                 ++next;
-            } while ((next != end) && (*next != '\r') && (*next != '\n') && (*next != '"'));
+            }
+            while ((next != end) && (*next != '\r') && (*next != '\n') && (*next != '"'));
 
             if (*next == '"')
             {

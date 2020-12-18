@@ -22,9 +22,11 @@
 # SOFTWARE.
 #
 
-cmake_minimum_required (VERSION "3.10.2")
+cmake_minimum_required (VERSION "3.16.3")
 
 project (Nand2Tetris LANGUAGES CXX)
+
+set (THREADS_PREFER_PTHREAD_FLAG TRUE)
 
 find_package (Threads REQUIRED)
 
@@ -47,7 +49,7 @@ if (${CPPCHECK})
         list (APPEND CMAKE_CXX_CPPCHECK #"--project=${CMAKE_BINARY_DIR}/compile_commands.json"
                                         "--enable=warning,style,performance,portability"
                                         "--suppress=passedByValue"
-                                        "--std=c++17"
+                                        "--std=c++20"
                                         "--quiet")
     else ()
         message (FATAL_ERROR "Could not find program: cppcheck")
@@ -84,7 +86,7 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" M
     set (sanitizers "address" "thread" "undefined")
 
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-        list (APPEND sanitizers "memory" "integer" "nullability")
+        list (APPEND sanitizers "memory")
     endif ()
 
     set (SANITIZER FALSE CACHE STRING "Enable Clang/GCC sanitizer")
@@ -94,7 +96,7 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" M
         if ("${SANITIZER}" IN_LIST sanitizers)
             set (sanitizer_option "-fsanitize=${SANITIZER}")
             add_compile_options (${sanitizer_option} -fno-omit-frame-pointer)
-            set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${sanitizer_option}")
+            add_link_options (${sanitizer_option})
         else ()
             message (FATAL_ERROR "Unsupported sanitizer type: ${SANITIZER}")
         endif ()

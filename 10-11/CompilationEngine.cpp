@@ -244,7 +244,7 @@ void n2t::CompilationEngine::compileVarDec()
     compileVarDecImpl(m_inputTokenizer.keyword());
 }
 
-void n2t::CompilationEngine::compileStatements()
+void n2t::CompilationEngine::compileStatements()  // NOLINT(misc-no-recursion)
 {
     XmlWriter::Element element{m_xmlWriter.get(), "statements"};
 
@@ -315,7 +315,7 @@ void n2t::CompilationEngine::compileDo()
     m_vmWriter.writePop(SegmentType::Temp, /* index = */ 0);
 }
 
-void n2t::CompilationEngine::compileIf()
+void n2t::CompilationEngine::compileIf()  // NOLINT(misc-no-recursion)
 {
     XmlWriter::Element element{m_xmlWriter.get(), "ifStatement"};
 
@@ -344,7 +344,7 @@ void n2t::CompilationEngine::compileIf()
     m_vmWriter.writeLabel(endLabel);
 }
 
-void n2t::CompilationEngine::compileWhile()
+void n2t::CompilationEngine::compileWhile()  // NOLINT(misc-no-recursion)
 {
     XmlWriter::Element element{m_xmlWriter.get(), "whileStatement"};
 
@@ -391,7 +391,7 @@ void n2t::CompilationEngine::compileReturn()
     m_vmWriter.writeReturn();
 }
 
-void n2t::CompilationEngine::compileExpression()
+void n2t::CompilationEngine::compileExpression()  // NOLINT(misc-no-recursion)
 {
     XmlWriter::Element element{m_xmlWriter.get(), "expression"};
 
@@ -419,7 +419,7 @@ void n2t::CompilationEngine::compileExpression()
     }
 }
 
-void n2t::CompilationEngine::compileTerm()
+void n2t::CompilationEngine::compileTerm()  // NOLINT(misc-no-recursion)
 {
     XmlWriter::Element element{m_xmlWriter.get(), "term"};
 
@@ -528,7 +528,7 @@ void n2t::CompilationEngine::compileTerm()
                         "Constructor does not return 'this'");
 }
 
-void n2t::CompilationEngine::compileExpressionList()
+void n2t::CompilationEngine::compileExpressionList()  // NOLINT(misc-no-recursion)
 {
     XmlWriter::Element element{m_xmlWriter.get(), "expressionList"};
 
@@ -697,7 +697,7 @@ void n2t::CompilationEngine::compileSubroutineBody()
     compileSymbol('}');
 }
 
-void n2t::CompilationEngine::compileArrayEntry(const std::string& variableName)
+void n2t::CompilationEngine::compileArrayEntry(const std::string& variableName)  // NOLINT(misc-no-recursion)
 {
     N2T_JACK_THROW_COND(m_symbolTable.typeOf(variableName) == "Array",
                         "Array entry accessed in variable (" + variableName + ") that is not of type Array");
@@ -716,7 +716,7 @@ void n2t::CompilationEngine::compileArrayEntry(const std::string& variableName)
     m_vmWriter.writeArithmetic(ArithmeticCommand::Add);
 }
 
-void n2t::CompilationEngine::compileSubroutineCall(const std::string& identifier)
+void n2t::CompilationEngine::compileSubroutineCall(const std::string& identifier)  // NOLINT(misc-no-recursion)
 {
     SubroutineCallInfo subroutineCall;
     auto               subroutineName = identifier;

@@ -30,7 +30,7 @@ add_executable (${target_name} Assembler.cpp
                                Parser.cpp
                                SymbolTable.cpp)
 
-target_compile_features (${target_name} PRIVATE cxx_std_17)
+target_compile_features (${target_name} PRIVATE cxx_std_20)
 
 target_include_directories (${target_name} SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})
 

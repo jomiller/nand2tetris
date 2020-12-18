@@ -33,11 +33,11 @@ add_executable (${target_name} CompilationEngine.cpp
                                VmWriter.cpp
                                XmlWriter.cpp)
 
-target_compile_features (${target_name} PRIVATE cxx_std_17)
+target_compile_features (${target_name} PRIVATE cxx_std_20)
 
 target_include_directories (${target_name} SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})
 
 target_link_libraries (${target_name} Boost::program_options
-                                      ${CMAKE_THREAD_LIBS_INIT})
+                                      Threads::Threads)
 
 install (TARGETS ${target_name} DESTINATION bin)
