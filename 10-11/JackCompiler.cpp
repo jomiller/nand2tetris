@@ -25,7 +25,7 @@
 #include "CompilationTask.h"
 #include "JackTypes.h"
 
-#include <boost/program_options.hpp>
+#include <cxxopts.hpp>
 
 #include <algorithm>
 #include <filesystem>
@@ -36,39 +36,7 @@
 
 namespace
 {
-namespace po = boost::program_options;
-
-void displayHelp(const std::filesystem::path& programPath, const po::options_description& options)
-{
-    const auto programName = programPath.filename().string();
-    std::cout << "Usage: " << programName << " [options] <filename>.jack\n";
-    std::cout << "       " << programName << " [options] <directory>\n\n";
-    std::cout << options << '\n';
-}
-
-po::variables_map parseOptions(int argc, const char* const* argv, const po::options_description& visibleOptions)
-{
-    po::options_description hiddenOptions{"Hidden Options"};
-    // clang-format off
-    hiddenOptions.add_options()
-        ("input-path", po::value<std::string>()->required(), "Input file/directory");
-    // clang-format on
-
-    po::options_description cmdlineOptions;
-    cmdlineOptions.add(visibleOptions).add(hiddenOptions);
-
-    po::positional_options_description positionalOptions;
-    positionalOptions.add("input-path", /* max_count = */ 1);
-
-    po::variables_map optionsMap;
-
-    po::store(po::command_line_parser{argc, argv}.options(cmdlineOptions).positional(positionalOptions).run(),
-              optionsMap);
-
-    return optionsMap;
-}
-
-n2t::PathList findInputFiles(const std::filesystem::path& inputPath)
+[[nodiscard]] n2t::PathList findInputFiles(const std::filesystem::path& inputPath)
 {
     n2t::PathList inputFilenames;
 
@@ -110,7 +78,7 @@ int main(int argc, char* argv[])
     int result = EXIT_SUCCESS;
 
     const std::filesystem::path programPath{*argv};
-    po::options_description     visibleOptions{"Options"};
+    cxxopts::Options            options{programPath.filename(), "Jack Compiler"};
 
     try
     {
@@ -122,39 +90,49 @@ int main(int argc, char* argv[])
         auto      numJobs         = maxThreads;
         bool      outputParseTree = false;
 
-        // clang-format off
-        auto validateJobs =
-            [](int value)
-            {
-                if (value <= 0)
-                {
-                    throw po::validation_error{
-                        po::validation_error::invalid_option_value, "j", std::to_string(value)};
-                }
-            };
+        options.show_positional_help();
 
-        visibleOptions.add_options()
+        // clang-format off
+        options.add_options()
             ("help", "Display this help message")
-            ("jobs,j", po::value<int>(&numJobs)->default_value(maxThreads)->notifier(validateJobs),
-                "Run 'arg' jobs in parallel")
-            ("parse-tree,t", po::bool_switch(&outputParseTree), "Output parse tree in XML format");
+            ("j,jobs", "Run 'arg' jobs in parallel", cxxopts::value<int>(numJobs)->default_value(std::to_string(maxThreads)))
+            ("t,parse-tree", "Output parse tree in XML format", cxxopts::value<bool>(outputParseTree));
+
+        options.add_options("Positional")
+            ("input-path", "Input Jack file/directory", cxxopts::value<std::vector<std::string>>());
         // clang-format on
 
-        auto optionsMap = parseOptions(argc, argv, visibleOptions);
+        options.parse_positional("input-path");
+
+        const auto optionsMap = options.parse(argc, argv);
 
         if (optionsMap.count("help") != 0)
         {
-            displayHelp(programPath, visibleOptions);
+            std::cout << options.help() << '\n';
             return EXIT_SUCCESS;
         }
-
-        po::notify(optionsMap);
 
         /*
          * Find and validate input filenames
          */
 
-        const std::filesystem::path inputPath{optionsMap["input-path"].as<std::string>()};
+        if (numJobs <= 0)
+        {
+            throw cxxopts::OptionParseException{"Option 'jobs' has an invalid argument '" + std::to_string(numJobs) +
+                                                "'"};
+        }
+
+        const auto inputPathCount = optionsMap.count("input-path");
+        if (inputPathCount == 0)
+        {
+            throw cxxopts::option_required_exception{"input-path"};
+        }
+        if (inputPathCount != 1)
+        {
+            throw cxxopts::OptionParseException{"Option 'input-path' is specified more than once"};
+        }
+
+        const std::filesystem::path inputPath{optionsMap["input-path"].as<std::vector<std::string>>().front()};
         if (!std::filesystem::exists(inputPath))
         {
             throw std::invalid_argument{"Input path (" + inputPath.string() + ") does not exist"};
@@ -179,22 +157,16 @@ int main(int argc, char* argv[])
         for (auto task = decltype(numTasks){0}; task < (numTasks - 1); ++task)
         {
             auto last = first + taskSize;
-            tasks.emplace_back(first, last, options);
+            tasks.emplace_back(first, last, options, &result);
             first = last;
         }
         n2t::CompilationTask::compile(first, inputFilenames.cend(), options);
     }
-    catch (const po::required_option&)
+    catch (const cxxopts::OptionException& ex)
     {
         result = EXIT_FAILURE;
-        std::cerr << "ERROR: No input path\n\n";
-        displayHelp(programPath, visibleOptions);
-    }
-    catch (const po::error& err)
-    {
-        result = EXIT_FAILURE;
-        std::cerr << "ERROR: " << err.what() << "\n\n";
-        displayHelp(programPath, visibleOptions);
+        std::cerr << "ERROR: " << ex.what() << "\n\n";
+        std::cout << options.help() << '\n';
     }
     catch (const std::exception& ex)
     {

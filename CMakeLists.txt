@@ -49,6 +49,7 @@ if (${CPPCHECK})
         list (APPEND CMAKE_CXX_CPPCHECK #"--project=${CMAKE_BINARY_DIR}/compile_commands.json"
                                         "--enable=warning,style,performance,portability"
                                         "--suppress=passedByValue"
+                                        "--suppress=*:${CMAKE_SOURCE_DIR}/external/*"
                                         "--std=c++20"
                                         "--quiet")
     else ()
@@ -114,6 +115,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
 endif ()
 
+add_subdirectory (external)
 add_subdirectory (06)
 add_subdirectory (07-08)
 add_subdirectory (10-11)

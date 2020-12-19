@@ -25,7 +25,7 @@
 #include "TranslationEngine.h"
 #include "VmTypes.h"
 
-#include <boost/program_options.hpp>
+#include <cxxopts.hpp>
 
 #include <filesystem>
 #include <iostream>
@@ -35,41 +35,9 @@
 
 namespace
 {
-namespace po = boost::program_options;
-
-void displayHelp(const std::filesystem::path& programPath, const po::options_description& options)
-{
-    const auto programName = programPath.filename().string();
-    std::cout << "Usage: " << programName << " <filename>.vm\n";
-    std::cout << "       " << programName << " <directory>\n\n";
-    std::cout << options << '\n';
-}
-
-po::variables_map parseOptions(int argc, const char* const* argv, const po::options_description& visibleOptions)
-{
-    po::options_description hiddenOptions{"Hidden Options"};
-    // clang-format off
-    hiddenOptions.add_options()
-        ("input-path", po::value<std::string>()->required(), "Input file/directory");
-    // clang-format on
-
-    po::options_description cmdlineOptions;
-    cmdlineOptions.add(visibleOptions).add(hiddenOptions);
-
-    po::positional_options_description positionalOptions;
-    positionalOptions.add("input-path", /* max_count = */ 1);
-
-    po::variables_map optionsMap;
-
-    po::store(po::command_line_parser{argc, argv}.options(cmdlineOptions).positional(positionalOptions).run(),
-              optionsMap);
-
-    return optionsMap;
-}
-
-n2t::PathList findInputFiles(const std::filesystem::path& inputPath,
-                             bool                         isInputDirectory,
-                             std::filesystem::path&       outputFilename)
+[[nodiscard]] n2t::PathList findInputFiles(const std::filesystem::path& inputPath,
+                                           bool                         isInputDirectory,
+                                           std::filesystem::path&       outputFilename)
 {
     n2t::PathList inputFilenames;
 
@@ -121,7 +89,7 @@ n2t::PathList findInputFiles(const std::filesystem::path& inputPath,
     }
     else
     {
-        throw std::invalid_argument{"Input path (" + inputPath.string() + ") is not a file nor a directory"};
+        throw std::invalid_argument{"Input path (" + inputPath.string() + ") is neither a file nor a directory"};
     }
 
     return inputFilenames;
@@ -134,7 +102,7 @@ int main(int argc, char* argv[])
     int result = EXIT_FAILURE;
 
     const std::filesystem::path programPath{*argv};
-    po::options_description     visibleOptions{"Options"};
+    cxxopts::Options            options{programPath.filename(), "VM Translator"};
 
     try
     {
@@ -144,27 +112,42 @@ int main(int argc, char* argv[])
 
         std::filesystem::path outputFilename;
 
+        options.show_positional_help();
+
         // clang-format off
-        visibleOptions.add_options()
+        options.add_options()
             ("help", "Display this help message")
-            ("output-file,o", po::value<std::filesystem::path>(&outputFilename), "Output file");
+            ("o,output-file", "Output assembly file", cxxopts::value<std::filesystem::path>(outputFilename));
+
+        options.add_options("Positional")
+            ("input-path", "Input VM file/directory", cxxopts::value<std::vector<std::string>>());
         // clang-format on
 
-        auto optionsMap = parseOptions(argc, argv, visibleOptions);
+        options.parse_positional("input-path");
+
+        const auto optionsMap = options.parse(argc, argv);
 
         if (optionsMap.count("help") != 0)
         {
-            displayHelp(programPath, visibleOptions);
+            std::cout << options.help() << '\n';
             return EXIT_SUCCESS;
         }
-
-        po::notify(optionsMap);
 
         /*
          * Find and validate input and output filenames
          */
 
-        const std::filesystem::path inputPath{optionsMap["input-path"].as<std::string>()};
+        const auto inputPathCount = optionsMap.count("input-path");
+        if (inputPathCount == 0)
+        {
+            throw cxxopts::option_required_exception{"input-path"};
+        }
+        if (inputPathCount != 1)
+        {
+            throw cxxopts::OptionParseException{"Option 'input-path' is specified more than once"};
+        }
+
+        const std::filesystem::path inputPath{optionsMap["input-path"].as<std::vector<std::string>>().front()};
         if (!std::filesystem::exists(inputPath))
         {
             throw std::invalid_argument{"Input path (" + inputPath.string() + ") does not exist"};
@@ -184,15 +167,10 @@ int main(int argc, char* argv[])
 
         result = EXIT_SUCCESS;
     }
-    catch (const po::required_option&)
+    catch (const cxxopts::OptionException& ex)
     {
-        std::cerr << "ERROR: No input path\n\n";
-        displayHelp(programPath, visibleOptions);
-    }
-    catch (const po::error& err)
-    {
-        std::cerr << "ERROR: " << err.what() << "\n\n";
-        displayHelp(programPath, visibleOptions);
+        std::cerr << "ERROR: " << ex.what() << "\n\n";
+        std::cout << options.help() << '\n';
     }
     catch (const std::exception& ex)
     {
