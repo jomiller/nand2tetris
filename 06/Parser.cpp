@@ -30,9 +30,9 @@
 
 #include <algorithm>
 
-n2t::Parser::Parser(const std::string& filename) : m_file(filename.data())
+n2t::Parser::Parser(const std::filesystem::path& filename) : m_file{filename}
 {
-    AsmUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open input file (" + filename + ")");
+    AsmUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open input file ({})", filename.string());
 }
 
 bool n2t::Parser::advance()
@@ -57,17 +57,17 @@ bool n2t::Parser::advance()
 
     if (currentCommand.front() == '@')
     {
-        N2T_ASM_THROW_COND(currentCommand.length() != 1, "Address or symbol not specified in addressing instruction");
+        AsmUtil::throwCond(currentCommand.length() != 1, "Address or symbol not specified in addressing instruction");
 
         m_commandType = CommandType::A;
         m_symbol      = currentCommand.substr(/* __pos = */ 1);  // @Xxx
     }
     else if (currentCommand.front() == '(')
     {
-        N2T_ASM_THROW_COND(currentCommand.back() == ')',
-                           "Expected closing parenthesis in label command (" + currentCommand + ")");
+        AsmUtil::throwCond(
+            currentCommand.back() == ')', "Expected closing parenthesis in label command ({})", currentCommand);
 
-        N2T_ASM_THROW_COND(currentCommand.length() != 2, "Symbol not specified in label command");
+        AsmUtil::throwCond(currentCommand.length() != 2, "Symbol not specified in label command");
 
         m_commandType = CommandType::L;
         m_symbol      = currentCommand.substr(/* __pos = */ 1, currentCommand.length() - 2);  // (Xxx)

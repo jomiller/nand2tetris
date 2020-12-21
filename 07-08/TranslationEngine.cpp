@@ -44,12 +44,12 @@ n2t::TranslationEngine::TranslationEngine(PathList              inputFilenames,
 
 void n2t::TranslationEngine::translate()
 {
-    N2T_VM_THROW_COND(!m_codeWriter.isClosed(), "Input files have already been translated");
+    VmUtil::throwCond(!m_codeWriter.isClosed(), "Input files have already been translated");
 
     for (const auto& path : m_inputFilenames)
     {
         const auto inputFilename = path.filename().string();
-        Parser     parser{path.string()};
+        Parser     parser{path};
 
         try
         {
@@ -93,13 +93,13 @@ void n2t::TranslationEngine::translate()
                         break;
 
                     default:
-                        VmUtil::throwUncond("Unsupported command type (" + VmUtil::toString(commandType) + ")");
+                        VmUtil::throwUncond("Unsupported command type ({})", VmUtil::toString(commandType));
                 }
             }
         }
         catch (const std::exception& ex)
         {
-            VmUtil::throwUncond(ex.what(), inputFilename, parser.lineNumber());
+            VmUtil::throwUncond({inputFilename, parser.lineNumber()}, ex.what());
         }
     }
 

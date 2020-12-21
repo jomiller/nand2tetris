@@ -35,7 +35,7 @@ n2t::VmWriter::VmWriter(std::filesystem::path filename) :
     m_filename{std::move(filename)},
     m_file{m_filename.string().data()}
 {
-    JackUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open output file (" + m_filename.string() + ")");
+    JackUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open output file ({})", m_filename.string());
 }
 
 n2t::VmWriter::~VmWriter() noexcept
@@ -121,10 +121,10 @@ void n2t::VmWriter::close()
     m_closed = true;
 }
 
-const std::string& n2t::VmWriter::toString(SegmentType segment)
+std::string_view n2t::VmWriter::toString(SegmentType segment)
 {
     // clang-format off
-    static const std::map<SegmentType, std::string> segments =
+    static const std::map<SegmentType, std::string_view> segments =
     {
         {SegmentType::Constant, "constant"},
         {SegmentType::Static,   "static"},

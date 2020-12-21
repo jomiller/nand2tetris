@@ -184,7 +184,7 @@ n2t::JackTokenizer::JackTokenizer(const std::filesystem::path& filename) :
     m_filename{filename.filename().string()},
     m_file{filename.string().data()}
 {
-    JackUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open input file (" + filename.string() + ")");
+    JackUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open input file ({})", filename.string());
 
     m_fileIter = boost::make_token_iterator<std::string>(
         std::istreambuf_iterator<char>(m_file), std::istreambuf_iterator<char>(), TokenizerFunction(&m_lineNumber));
@@ -229,8 +229,8 @@ void n2t::JackTokenizer::advance()
 
     if (currentToken.front() == '"')
     {
-        N2T_JACK_THROW_COND(currentToken.back() == '"',
-                            "Expected closing double quotation mark in string constant (" + currentToken + ")");
+        JackUtil::throwCond(
+            currentToken.back() == '"', "Expected closing double quotation mark in string constant ({})", currentToken);
 
         m_tokenType = TokenType::StringConst;
         m_stringVal = currentToken.substr(/* __pos = */ 1, currentToken.length() - 2);
@@ -245,14 +245,14 @@ void n2t::JackTokenizer::advance()
         }
         catch (const boost::bad_lexical_cast&)
         {
-            JackUtil::throwUncond("Integer constant (" + currentToken + ") is too large");
+            JackUtil::throwUncond("Integer constant ({}) is too large", currentToken);
         }
         m_tokenType = TokenType::IntConst;
     }
     else
     {
-        N2T_JACK_THROW_COND(!std::isdigit(currentToken.front(), std::locale{}),
-                            "Identifier (" + currentToken + ") begins with a digit");
+        JackUtil::throwCond(
+            !std::isdigit(currentToken.front(), std::locale{}), "Identifier ({}) begins with a digit", currentToken);
 
         m_tokenType  = TokenType::Identifier;
         m_identifier = std::move(currentToken);
@@ -296,6 +296,6 @@ const std::string& n2t::JackTokenizer::stringVal() const
 
 std::string n2t::JackTokenizer::readNextToken()
 {
-    N2T_JACK_THROW_COND(hasMoreTokens(), "Unexpected end of file reached");
+    JackUtil::throwCond(hasMoreTokens(), "Unexpected end of file reached");
     return *m_fileIter++;
 }

@@ -27,6 +27,8 @@
 
 #include "JackTypes.h"
 
+#include <fmt/format.h>
+
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -35,15 +37,21 @@
 
 namespace n2t
 {
+struct SourceLocation
+{
+    std::string_view filename;
+    unsigned int     lineNumber = 0;
+};
+
 class JackUtil
 {
 public:
     JackUtil() = delete;
 
-    static std::pair<Keyword, bool> toKeyword(const std::string& keyword);
-    static const std::string&       toString(Keyword keyword);
-    static const std::string&       toString(TokenType tokenType);
-    static const std::string&       toString(VariableKind kind);
+    [[nodiscard]] static std::pair<Keyword, bool> toKeyword(std::string_view keyword);
+    [[nodiscard]] static std::string_view         toString(Keyword keyword);
+    [[nodiscard]] static std::string_view         toString(TokenType tokenType);
+    [[nodiscard]] static std::string_view         toString(VariableKind kind);
 
     template<typename Enum>
     static constexpr std::underlying_type_t<Enum> toUnderlyingType(Enum enumerator) noexcept
@@ -51,46 +59,45 @@ public:
         return static_cast<std::underlying_type_t<Enum>>(enumerator);
     }
 
-    template<typename Exception = std::logic_error>
-    [[noreturn]] static void throwUncond(std::string_view message,
-                                         std::string_view filename   = {},
-                                         unsigned int     lineNumber = 0)
+    template<typename Exception = std::logic_error, typename... Args>
+    [[noreturn]] static void throwUncond(SourceLocation sourceLocation, std::string_view message, Args&&... args)
     {
         static_assert(std::is_base_of_v<std::exception, Exception>);
         std::string msg;
-        if (!filename.empty())
+        if (!sourceLocation.filename.empty())
         {
-            msg = filename;
-            if (lineNumber != 0)
+            msg = sourceLocation.filename;
+            if (sourceLocation.lineNumber != 0)
             {
-                msg += ":" + std::to_string(lineNumber);
+                msg.append(fmt::format(":{}", sourceLocation.lineNumber));
             }
-            msg += ": ";
+            msg.append(": ");
         }
-        msg += message;
+        msg.append(fmt::format(message, std::forward<Args>(args)...));
         throw Exception{msg};
     }
 
-    template<typename Exception = std::logic_error>
-    static void throwCond(bool             condition,
-                          std::string_view message,
-                          std::string_view filename   = {},
-                          unsigned int     lineNumber = 0)
+    template<typename Exception = std::logic_error, typename... Args>
+    [[noreturn]] static void throwUncond(std::string_view message, Args&&... args)
+    {
+        throwUncond<Exception, Args...>(SourceLocation{}, message, std::forward<Args>(args)...);
+    }
+
+    template<typename Exception = std::logic_error, typename... Args>
+    static void throwCond(bool condition, SourceLocation sourceLocation, std::string_view message, Args&&... args)
     {
         if (!condition)
         {
-            throwUncond<Exception>(message, filename, lineNumber);
+            throwUncond<Exception, Args...>(sourceLocation, message, std::forward<Args>(args)...);
         }
+    }
+
+    template<typename Exception = std::logic_error, typename... Args>
+    static void throwCond(bool condition, std::string_view message, Args&&... args)
+    {
+        throwCond<Exception, Args...>(condition, SourceLocation{}, message, std::forward<Args>(args)...);
     }
 };
 }  // namespace n2t
-
-#define N2T_JACK_THROW_COND(condition, message) \
-    if (!(condition))                           \
-    {                                           \
-        JackUtil::throwUncond(message);         \
-    }                                           \
-    else                                        \
-        (void)0
 
 #endif

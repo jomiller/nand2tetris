@@ -27,15 +27,17 @@
 #include "VmAssert.h"
 #include "VmUtil.h"
 
+#include <fmt/format.h>
+
 #include <array>
 #include <locale>
+#include <map>
 
 n2t::CodeWriter::CodeWriter(std::filesystem::path filename) :
     m_outputFilename{std::move(filename)},
     m_file{m_outputFilename.string().data()}
 {
-    VmUtil::throwCond<std::runtime_error>(m_file.good(),
-                                          "Could not open output file (" + m_outputFilename.string() + ")");
+    VmUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open output file ({})", m_outputFilename.string());
 }
 
 n2t::CodeWriter::~CodeWriter() noexcept
@@ -102,7 +104,7 @@ void n2t::CodeWriter::writeArithmetic(const std::string& command)
     // clang-format on
 
     const auto iter = arithmeticInfo.find(command);
-    N2T_VM_THROW_COND(iter != arithmeticInfo.end(), "Invalid arithmetic command type (" + command + ")");
+    VmUtil::throwCond(iter != arithmeticInfo.end(), "Invalid arithmetic command type ({})", command);
 
     const auto& info = iter->second;
     if (info.unary)
@@ -124,7 +126,7 @@ void n2t::CodeWriter::writeArithmetic(const std::string& command)
 
         if (info.logic)
         {
-            const auto label = makeLabel("LOGIC" + std::to_string(getNextLabelId()));
+            const auto label = makeLabel(fmt::format("LOGIC{}", getNextLabelId()));
 
             // clang-format off
             m_file << "D=M-D\n"
@@ -177,7 +179,7 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
     // clang-format on
 
     const auto iter = segmentInfo.find(segment);
-    N2T_VM_THROW_COND(iter != segmentInfo.end(), "Invalid memory segment (" + segment + ")");
+    VmUtil::throwCond(iter != segmentInfo.end(), "Invalid memory segment ({})", segment);
 
     const auto& info = iter->second;
     std::string symbol{info.name};
@@ -241,7 +243,7 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
     }
     else  // (command == CommandType::Pop)
     {
-        N2T_VM_THROW_COND(info.type != SegmentType::Constant, "Cannot pop to the constant segment");
+        VmUtil::throwCond(info.type != SegmentType::Constant, "Cannot pop to the constant segment");
 
         if (info.indirect && (index > 1))
         {
@@ -275,14 +277,14 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
 
 void n2t::CodeWriter::writeLabel(const std::string& label)
 {
-    N2T_VM_THROW_COND(!std::isdigit(label.front(), std::locale{}), "Label (" + label + ") begins with a digit");
+    VmUtil::throwCond(!std::isdigit(label.front(), std::locale{}), "Label ({}) begins with a digit", label);
 
     if (!m_labels.insert(label).second)
     {
-        std::string msg = "Label (" + label + ") already exists";
+        auto msg = fmt::format("Label ({}) already exists", label);
         if (!m_currentFunction.name.empty())
         {
-            msg += " in function (" + m_currentFunction.name + ")";
+            msg.append(fmt::format(" in function ({})", m_currentFunction.name));
         }
         VmUtil::throwUncond(msg);
     }
@@ -319,11 +321,12 @@ void n2t::CodeWriter::writeFunction(const std::string& functionName, int16_t num
 
     validateFunction();
 
-    N2T_VM_THROW_COND(!std::isdigit(functionName.front(), std::locale{}),
-                      "Function name (" + functionName + ") begins with a digit");
+    VmUtil::throwCond(
+        !std::isdigit(functionName.front(), std::locale{}), "Function name ({}) begins with a digit", functionName);
 
-    N2T_VM_THROW_COND(m_definedFunctions.find(functionName) == m_definedFunctions.end(),
-                      "Function with name (" + functionName + ") already exists");
+    VmUtil::throwCond(m_definedFunctions.find(functionName) == m_definedFunctions.end(),
+                      "Function with name ({}) already exists",
+                      functionName);
 
     m_currentFunction.name          = functionName;
     m_currentFunction.numParameters = 0;
@@ -344,7 +347,7 @@ void n2t::CodeWriter::writeFunction(const std::string& functionName, int16_t num
 
 void n2t::CodeWriter::writeReturn()
 {
-    N2T_VM_THROW_COND(!m_currentFunction.name.empty(), "Return command is outside of a function");
+    VmUtil::throwCond(!m_currentFunction.name.empty(), "Return command is outside of a function");
 
     // save the base address of the calling function's saved state into R13
     // clang-format off
@@ -416,7 +419,7 @@ void n2t::CodeWriter::writeCall(const std::string& functionName, int16_t numArgu
     N2T_VM_ASSERT((numArguments >= 0) && "Number of function arguments is negative");
 
     m_calledFunctions.emplace(functionName, numArguments);
-    const auto label = makeLabel("RETURN" + std::to_string(getNextLabelId()));
+    const auto label = makeLabel(fmt::format("RETURN{}", getNextLabelId()));
 
     // push the return address onto the stack
     // clang-format off
@@ -511,7 +514,7 @@ unsigned int n2t::CodeWriter::getNextLabelId()
 
 std::string n2t::CodeWriter::makeLabel(const std::string& label) const
 {
-    return (m_currentFunction.name + "$" + label);
+    return fmt::format("{}${}", m_currentFunction.name, label);
 }
 
 void n2t::CodeWriter::validateFunction()
@@ -521,10 +524,10 @@ void n2t::CodeWriter::validateFunction()
     {
         if (m_labels.find(label) == m_labels.end())
         {
-            std::string msg = "Undefined reference to label (" + label + ")";
+            auto msg = fmt::format("Undefined reference to label ({})", label);
             if (!m_currentFunction.name.empty())
             {
-                msg += " in function (" + m_currentFunction.name + ")";
+                msg.append(fmt::format(" in function ({})", m_currentFunction.name));
             }
             VmUtil::throwUncond(msg);
         }
@@ -545,10 +548,12 @@ void n2t::CodeWriter::validateFunctionCalls() const
     for (const FunctionCallInfo& call : m_calledFunctions)
     {
         const auto func = m_definedFunctions.find(call.name);
-        N2T_VM_THROW_COND(func != m_definedFunctions.end(), "Undefined reference to function (" + call.name + ")");
+        VmUtil::throwCond(func != m_definedFunctions.end(), "Undefined reference to function ({})", call.name);
 
-        N2T_VM_THROW_COND(call.numArguments >= func->second,
-                          "Function (" + func->first + ") requires at least " + std::to_string(func->second) +
-                              " argument(s) but called with " + std::to_string(call.numArguments) + " argument(s)");
+        VmUtil::throwCond(call.numArguments >= func->second,
+                          "Function ({}) requires at least {} argument(s) but called with {} argument(s)",
+                          func->first,
+                          func->second,
+                          call.numArguments);
     }
 }

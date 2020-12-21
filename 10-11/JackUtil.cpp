@@ -28,7 +28,7 @@
 
 #include <map>
 
-std::pair<n2t::Keyword, bool> n2t::JackUtil::toKeyword(const std::string& keyword)
+std::pair<n2t::Keyword, bool> n2t::JackUtil::toKeyword(std::string_view keyword)
 {
     // clang-format off
     static const std::map<std::string_view, Keyword> keywords =
@@ -65,10 +65,10 @@ std::pair<n2t::Keyword, bool> n2t::JackUtil::toKeyword(const std::string& keywor
     return std::make_pair(key->second, true);
 }
 
-const std::string& n2t::JackUtil::toString(Keyword keyword)
+std::string_view n2t::JackUtil::toString(Keyword keyword)
 {
     // clang-format off
-    static const std::map<Keyword, std::string> keywords =
+    static const std::map<Keyword, std::string_view> keywords =
     {
         {Keyword::Class,       "class"},
         {Keyword::Constructor, "constructor"},
@@ -99,10 +99,10 @@ const std::string& n2t::JackUtil::toString(Keyword keyword)
     return key->second;
 }
 
-const std::string& n2t::JackUtil::toString(TokenType tokenType)
+std::string_view n2t::JackUtil::toString(TokenType tokenType)
 {
     // clang-format off
-    static const std::map<TokenType, std::string> tokenTypes =
+    static const std::map<TokenType, std::string_view> tokenTypes =
     {
         {TokenType::Keyword,     "keyword"},
         {TokenType::Symbol,      "symbol"},
@@ -117,10 +117,10 @@ const std::string& n2t::JackUtil::toString(TokenType tokenType)
     return key->second;
 }
 
-const std::string& n2t::JackUtil::toString(VariableKind kind)
+std::string_view n2t::JackUtil::toString(VariableKind kind)
 {
     // clang-format off
-    static const std::map<VariableKind, std::string> variableKinds =
+    static const std::map<VariableKind, std::string_view> variableKinds =
     {
         {VariableKind::Static,   "static"},
         {VariableKind::Field,    "field"},

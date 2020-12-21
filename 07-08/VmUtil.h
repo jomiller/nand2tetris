@@ -27,59 +27,68 @@
 
 #include "VmTypes.h"
 
+#include <fmt/format.h>
+
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <type_traits>
+#include <utility>
 
 namespace n2t
 {
+struct SourceLocation
+{
+    std::string_view filename;
+    unsigned int     lineNumber = 0;
+};
+
 class VmUtil
 {
 public:
     VmUtil() = delete;
 
-    static const std::string& toString(CommandType command);
+    [[nodiscard]] static std::string_view toString(CommandType command);
 
-    template<typename Exception = std::logic_error>
-    [[noreturn]] static void throwUncond(std::string_view message,
-                                         std::string_view filename   = {},
-                                         unsigned int     lineNumber = 0)
+    template<typename Exception = std::logic_error, typename... Args>
+    [[noreturn]] static void throwUncond(SourceLocation sourceLocation, std::string_view message, Args&&... args)
     {
         static_assert(std::is_base_of_v<std::exception, Exception>);
         std::string msg;
-        if (!filename.empty())
+        if (!sourceLocation.filename.empty())
         {
-            msg = filename;
-            if (lineNumber != 0)
+            msg = sourceLocation.filename;
+            if (sourceLocation.lineNumber != 0)
             {
-                msg += ":" + std::to_string(lineNumber);
+                msg.append(fmt::format(":{}", sourceLocation.lineNumber));
             }
-            msg += ": ";
+            msg.append(": ");
         }
-        msg += message;
+        msg.append(fmt::format(message, std::forward<Args>(args)...));
         throw Exception{msg};
     }
 
-    template<typename Exception = std::logic_error>
-    static void throwCond(bool             condition,
-                          std::string_view message,
-                          std::string_view filename   = {},
-                          unsigned int     lineNumber = 0)
+    template<typename Exception = std::logic_error, typename... Args>
+    [[noreturn]] static void throwUncond(std::string_view message, Args&&... args)
+    {
+        throwUncond<Exception, Args...>(SourceLocation{}, message, std::forward<Args>(args)...);
+    }
+
+    template<typename Exception = std::logic_error, typename... Args>
+    static void throwCond(bool condition, SourceLocation sourceLocation, std::string_view message, Args&&... args)
     {
         if (!condition)
         {
-            throwUncond<Exception>(message, filename, lineNumber);
+            throwUncond<Exception, Args...>(sourceLocation, message, std::forward<Args>(args)...);
         }
+    }
+
+    template<typename Exception = std::logic_error, typename... Args>
+    static void throwCond(bool condition, std::string_view message, Args&&... args)
+    {
+        throwCond<Exception, Args...>(condition, SourceLocation{}, message, std::forward<Args>(args)...);
     }
 };
 }  // namespace n2t
-
-#define N2T_VM_THROW_COND(condition, message) \
-    if (!(condition))                         \
-    {                                         \
-        VmUtil::throwUncond(message);         \
-    }                                         \
-    else                                      \
-        (void)0
 
 #endif

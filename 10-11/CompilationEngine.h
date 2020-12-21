@@ -32,11 +32,12 @@
 
 #include <cstdint>
 #include <filesystem>
-#include <map>
 #include <memory>
 #include <set>
 #include <stack>
 #include <string>
+#include <string_view>
+#include <unordered_map>
 #include <utility>
 
 namespace n2t
@@ -158,7 +159,7 @@ private:
 
     bool         compileKeyword(Keyword expected, bool optional = false);
     bool         compileSymbol(char expected, bool optional = false, bool advance = true);
-    std::string  compileIdentifier(const std::string& type = {});
+    std::string  compileIdentifier(std::string_view type = {});
     int16_t      compileIntegerConstant();
     std::string  compileStringConstant();
     void         compileVarDecImpl(Keyword variableKind);
@@ -172,17 +173,17 @@ private:
     unsigned int getNextLabelId();
     std::string  getTokenDescription() const;
 
-    JackTokenizer                         m_inputTokenizer;
-    SymbolTable                           m_symbolTable;
-    VmWriter                              m_vmWriter;
-    std::unique_ptr<XmlWriter>            m_xmlWriter;
-    std::string                           m_className;
-    SubroutineInfo                        m_currentSubroutine;
-    std::map<std::string, SubroutineInfo> m_definedSubroutines;
-    std::set<SubroutineCallInfo>          m_calledSubroutines;
-    std::stack<int16_t>                   m_argumentCounts;
-    bool                                  m_inReturnStatement = false;
-    unsigned int                          m_nextLabelId       = 0;
+    JackTokenizer                                   m_inputTokenizer;
+    SymbolTable                                     m_symbolTable;
+    VmWriter                                        m_vmWriter;
+    std::unique_ptr<XmlWriter>                      m_xmlWriter;
+    std::string                                     m_className;
+    SubroutineInfo                                  m_currentSubroutine;
+    std::unordered_map<std::string, SubroutineInfo> m_definedSubroutines;
+    std::set<SubroutineCallInfo>                    m_calledSubroutines;
+    std::stack<int16_t>                             m_argumentCounts;
+    bool                                            m_inReturnStatement = false;
+    unsigned int                                    m_nextLabelId       = 0;
 };
 }  // namespace n2t
 

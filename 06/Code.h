@@ -26,7 +26,7 @@
 #define CODE_H
 
 #include <cstdint>
-#include <string>
+#include <string_view>
 
 namespace n2t
 {
@@ -36,13 +36,13 @@ public:
     Code() = delete;
 
     // Returns the binary code of the 'dest' mnemonic.
-    static uint16_t dest(const std::string& dest);
+    static uint16_t dest(std::string_view dest);
 
     // Returns the binary code of the 'comp' mnemonic.
-    static uint16_t comp(const std::string& comp);
+    static uint16_t comp(std::string_view comp);
 
     // Returns the binary code of the 'jump' mnemonic.
-    static uint16_t jump(const std::string& jump);
+    static uint16_t jump(std::string_view jump);
 };
 }  // namespace n2t
 

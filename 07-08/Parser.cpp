@@ -34,9 +34,9 @@
 #include <string_view>
 #include <vector>
 
-n2t::Parser::Parser(const std::string& filename) : m_file{filename.data()}
+n2t::Parser::Parser(const std::filesystem::path& filename) : m_file{filename}
 {
-    VmUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open input file (" + filename + ")");
+    VmUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open input file ({})", filename.string());
 }
 
 bool n2t::Parser::advance()
@@ -61,7 +61,7 @@ bool n2t::Parser::advance()
     std::vector<std::string> args;
     boost::algorithm::split(args, currentCommand, boost::algorithm::is_space(), boost::algorithm::token_compress_on);
 
-    N2T_VM_THROW_COND(!args.empty(), "Unable to parse command (" + currentCommand + ")");
+    VmUtil::throwCond(!args.empty(), "Unable to parse command ({})", currentCommand);
 
     // clang-format off
     static const std::map<std::string_view, CommandType> commandTypes =
@@ -87,7 +87,7 @@ bool n2t::Parser::advance()
     // clang-format on
 
     const auto iter = commandTypes.find(args[0]);
-    N2T_VM_THROW_COND(iter != commandTypes.end(), "Invalid command type (" + args[0] + ")");
+    VmUtil::throwCond(iter != commandTypes.end(), "Invalid command type ({})", args[0]);
 
     m_commandType = iter->second;
     m_arg1.clear();
@@ -110,10 +110,10 @@ bool n2t::Parser::advance()
             }
             catch (const boost::bad_lexical_cast&)
             {
-                VmUtil::throwUncond("Command argument (" + args[2] + ") is too large or is not an integer");
+                VmUtil::throwUncond("Command argument ({}) is too large or is not an integer", args[2]);
             }
 
-            N2T_VM_THROW_COND(m_arg2 >= 0, "Command argument (" + args[2] + ") is a negative integer");
+            VmUtil::throwCond(m_arg2 >= 0, "Command argument ({}) is a negative integer", args[2]);
         }
     }
 

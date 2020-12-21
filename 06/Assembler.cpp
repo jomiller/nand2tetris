@@ -26,6 +26,8 @@
 
 #include <cxxopts.hpp>
 
+#include <fmt/format.h>
+
 #include <filesystem>
 #include <iostream>
 #include <stdexcept>
@@ -85,11 +87,11 @@ int main(int argc, char* argv[])
         std::filesystem::path inputFilename{optionsMap["input-file"].as<std::vector<std::string>>().front()};
         if (!std::filesystem::exists(inputFilename))
         {
-            throw std::invalid_argument{"Input file (" + inputFilename.string() + ") does not exist"};
+            throw std::invalid_argument{fmt::format("Input file ({}) does not exist", inputFilename.string())};
         }
         if (!std::filesystem::is_regular_file(inputFilename))
         {
-            throw std::invalid_argument{"Input file (" + inputFilename.string() + ") is not a file"};
+            throw std::invalid_argument{fmt::format("Input file ({}) is not a file", inputFilename.string())};
         }
 
         if (outputFilename.empty())

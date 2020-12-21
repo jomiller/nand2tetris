@@ -30,10 +30,11 @@
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
-#include <map>
 #include <set>
 #include <string>
 #include <string_view>
+#include <unordered_map>
+#include <unordered_set>
 #include <utility>
 
 namespace n2t
@@ -133,16 +134,16 @@ private:
     void         validateFunction();
     void         validateFunctionCalls() const;
 
-    std::filesystem::path          m_outputFilename;
-    std::ofstream                  m_file;
-    std::string                    m_currentInputFilename;
-    FunctionInfo                   m_currentFunction;
-    std::set<std::string>          m_labels;
-    std::set<std::string>          m_gotoDestinations;
-    std::map<std::string, int16_t> m_definedFunctions;
-    std::set<FunctionCallInfo>     m_calledFunctions;
-    unsigned int                   m_nextLabelId = 0;
-    bool                           m_closed      = false;
+    std::filesystem::path                    m_outputFilename;
+    std::ofstream                            m_file;
+    std::string                              m_currentInputFilename;
+    FunctionInfo                             m_currentFunction;
+    std::unordered_set<std::string>          m_labels;
+    std::unordered_set<std::string>          m_gotoDestinations;
+    std::unordered_map<std::string, int16_t> m_definedFunctions;
+    std::set<FunctionCallInfo>               m_calledFunctions;
+    unsigned int                             m_nextLabelId = 0;
+    bool                                     m_closed      = false;
 };
 }  // namespace n2t
 

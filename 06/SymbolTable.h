@@ -26,8 +26,8 @@
 #define SYMBOL_TABLE_H
 
 #include <cstdint>
-#include <map>
 #include <string>
+#include <unordered_map>
 
 namespace n2t
 {
@@ -47,7 +47,7 @@ public:
     [[nodiscard]] int16_t getAddress(const std::string& symbol) const;
 
 private:
-    std::map<std::string, int16_t> m_table;
+    std::unordered_map<std::string, int16_t> m_table;
 };
 }  // namespace n2t
 

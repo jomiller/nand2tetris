@@ -28,10 +28,10 @@
 
 #include <map>
 
-const std::string& n2t::VmUtil::toString(CommandType command)
+std::string_view n2t::VmUtil::toString(CommandType command)
 {
     // clang-format off
-    static const std::map<CommandType, std::string> commands =
+    static const std::map<CommandType, std::string_view> commands =
     {
         {CommandType::Arithmetic, "arithmetic"},
         {CommandType::Push,       "push"},

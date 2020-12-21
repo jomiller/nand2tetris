@@ -28,6 +28,7 @@
 #include "VmTypes.h"
 
 #include <cstdint>
+#include <filesystem>
 #include <fstream>
 #include <string>
 
@@ -37,7 +38,7 @@ class Parser
 {
 public:
     // Opens the input file and gets ready to parse it.
-    explicit Parser(const std::string& filename);
+    explicit Parser(const std::filesystem::path& filename);
 
     // Returns the current line number.
     unsigned int lineNumber() const

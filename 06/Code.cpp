@@ -28,7 +28,7 @@
 
 #include <map>
 
-uint16_t n2t::Code::dest(const std::string& dest)
+uint16_t n2t::Code::dest(std::string_view dest)
 {
     if (dest.empty())
     {
@@ -49,12 +49,12 @@ uint16_t n2t::Code::dest(const std::string& dest)
     // clang-format on
 
     const auto iter = destCodes.find(dest);
-    N2T_ASM_THROW_COND(iter != destCodes.end(), "Invalid 'dest' mnemonic (" + dest + ")");
+    AsmUtil::throwCond(iter != destCodes.end(), "Invalid 'dest' mnemonic ({})", dest);
 
     return iter->second;
 }
 
-uint16_t n2t::Code::comp(const std::string& comp)
+uint16_t n2t::Code::comp(std::string_view comp)
 {
     // clang-format off
     static const std::map<std::string_view, uint16_t> compCodes =
@@ -91,12 +91,12 @@ uint16_t n2t::Code::comp(const std::string& comp)
     // clang-format on
 
     const auto iter = compCodes.find(comp);
-    N2T_ASM_THROW_COND(iter != compCodes.end(), "Invalid 'comp' mnemonic (" + comp + ")");
+    AsmUtil::throwCond(iter != compCodes.end(), "Invalid 'comp' mnemonic ({})", comp);
 
     return iter->second;
 }
 
-uint16_t n2t::Code::jump(const std::string& jump)
+uint16_t n2t::Code::jump(std::string_view jump)
 {
     if (jump.empty())
     {
@@ -117,7 +117,7 @@ uint16_t n2t::Code::jump(const std::string& jump)
     // clang-format on
 
     const auto iter = jumpCodes.find(jump);
-    N2T_ASM_THROW_COND(iter != jumpCodes.end(), "Invalid 'jump' mnemonic (" + jump + ")");
+    AsmUtil::throwCond(iter != jumpCodes.end(), "Invalid 'jump' mnemonic ({})", jump);
 
     return iter->second;
 }

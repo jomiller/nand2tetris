@@ -27,6 +27,8 @@
 
 #include <cxxopts.hpp>
 
+#include <fmt/format.h>
+
 #include <filesystem>
 #include <iostream>
 #include <stdexcept>
@@ -54,7 +56,8 @@ namespace
 
         if (inputFilenames.empty())
         {
-            throw std::invalid_argument{"Input directory (" + inputPath.string() + ") does not contain VM files"};
+            throw std::invalid_argument{
+                fmt::format("Input directory ({}) does not contain VM files", inputPath.string())};
         }
 
         if (outputFilename.empty())
@@ -77,7 +80,7 @@ namespace
     {
         if (inputPath.extension() != ".vm")
         {
-            throw std::invalid_argument{"Input file (" + inputPath.string() + ") is not a VM file"};
+            throw std::invalid_argument{fmt::format("Input file ({}) is not a VM file", inputPath.string())};
         }
         inputFilenames.push_back(inputPath);
 
@@ -89,7 +92,8 @@ namespace
     }
     else
     {
-        throw std::invalid_argument{"Input path (" + inputPath.string() + ") is neither a file nor a directory"};
+        throw std::invalid_argument{
+            fmt::format("Input path ({}) is neither a file nor a directory", inputPath.string())};
     }
 
     return inputFilenames;
@@ -150,7 +154,7 @@ int main(int argc, char* argv[])
         const std::filesystem::path inputPath{optionsMap["input-path"].as<std::vector<std::string>>().front()};
         if (!std::filesystem::exists(inputPath))
         {
-            throw std::invalid_argument{"Input path (" + inputPath.string() + ") does not exist"};
+            throw std::invalid_argument{fmt::format("Input path ({}) does not exist", inputPath.string())};
         }
 
         const auto isInputDirectory = std::filesystem::is_directory(inputPath);

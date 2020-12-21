@@ -26,13 +26,15 @@
 
 #include "AsmUtil.h"
 
+#include <fmt/format.h>
+
 n2t::SymbolTable::SymbolTable()
 {
     // initialize the table with the predefined symbols
     const int16_t numNamedRamLocations = 16;
     for (int16_t i = 0; i < numNamedRamLocations; ++i)
     {
-        m_table["R" + std::to_string(i)] = i;
+        m_table[fmt::format("R{}", i)] = i;
     }
 
     m_table["SP"]     = 0x0000;
@@ -46,7 +48,7 @@ n2t::SymbolTable::SymbolTable()
 
 void n2t::SymbolTable::addEntry(const std::string& symbol, int16_t address)
 {
-    N2T_ASM_THROW_COND(m_table.emplace(symbol, address).second, "Symbol (" + symbol + ") already exists in the table");
+    AsmUtil::throwCond(m_table.emplace(symbol, address).second, "Symbol ({}) already exists in the table", symbol);
 }
 
 bool n2t::SymbolTable::contains(const std::string& symbol) const
@@ -57,7 +59,7 @@ bool n2t::SymbolTable::contains(const std::string& symbol) const
 int16_t n2t::SymbolTable::getAddress(const std::string& symbol) const
 {
     const auto iter = m_table.find(symbol);
-    N2T_ASM_THROW_COND(iter != m_table.end(), "Symbol (" + symbol + ") not found in the table");
+    AsmUtil::throwCond(iter != m_table.end(), "Symbol ({}) not found in the table", symbol);
 
     return iter->second;
 }

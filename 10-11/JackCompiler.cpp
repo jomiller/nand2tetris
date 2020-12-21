@@ -27,6 +27,8 @@
 
 #include <cxxopts.hpp>
 
+#include <fmt/format.h>
+
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
@@ -53,20 +55,21 @@ namespace
 
         if (inputFilenames.empty())
         {
-            throw std::invalid_argument{"Input directory (" + inputPath.string() + ") does not contain Jack files"};
+            throw std::invalid_argument{
+                fmt::format("Input directory ({}) does not contain Jack files", inputPath.string())};
         }
     }
     else if (std::filesystem::is_regular_file(inputPath))
     {
         if (inputPath.extension() != ".jack")
         {
-            throw std::invalid_argument{"Input file (" + inputPath.string() + ") is not a Jack file"};
+            throw std::invalid_argument{fmt::format("Input file ({}) is not a Jack file", inputPath.string())};
         }
         inputFilenames.push_back(inputPath);
     }
     else
     {
-        throw std::invalid_argument{"Input path (" + inputPath.string() + ") is not a file nor a directory"};
+        throw std::invalid_argument{fmt::format("Input path ({}) is not a file nor a directory", inputPath.string())};
     }
 
     return inputFilenames;
@@ -118,8 +121,7 @@ int main(int argc, char* argv[])
 
         if (numJobs <= 0)
         {
-            throw cxxopts::OptionParseException{"Option 'jobs' has an invalid argument '" + std::to_string(numJobs) +
-                                                "'"};
+            throw cxxopts::OptionParseException{fmt::format("Option 'jobs' has an invalid argument '{}'", numJobs)};
         }
 
         const auto inputPathCount = optionsMap.count("input-path");
@@ -135,7 +137,7 @@ int main(int argc, char* argv[])
         const std::filesystem::path inputPath{optionsMap["input-path"].as<std::vector<std::string>>().front()};
         if (!std::filesystem::exists(inputPath))
         {
-            throw std::invalid_argument{"Input path (" + inputPath.string() + ") does not exist"};
+            throw std::invalid_argument{fmt::format("Input path ({}) does not exist", inputPath.string())};
         }
 
         const auto inputFilenames = findInputFiles(inputPath);

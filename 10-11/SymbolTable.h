@@ -30,8 +30,8 @@
 
 #include <array>
 #include <cstdint>
-#include <map>
 #include <string>
+#include <unordered_map>
 #include <utility>
 
 namespace n2t
@@ -75,7 +75,7 @@ private:
         int16_t      index = 0;
     };
 
-    using HashTable = std::map<std::string, HashTableEntry>;
+    using HashTable = std::unordered_map<std::string, HashTableEntry>;
 
     HashTable&                          getHashTable(VariableKind kind);
     [[nodiscard]] const HashTable&      getHashTable(VariableKind kind) const;

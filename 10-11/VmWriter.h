@@ -31,6 +31,7 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <string_view>
 
 namespace n2t
 {
@@ -85,7 +86,7 @@ public:
     }
 
 private:
-    static const std::string& toString(SegmentType segment);
+    static std::string_view toString(SegmentType segment);
 
     std::filesystem::path m_filename;
     std::ofstream         m_file;
