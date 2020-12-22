@@ -54,7 +54,7 @@ public:
     [[nodiscard]] static std::string_view         toString(VariableKind kind);
 
     template<typename Enum>
-    static constexpr std::underlying_type_t<Enum> toUnderlyingType(Enum enumerator) noexcept
+    [[nodiscard]] static constexpr std::underlying_type_t<Enum> toUnderlyingType(Enum enumerator) noexcept
     {
         return static_cast<std::underlying_type_t<Enum>>(enumerator);
     }

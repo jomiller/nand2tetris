@@ -47,59 +47,62 @@ public:
         explicit TokenizerFunction(unsigned int* lineNumber);
 
         void reset();
-        bool operator()(std::istreambuf_iterator<char>& next, std::istreambuf_iterator<char> end, std::string& tok);
+
+        [[nodiscard]] bool operator()(std::istreambuf_iterator<char>& next,
+                                      std::istreambuf_iterator<char>  end,
+                                      std::string&                    tok);
 
     private:
-        static bool isDelimiter(char c);
+        [[nodiscard]] static bool isDelimiter(char c);
 
         unsigned int* m_lineNumber = nullptr;
-        unsigned int  m_lineCount = 0;
+        unsigned int  m_lineCount  = 0;
     };
 
     // Opens the input file and gets ready to tokenize it.
     explicit JackTokenizer(const std::filesystem::path& filename);
 
     // Returns the name of the input file.
-    const std::string& filename() const
+    [[nodiscard]] const std::string& filename() const
     {
         return m_filename;
     }
 
     // Returns the current line number.
-    unsigned int lineNumber() const
+    [[nodiscard]] unsigned int lineNumber() const
     {
         return m_lineNumber;
     }
 
     // Are there more tokens in the input?
-    bool hasMoreTokens() const;
+    [[nodiscard]] bool hasMoreTokens() const;
 
     // Gets the next token from the input and makes it the current token.
     // Should be called only if there are more tokens in the input.
     void advance();
 
     // Returns the type of the current token.
-    TokenType tokenType() const;
+    [[nodiscard]] TokenType tokenType() const;
 
     // Returns the keyword which is the current token.
     // Should be called only if the current token type is Keyword.
-    Keyword keyword() const;
+    [[nodiscard]] Keyword keyword() const;
 
     // Returns the symbol which is the current token.
     // Should be called only if the current token type is Symbol.
-    char symbol() const;
+    [[nodiscard]] char symbol() const;
 
     // Returns the identifier which is the current token.
     // Should be called only if the current token type is Identifier.
-    const std::string& identifier() const;
+    [[nodiscard]] const std::string& identifier() const;
 
     // Returns the integer value of the current token.
     // Should be called only if the current token type is IntConst.
-    int16_t intVal() const;
+    [[nodiscard]] int16_t intVal() const;
 
     // Returns the string value of the current token, without the double quotes.
     // Should be called only if the current token type is StringConst.
-    const std::string& stringVal() const;
+    [[nodiscard]] const std::string& stringVal() const;
 
 private:
     using TokenIterator = boost::token_iterator_generator<TokenizerFunction, std::istreambuf_iterator<char>>::type;

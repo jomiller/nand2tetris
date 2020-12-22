@@ -80,13 +80,13 @@ public:
     void close();
 
     // Returns whether the output file has been closed.
-    bool isClosed() const
+    [[nodiscard]] bool isClosed() const
     {
         return m_closed;
     }
 
 private:
-    static std::string_view toString(SegmentType segment);
+    [[nodiscard]] static std::string_view toString(SegmentType segment);
 
     std::filesystem::path m_filename;
     std::ofstream         m_file;

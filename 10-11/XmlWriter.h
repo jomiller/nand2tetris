@@ -77,7 +77,7 @@ public:
     void close();
 
     // Returns whether the output file has been closed.
-    bool isClosed() const
+    [[nodiscard]] bool isClosed() const
     {
         return m_closed;
     }

@@ -41,26 +41,26 @@ public:
     explicit Parser(const std::filesystem::path& filename);
 
     // Returns the current line number.
-    unsigned int lineNumber() const
+    [[nodiscard]] unsigned int lineNumber() const
     {
         return m_lineNumber;
     }
 
     // Reads the next command from the input and makes it the current command.
-    bool advance();
+    [[nodiscard]] bool advance();
 
     // Returns the type of the current VM command.
     // Arithmetic is returned for all the arithmetic commands.
-    CommandType commandType() const;
+    [[nodiscard]] CommandType commandType() const;
 
     // Returns the first argument of the current command.
     // In the case of Arithmetic, the command itself (add, sub, etc.) is returned.
     // Should not be called if the current command is Return
-    const std::string& arg1() const;
+    [[nodiscard]] const std::string& arg1() const;
 
     // Returns the second argument of the current command.
     // Should be called only if the current command is Push, Pop, Function, or Call.
-    int16_t arg2() const;
+    [[nodiscard]] int16_t arg2() const;
 
 private:
     std::ifstream m_file;

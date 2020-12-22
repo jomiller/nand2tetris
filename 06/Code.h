@@ -36,13 +36,13 @@ public:
     Code() = delete;
 
     // Returns the binary code of the 'dest' mnemonic.
-    static uint16_t dest(std::string_view dest);
+    [[nodiscard]] static uint16_t dest(std::string_view dest);
 
     // Returns the binary code of the 'comp' mnemonic.
-    static uint16_t comp(std::string_view comp);
+    [[nodiscard]] static uint16_t comp(std::string_view comp);
 
     // Returns the binary code of the 'jump' mnemonic.
-    static uint16_t jump(std::string_view jump);
+    [[nodiscard]] static uint16_t jump(std::string_view jump);
 };
 }  // namespace n2t
 

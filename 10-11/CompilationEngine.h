@@ -84,7 +84,7 @@ private:
         {
         }
 
-        bool operator<(const SubroutineCallInfo& rhs) const
+        [[nodiscard]] bool operator<(const SubroutineCallInfo& rhs) const
         {
             if (type != rhs.type)
             {
@@ -107,16 +107,16 @@ private:
         bool        expression   = false;
     };
 
-    static bool              isClassVarDec(Keyword keyword);
-    static bool              isVarType(Keyword keyword, bool orVoid);
-    static bool              isSubroutine(Keyword keyword);
-    static bool              isStatement(Keyword keyword);
-    static bool              isBinaryOperator(char symbol);
-    static bool              isUnaryOperator(char symbol);
-    static bool              isKeywordConstant(Keyword keyword);
-    static VariableKind      getVariableKind(Keyword variableKind);
-    static SegmentType       getSegmentType(VariableKind kind);
-    static ArithmeticCommand getArithmeticCommand(char symbol, bool unary);
+    [[nodiscard]] static bool              isClassVarDec(Keyword keyword);
+    [[nodiscard]] static bool              isVarType(Keyword keyword, bool orVoid);
+    [[nodiscard]] static bool              isSubroutine(Keyword keyword);
+    [[nodiscard]] static bool              isStatement(Keyword keyword);
+    [[nodiscard]] static bool              isBinaryOperator(char symbol);
+    [[nodiscard]] static bool              isUnaryOperator(char symbol);
+    [[nodiscard]] static bool              isKeywordConstant(Keyword keyword);
+    [[nodiscard]] static VariableKind      getVariableKind(Keyword variableKind);
+    [[nodiscard]] static SegmentType       getSegmentType(VariableKind kind);
+    [[nodiscard]] static ArithmeticCommand getArithmeticCommand(char symbol, bool unary);
 
     // Compiles a static declaration or a field declaration.
     void compileClassVarDec();
@@ -157,21 +157,21 @@ private:
     // Compiles a (possibly empty) comma-separated list of expressions.
     void compileExpressionList();
 
-    bool         compileKeyword(Keyword expected, bool optional = false);
-    bool         compileSymbol(char expected, bool optional = false, bool advance = true);
-    std::string  compileIdentifier(std::string_view type = {});
-    int16_t      compileIntegerConstant();
-    std::string  compileStringConstant();
-    void         compileVarDecImpl(Keyword variableKind);
-    std::string  compileVarType(bool orVoid = false);
-    void         compileParameter();
-    void         compileSubroutineBody();
-    void         compileArrayEntry(const std::string& variableName);
-    void         compileSubroutineCall(const std::string& identifier = {});
-    void         validateSubroutineCalls() const;
-    VariableKind getKindOf(const std::string& variableName) const;
-    unsigned int getNextLabelId();
-    std::string  getTokenDescription() const;
+    bool                       compileKeyword(Keyword expected, bool optional = false);
+    bool                       compileSymbol(char expected, bool optional = false, bool advance = true);
+    [[nodiscard]] std::string  compileIdentifier(std::string_view type = {});
+    [[nodiscard]] int16_t      compileIntegerConstant();
+    [[nodiscard]] std::string  compileStringConstant();
+    void                       compileVarDecImpl(Keyword variableKind);
+    [[nodiscard]] std::string  compileVarType(bool orVoid = false);
+    void                       compileParameter();
+    void                       compileSubroutineBody();
+    void                       compileArrayEntry(const std::string& variableName);
+    void                       compileSubroutineCall(const std::string& identifier = {});
+    void                       validateSubroutineCalls() const;
+    [[nodiscard]] VariableKind getKindOf(const std::string& variableName) const;
+    [[nodiscard]] unsigned int getNextLabelId();
+    [[nodiscard]] std::string  getTokenDescription() const;
 
     JackTokenizer                                   m_inputTokenizer;
     SymbolTable                                     m_symbolTable;

@@ -88,7 +88,7 @@ public:
     void close();
 
     // Returns whether the output file has been closed.
-    bool isClosed() const
+    [[nodiscard]] bool isClosed() const
     {
         return m_closed;
     }
@@ -114,7 +114,7 @@ private:
         {
         }
 
-        bool operator<(const FunctionCallInfo& rhs) const
+        [[nodiscard]] bool operator<(const FunctionCallInfo& rhs) const
         {
             if (name != rhs.name)
             {
@@ -127,12 +127,12 @@ private:
         int16_t     numArguments = 0;
     };
 
-    void         pushFromD();
-    void         popToD();
-    unsigned int getNextLabelId();
-    std::string  makeLabel(const std::string& label) const;
-    void         validateFunction();
-    void         validateFunctionCalls() const;
+    void                       pushFromD();
+    void                       popToD();
+    [[nodiscard]] unsigned int getNextLabelId();
+    [[nodiscard]] std::string  makeLabel(const std::string& label) const;
+    void                       validateFunction();
+    void                       validateFunctionCalls() const;
 
     std::filesystem::path                    m_outputFilename;
     std::ofstream                            m_file;

@@ -77,10 +77,10 @@ private:
 
     using HashTable = std::unordered_map<std::string, HashTableEntry>;
 
-    HashTable&                          getHashTable(VariableKind kind);
+    [[nodiscard]] HashTable&            getHashTable(VariableKind kind);
     [[nodiscard]] const HashTable&      getHashTable(VariableKind kind) const;
     [[nodiscard]] const HashTableEntry& getHashTableEntry(const std::string& name) const;
-    int16_t                             getNextVarIndex(VariableKind kind);
+    [[nodiscard]] int16_t               getNextVarIndex(VariableKind kind);
 
     HashTable                                                            m_classTable;
     HashTable                                                            m_subroutineTable;
