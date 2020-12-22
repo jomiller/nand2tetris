@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/serge-sans-paille/frozen.git
+	branch = master
+	commit = e6ddc432d0ba4e42542b5867bdc932b5f6d1e08d
+	parent = 2adf6056ac3826d3e4c4d9077bc22eb638585ab2
+	method = merge
+	cmdver = 0.4.3
