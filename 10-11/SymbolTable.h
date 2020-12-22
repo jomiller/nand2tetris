@@ -26,7 +26,8 @@
 #define SYMBOL_TABLE_H
 
 #include "JackTypes.h"
-#include "JackUtil.h"
+
+#include <Util.h>
 
 #include <array>
 #include <cstdint>
@@ -82,9 +83,9 @@ private:
     [[nodiscard]] const HashTableEntry& getHashTableEntry(const std::string& name) const;
     [[nodiscard]] int16_t               getNextVarIndex(VariableKind kind);
 
-    HashTable                                                            m_classTable;
-    HashTable                                                            m_subroutineTable;
-    std::array<int16_t, JackUtil::toUnderlyingType(VariableKind::Count)> m_nextVarIndices = {};
+    HashTable                                                  m_classTable;
+    HashTable                                                  m_subroutineTable;
+    std::array<int16_t, toUnderlyingType(VariableKind::Count)> m_nextVarIndices = {};
 };
 }  // namespace n2t
 

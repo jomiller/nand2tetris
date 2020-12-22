@@ -22,18 +22,14 @@
 # SOFTWARE.
 #
 
-set (target_name VmTranslator)
+set (target_name common)
 
-add_executable (${target_name} CodeWriter.cpp
-                               Parser.cpp
-                               TranslationEngine.cpp
-                               VmTranslator.cpp
-                               VmUtil.cpp)
+add_library (${target_name} INTERFACE)
 
-target_compile_features (${target_name} PRIVATE cxx_std_20)
+add_library (n2t::${target_name} ALIAS ${target_name})
 
-target_include_directories (${target_name} SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})
+target_compile_features (${target_name} INTERFACE cxx_std_20)
 
-target_link_libraries (${target_name} n2t::common cxxopts::cxxopts fmt::fmt)
+target_include_directories (${target_name} INTERFACE .)
 
-install (TARGETS ${target_name} DESTINATION bin)
+target_link_libraries (${target_name} INTERFACE fmt::fmt frozen::frozen)

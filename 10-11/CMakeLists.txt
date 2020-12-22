@@ -37,8 +37,10 @@ target_compile_features (${target_name} PRIVATE cxx_std_20)
 
 target_include_directories (${target_name} SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})
 
-target_link_libraries (${target_name} cxxopts::cxxopts
+target_link_libraries (${target_name} n2t::common
+                                      cxxopts::cxxopts
                                       fmt::fmt
+                                      frozen::frozen
                                       Threads::Threads)
 
 install (TARGETS ${target_name} DESTINATION bin)

@@ -27,68 +27,11 @@
 
 #include "VmTypes.h"
 
-#include <fmt/format.h>
-
-#include <stdexcept>
-#include <string>
 #include <string_view>
-#include <type_traits>
-#include <utility>
 
 namespace n2t
 {
-struct SourceLocation
-{
-    std::string_view filename;
-    unsigned int     lineNumber = 0;
-};
-
-class VmUtil
-{
-public:
-    VmUtil() = delete;
-
-    [[nodiscard]] static std::string_view toString(CommandType command);
-
-    template<typename Exception = std::logic_error, typename... Args>
-    [[noreturn]] static void throwUncond(SourceLocation sourceLocation, std::string_view message, Args&&... args)
-    {
-        static_assert(std::is_base_of_v<std::exception, Exception>);
-        std::string msg;
-        if (!sourceLocation.filename.empty())
-        {
-            msg = sourceLocation.filename;
-            if (sourceLocation.lineNumber != 0)
-            {
-                msg.append(fmt::format(":{}", sourceLocation.lineNumber));
-            }
-            msg.append(": ");
-        }
-        msg.append(fmt::format(message, std::forward<Args>(args)...));
-        throw Exception{msg};
-    }
-
-    template<typename Exception = std::logic_error, typename... Args>
-    [[noreturn]] static void throwUncond(std::string_view message, Args&&... args)
-    {
-        throwUncond<Exception, Args...>(SourceLocation{}, message, std::forward<Args>(args)...);
-    }
-
-    template<typename Exception = std::logic_error, typename... Args>
-    static void throwCond(bool condition, SourceLocation sourceLocation, std::string_view message, Args&&... args)
-    {
-        if (!condition)
-        {
-            throwUncond<Exception, Args...>(sourceLocation, message, std::forward<Args>(args)...);
-        }
-    }
-
-    template<typename Exception = std::logic_error, typename... Args>
-    static void throwCond(bool condition, std::string_view message, Args&&... args)
-    {
-        throwCond<Exception, Args...>(condition, SourceLocation{}, message, std::forward<Args>(args)...);
-    }
-};
+[[nodiscard]] std::string_view toString(CommandType command);
 }  // namespace n2t
 
 #endif

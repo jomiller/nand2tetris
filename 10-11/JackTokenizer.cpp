@@ -24,16 +24,18 @@
 
 #include "JackTokenizer.h"
 
-#include "JackAssert.h"
 #include "JackUtil.h"
+
+#include <Assert.h>
+#include <Util.h>
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <frozen/unordered_set.h>
+
 #include <algorithm>
 #include <locale>
-#include <map>
-#include <set>
 #include <string_view>
 #include <utility>
 
@@ -184,7 +186,7 @@ n2t::JackTokenizer::JackTokenizer(const std::filesystem::path& filename) :
     m_filename{filename.filename().string()},
     m_file{filename.string().data()}
 {
-    JackUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open input file ({})", filename.string());
+    throwCond<std::runtime_error>(m_file.good(), "Could not open input file ({})", filename.string());
 
     m_fileIter = boost::make_token_iterator<std::string>(
         std::istreambuf_iterator<char>(m_file), std::istreambuf_iterator<char>(), TokenizerFunction(&m_lineNumber));
@@ -202,7 +204,7 @@ void n2t::JackTokenizer::advance()
 {
     auto currentToken = readNextToken();
 
-    const auto key = JackUtil::toKeyword(currentToken);
+    const auto key = toKeyword(currentToken);
     if (key.second)
     {
         m_tokenType = TokenType::Keyword;
@@ -211,25 +213,28 @@ void n2t::JackTokenizer::advance()
     }
 
     // clang-format off
-    static const std::set<std::string_view> symbols =
+    static constexpr auto symbols = frozen::make_unordered_set<char>(
     {
-        "{", "}", "(", ")", "[", "]",
-        ".", ",", ";", "+", "-", "*", "/",
-        "&", "|", "~", "<", "=", ">"
-    };
+        '{', '}', '(', ')', '[', ']',
+        '.', ',', ';', '+', '-', '*', '/',
+        '&', '|', '~', '<', '=', '>'
+    });
     // clang-format on
 
-    const auto sym = symbols.find(currentToken);
-    if (sym != symbols.end())
+    if (currentToken.length() == 1)
     {
-        m_tokenType = TokenType::Symbol;
-        m_symbol    = (*sym).front();
-        return;
+        const auto iter = symbols.find(currentToken.front());  // NOLINT(readability-qualified-auto)
+        if (iter != symbols.end())
+        {
+            m_tokenType = TokenType::Symbol;
+            m_symbol    = *iter;
+            return;
+        }
     }
 
     if (currentToken.front() == '"')
     {
-        JackUtil::throwCond(
+        throwCond(
             currentToken.back() == '"', "Expected closing double quotation mark in string constant ({})", currentToken);
 
         m_tokenType = TokenType::StringConst;
@@ -245,13 +250,13 @@ void n2t::JackTokenizer::advance()
         }
         catch (const boost::bad_lexical_cast&)
         {
-            JackUtil::throwUncond("Integer constant ({}) is too large", currentToken);
+            throwUncond("Integer constant ({}) is too large", currentToken);
         }
         m_tokenType = TokenType::IntConst;
     }
     else
     {
-        JackUtil::throwCond(
+        throwCond(
             !std::isdigit(currentToken.front(), std::locale{}), "Identifier ({}) begins with a digit", currentToken);
 
         m_tokenType  = TokenType::Identifier;
@@ -266,36 +271,36 @@ n2t::TokenType n2t::JackTokenizer::tokenType() const
 
 n2t::Keyword n2t::JackTokenizer::keyword() const
 {
-    N2T_JACK_ASSERT(m_tokenType == TokenType::Keyword);
+    N2T_ASSERT(m_tokenType == TokenType::Keyword);
     return m_keyword;
 }
 
 char n2t::JackTokenizer::symbol() const
 {
-    N2T_JACK_ASSERT(m_tokenType == TokenType::Symbol);
+    N2T_ASSERT(m_tokenType == TokenType::Symbol);
     return m_symbol;
 }
 
 const std::string& n2t::JackTokenizer::identifier() const
 {
-    N2T_JACK_ASSERT(m_tokenType == TokenType::Identifier);
+    N2T_ASSERT(m_tokenType == TokenType::Identifier);
     return m_identifier;
 }
 
 int16_t n2t::JackTokenizer::intVal() const
 {
-    N2T_JACK_ASSERT(m_tokenType == TokenType::IntConst);
+    N2T_ASSERT(m_tokenType == TokenType::IntConst);
     return m_intVal;
 }
 
 const std::string& n2t::JackTokenizer::stringVal() const
 {
-    N2T_JACK_ASSERT(m_tokenType == TokenType::StringConst);
+    N2T_ASSERT(m_tokenType == TokenType::StringConst);
     return m_stringVal;
 }
 
 std::string n2t::JackTokenizer::readNextToken()
 {
-    JackUtil::throwCond(hasMoreTokens(), "Unexpected end of file reached");
+    throwCond(hasMoreTokens(), "Unexpected end of file reached");
     return *m_fileIter++;
 }

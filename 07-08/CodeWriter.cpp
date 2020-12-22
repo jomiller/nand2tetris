@@ -24,20 +24,21 @@
 
 #include "CodeWriter.h"
 
-#include "VmAssert.h"
-#include "VmUtil.h"
+#include <Assert.h>
+#include <Util.h>
 
 #include <fmt/format.h>
 
+#include <frozen/unordered_map.h>
+
 #include <array>
 #include <locale>
-#include <map>
 
 n2t::CodeWriter::CodeWriter(std::filesystem::path filename) :
     m_outputFilename{std::move(filename)},
     m_file{m_outputFilename.string().data()}
 {
-    VmUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open output file ({})", m_outputFilename.string());
+    throwCond<std::runtime_error>(m_file.good(), "Could not open output file ({})", m_outputFilename.string());
 }
 
 n2t::CodeWriter::~CodeWriter() noexcept
@@ -79,7 +80,7 @@ void n2t::CodeWriter::writeArithmetic(const std::string& command)
 {
     struct ArithmeticInfo
     {
-        ArithmeticInfo(bool u, bool l, std::string_view i) : unary{u}, logic{l}, inst{i}
+        constexpr ArithmeticInfo(bool u, bool l, std::string_view i) : unary{u}, logic{l}, inst{i}
         {
         }
 
@@ -89,7 +90,7 @@ void n2t::CodeWriter::writeArithmetic(const std::string& command)
     };
 
     // clang-format off
-    static const std::map<std::string_view, ArithmeticInfo> arithmeticInfo =
+    static constexpr auto arithmeticInfo = frozen::make_unordered_map<frozen::string, ArithmeticInfo>(
     {
         {"add", ArithmeticInfo{/* u = */ false, /* l = */ false, "M=D+M"}},
         {"sub", ArithmeticInfo{/* u = */ false, /* l = */ false, "M=M-D"}},
@@ -100,11 +101,11 @@ void n2t::CodeWriter::writeArithmetic(const std::string& command)
         {"lt",  ArithmeticInfo{/* u = */ false, /* l = */ true,  "D;JLT"}},
         {"eq",  ArithmeticInfo{/* u = */ false, /* l = */ true,  "D;JEQ"}},
         {"gt",  ArithmeticInfo{/* u = */ false, /* l = */ true,  "D;JGT"}}
-    };
+    });
     // clang-format on
 
-    const auto iter = arithmeticInfo.find(command);
-    VmUtil::throwCond(iter != arithmeticInfo.end(), "Invalid arithmetic command type ({})", command);
+    const auto iter = arithmeticInfo.find(toFrozenString(command));  // NOLINT(readability-qualified-auto)
+    throwCond(iter != arithmeticInfo.end(), "Invalid arithmetic command type ({})", command);
 
     const auto& info = iter->second;
     if (info.unary)
@@ -150,7 +151,7 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
 {
     struct SegmentInfo
     {
-        SegmentInfo(SegmentType t, bool i, std::string_view n = {}, int16_t a = 0) :
+        constexpr SegmentInfo(SegmentType t, bool i, std::string_view n = {}, int16_t a = 0) :
             type{t},
             indirect{i},
             name{n},
@@ -165,7 +166,7 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
     };
 
     // clang-format off
-    static const std::map<std::string_view, SegmentInfo> segmentInfo =
+    static constexpr auto segmentInfo = frozen::make_unordered_map<frozen::string, SegmentInfo>(
     {
         {"constant", SegmentInfo{SegmentType::Constant, /* i = */ false}},
         {"static",   SegmentInfo{SegmentType::Static,   /* i = */ false}},
@@ -175,11 +176,11 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
         {"local",    SegmentInfo{SegmentType::Local,    /* i = */ true,    "LCL"}},
         {"this",     SegmentInfo{SegmentType::This,     /* i = */ true,    "THIS"}},
         {"that",     SegmentInfo{SegmentType::That,     /* i = */ true,    "THAT"}}
-    };
+    });
     // clang-format on
 
-    const auto iter = segmentInfo.find(segment);
-    VmUtil::throwCond(iter != segmentInfo.end(), "Invalid memory segment ({})", segment);
+    const auto iter = segmentInfo.find(toFrozenString(segment));  // NOLINT(readability-qualified-auto)
+    throwCond(iter != segmentInfo.end(), "Invalid memory segment ({})", segment);
 
     const auto& info = iter->second;
     std::string symbol{info.name};
@@ -243,7 +244,7 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
     }
     else  // (command == CommandType::Pop)
     {
-        VmUtil::throwCond(info.type != SegmentType::Constant, "Cannot pop to the constant segment");
+        throwCond(info.type != SegmentType::Constant, "Cannot pop to the constant segment");
 
         if (info.indirect && (index > 1))
         {
@@ -277,7 +278,7 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
 
 void n2t::CodeWriter::writeLabel(const std::string& label)
 {
-    VmUtil::throwCond(!std::isdigit(label.front(), std::locale{}), "Label ({}) begins with a digit", label);
+    throwCond(!std::isdigit(label.front(), std::locale{}), "Label ({}) begins with a digit", label);
 
     if (!m_labels.insert(label).second)
     {
@@ -286,7 +287,7 @@ void n2t::CodeWriter::writeLabel(const std::string& label)
         {
             msg.append(fmt::format(" in function ({})", m_currentFunction.name));
         }
-        VmUtil::throwUncond(msg);
+        throwUncond(msg);
     }
     m_file << "(" << makeLabel(label) << ")\n";
 }
@@ -317,16 +318,16 @@ void n2t::CodeWriter::writeIf(const std::string& label)
 
 void n2t::CodeWriter::writeFunction(const std::string& functionName, int16_t numLocals)
 {
-    N2T_VM_ASSERT((numLocals >= 0) && "Number of function local variables is negative");
+    N2T_ASSERT((numLocals >= 0) && "Number of function local variables is negative");
 
     validateFunction();
 
-    VmUtil::throwCond(
+    throwCond(
         !std::isdigit(functionName.front(), std::locale{}), "Function name ({}) begins with a digit", functionName);
 
-    VmUtil::throwCond(m_definedFunctions.find(functionName) == m_definedFunctions.end(),
-                      "Function with name ({}) already exists",
-                      functionName);
+    throwCond(m_definedFunctions.find(functionName) == m_definedFunctions.end(),
+              "Function with name ({}) already exists",
+              functionName);
 
     m_currentFunction.name          = functionName;
     m_currentFunction.numParameters = 0;
@@ -347,7 +348,7 @@ void n2t::CodeWriter::writeFunction(const std::string& functionName, int16_t num
 
 void n2t::CodeWriter::writeReturn()
 {
-    VmUtil::throwCond(!m_currentFunction.name.empty(), "Return command is outside of a function");
+    throwCond(!m_currentFunction.name.empty(), "Return command is outside of a function");
 
     // save the base address of the calling function's saved state into R13
     // clang-format off
@@ -416,7 +417,7 @@ void n2t::CodeWriter::writeReturn()
 
 void n2t::CodeWriter::writeCall(const std::string& functionName, int16_t numArguments)
 {
-    N2T_VM_ASSERT((numArguments >= 0) && "Number of function arguments is negative");
+    N2T_ASSERT((numArguments >= 0) && "Number of function arguments is negative");
 
     m_calledFunctions.emplace(functionName, numArguments);
     const auto label = makeLabel(fmt::format("RETURN{}", getNextLabelId()));
@@ -529,7 +530,7 @@ void n2t::CodeWriter::validateFunction()
             {
                 msg.append(fmt::format(" in function ({})", m_currentFunction.name));
             }
-            VmUtil::throwUncond(msg);
+            throwUncond(msg);
         }
     }
     m_labels.clear();
@@ -548,12 +549,12 @@ void n2t::CodeWriter::validateFunctionCalls() const
     for (const FunctionCallInfo& call : m_calledFunctions)
     {
         const auto func = m_definedFunctions.find(call.name);
-        VmUtil::throwCond(func != m_definedFunctions.end(), "Undefined reference to function ({})", call.name);
+        throwCond(func != m_definedFunctions.end(), "Undefined reference to function ({})", call.name);
 
-        VmUtil::throwCond(call.numArguments >= func->second,
-                          "Function ({}) requires at least {} argument(s) but called with {} argument(s)",
-                          func->first,
-                          func->second,
-                          call.numArguments);
+        throwCond(call.numArguments >= func->second,
+                  "Function ({}) requires at least {} argument(s) but called with {} argument(s)",
+                  func->first,
+                  func->second,
+                  call.numArguments);
     }
 }

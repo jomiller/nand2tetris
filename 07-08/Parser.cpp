@@ -24,19 +24,20 @@
 
 #include "Parser.h"
 
-#include "VmUtil.h"
+#include <Util.h>
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <map>
+#include <frozen/unordered_map.h>
+
 #include <string_view>
 #include <vector>
 
 n2t::Parser::Parser(const std::filesystem::path& filename) : m_file{filename}
 {
-    VmUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open input file ({})", filename.string());
+    throwCond<std::runtime_error>(m_file.good(), "Could not open input file ({})", filename.string());
 }
 
 bool n2t::Parser::advance()
@@ -61,10 +62,10 @@ bool n2t::Parser::advance()
     std::vector<std::string> args;
     boost::algorithm::split(args, currentCommand, boost::algorithm::is_space(), boost::algorithm::token_compress_on);
 
-    VmUtil::throwCond(!args.empty(), "Unable to parse command ({})", currentCommand);
+    throwCond(!args.empty(), "Unable to parse command ({})", currentCommand);
 
     // clang-format off
-    static const std::map<std::string_view, CommandType> commandTypes =
+    static constexpr auto commandTypes = frozen::make_unordered_map<frozen::string, CommandType>(
     {
         {"add",      CommandType::Arithmetic},
         {"sub",      CommandType::Arithmetic},
@@ -83,18 +84,18 @@ bool n2t::Parser::advance()
         {"function", CommandType::Function},
         {"return",   CommandType::Return},
         {"call",     CommandType::Call}
-    };
+    });
     // clang-format on
 
-    const auto iter = commandTypes.find(args[0]);
-    VmUtil::throwCond(iter != commandTypes.end(), "Invalid command type ({})", args[0]);
+    const auto iter = commandTypes.find(toFrozenString(args[0]));  // NOLINT(readability-qualified-auto)
+    throwCond(iter != commandTypes.end(), "Invalid command type ({})", args[0]);
 
     m_commandType = iter->second;
     m_arg1.clear();
     m_arg2 = 0;
     if (m_commandType == CommandType::Arithmetic)
     {
-        m_arg1 = iter->first;
+        m_arg1.assign(iter->first.data(), iter->first.size());
     }
     else
     {
@@ -110,10 +111,10 @@ bool n2t::Parser::advance()
             }
             catch (const boost::bad_lexical_cast&)
             {
-                VmUtil::throwUncond("Command argument ({}) is too large or is not an integer", args[2]);
+                throwUncond("Command argument ({}) is too large or is not an integer", args[2]);
             }
 
-            VmUtil::throwCond(m_arg2 >= 0, "Command argument ({}) is a negative integer", args[2]);
+            throwCond(m_arg2 >= 0, "Command argument ({}) is a negative integer", args[2]);
         }
     }
 

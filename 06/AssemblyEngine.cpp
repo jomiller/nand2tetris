@@ -24,9 +24,10 @@
 
 #include "AssemblyEngine.h"
 
-#include "AsmUtil.h"
 #include "Code.h"
 #include "Parser.h"
+
+#include <Util.h>
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/lexical_cast.hpp>
@@ -62,7 +63,7 @@ n2t::AssemblyEngine::~AssemblyEngine() noexcept
 
 void n2t::AssemblyEngine::assemble()
 {
-    AsmUtil::throwCond(!m_assembled, "Input file ({}) has already been assembled", m_inputFilename.filename().string());
+    throwCond(!m_assembled, "Input file ({}) has already been assembled", m_inputFilename.filename().string());
     buildSymbolTable();
     generateCode();
     m_assembled = true;
@@ -85,7 +86,7 @@ void n2t::AssemblyEngine::buildSymbolTable()
             const auto commandType = symbolParser.commandType();
             if ((commandType == CommandType::A) || (commandType == CommandType::C))
             {
-                AsmUtil::throwCond(
+                throwCond(
                     nextRomAddress < maxRomAddress, "Instruction count exceeds the limit ({})", maxRomAddress + 1);
 
                 ++nextRomAddress;
@@ -93,9 +94,9 @@ void n2t::AssemblyEngine::buildSymbolTable()
             else if (commandType == CommandType::L)
             {
                 const auto& symbol = symbolParser.symbol();
-                AsmUtil::throwCond(!std::isdigit(symbol.front(), std::locale{}),
-                                   "Symbol ({}) begins with a digit in label command",
-                                   symbol);
+                throwCond(!std::isdigit(symbol.front(), std::locale{}),
+                          "Symbol ({}) begins with a digit in label command",
+                          symbol);
 
                 // associate the symbol with the ROM address that will store the next command in the program
                 m_symbolTable.addEntry(symbol, nextRomAddress);
@@ -104,7 +105,7 @@ void n2t::AssemblyEngine::buildSymbolTable()
     }
     catch (const std::exception& ex)
     {
-        AsmUtil::throwUncond({m_inputFilename.filename().string(), symbolParser.lineNumber()}, ex.what());
+        throwUncond({m_inputFilename.filename().string(), symbolParser.lineNumber()}, ex.what());
     }
 }
 
@@ -113,8 +114,7 @@ void n2t::AssemblyEngine::generateCode()
     Parser codeParser{m_inputFilename.string()};
 
     std::ofstream outputFile{m_outputFilename.string().data()};
-    AsmUtil::throwCond<std::runtime_error>(
-        outputFile.good(), "Could not open output file ({})", m_outputFilename.string());
+    throwCond<std::runtime_error>(outputFile.good(), "Could not open output file ({})", m_outputFilename.string());
 
     try
     {
@@ -142,19 +142,19 @@ void n2t::AssemblyEngine::generateCode()
                         }
                         catch (const boost::bad_lexical_cast&)
                         {
-                            AsmUtil::throwUncond("Address ({}) is too large in addressing instruction", symbol);
+                            throwUncond("Address ({}) is too large in addressing instruction", symbol);
                         }
                     }
                     else
                     {
-                        AsmUtil::throwUncond("Symbol ({}) begins with a digit in addressing instruction", symbol);
+                        throwUncond("Symbol ({}) begins with a digit in addressing instruction", symbol);
                     }
                 }
                 else
                 {
-                    AsmUtil::throwCond((symbol.front() != '-') || (symbol.length() <= 1) || !digits,
-                                       "Address ({}) is negative in addressing instruction",
-                                       symbol);
+                    throwCond((symbol.front() != '-') || (symbol.length() <= 1) || !digits,
+                              "Address ({}) is negative in addressing instruction",
+                              symbol);
 
                     // this is a symbolic A-instruction, i.e. @Xxx where Xxx is a symbol rather than an integer
                     if (m_symbolTable.contains(symbol))
@@ -169,7 +169,7 @@ void n2t::AssemblyEngine::generateCode()
                         m_symbolTable.addEntry(symbol, nextRamAddress);
                         targetAddress = nextRamAddress;
 
-                        AsmUtil::throwCond(
+                        throwCond(
                             nextRamAddress < maxRamAddress, "Variable count exceeds the limit ({})", maxRamAddress + 1);
 
                         ++nextRamAddress;
@@ -195,6 +195,6 @@ void n2t::AssemblyEngine::generateCode()
     }
     catch (const std::exception& ex)
     {
-        AsmUtil::throwUncond({m_inputFilename.filename().string(), codeParser.lineNumber()}, ex.what());
+        throwUncond({m_inputFilename.filename().string(), codeParser.lineNumber()}, ex.what());
     }
 }

@@ -24,10 +24,11 @@
 
 #include "VmWriter.h"
 
-#include "JackAssert.h"
-#include "JackUtil.h"
+#include <Assert.h>
+#include <Util.h>
 
-#include <map>
+#include <frozen/unordered_map.h>
+
 #include <string_view>
 #include <utility>
 
@@ -35,7 +36,7 @@ n2t::VmWriter::VmWriter(std::filesystem::path filename) :
     m_filename{std::move(filename)},
     m_file{m_filename.string().data()}
 {
-    JackUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open output file ({})", m_filename.string());
+    throwCond<std::runtime_error>(m_file.good(), "Could not open output file ({})", m_filename.string());
 }
 
 n2t::VmWriter::~VmWriter() noexcept
@@ -66,7 +67,7 @@ void n2t::VmWriter::writePop(SegmentType segment, int16_t index)
 void n2t::VmWriter::writeArithmetic(ArithmeticCommand command)
 {
     // clang-format off
-    static const std::map<ArithmeticCommand, std::string_view> commands =
+    static constexpr auto commands = frozen::make_unordered_map<ArithmeticCommand, std::string_view>(
     {
         {ArithmeticCommand::Add, "add"},
         {ArithmeticCommand::Sub, "sub"},
@@ -77,12 +78,12 @@ void n2t::VmWriter::writeArithmetic(ArithmeticCommand command)
         {ArithmeticCommand::Eq,  "eq"},
         {ArithmeticCommand::Gt,  "gt"},
         {ArithmeticCommand::Lt,  "lt"}
-    };
+    });
     // clang-format on
 
-    const auto cmd = commands.find(command);
-    N2T_JACK_ASSERT((cmd != commands.end()) && "Invalid arithmetic command");
-    m_file << cmd->second << '\n';
+    const auto iter = commands.find(command);  // NOLINT(readability-qualified-auto)
+    N2T_ASSERT((iter != commands.end()) && "Invalid arithmetic command");
+    m_file << iter->second << '\n';
 }
 
 void n2t::VmWriter::writeLabel(const std::string& label)
@@ -124,7 +125,7 @@ void n2t::VmWriter::close()
 std::string_view n2t::VmWriter::toString(SegmentType segment)
 {
     // clang-format off
-    static const std::map<SegmentType, std::string_view> segments =
+    static constexpr auto segments = frozen::make_unordered_map<SegmentType, std::string_view>(
     {
         {SegmentType::Constant, "constant"},
         {SegmentType::Static,   "static"},
@@ -134,10 +135,10 @@ std::string_view n2t::VmWriter::toString(SegmentType segment)
         {SegmentType::Local,    "local"},
         {SegmentType::This,     "this"},
         {SegmentType::That,     "that"}
-    };
+    });
     // clang-format on
 
-    const auto seg = segments.find(segment);
-    N2T_JACK_ASSERT((seg != segments.end()) && "Invalid memory segment");
-    return seg->second;
+    const auto iter = segments.find(segment);  // NOLINT(readability-qualified-auto)
+    N2T_ASSERT((iter != segments.end()) && "Invalid memory segment");
+    return iter->second;
 }

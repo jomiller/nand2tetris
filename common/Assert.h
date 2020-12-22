@@ -22,12 +22,12 @@
  * SOFTWARE.
  */
 
-#ifndef ASM_ASSERT_H
-#define ASM_ASSERT_H
+#ifndef N2T_ASSERT_H
+#define N2T_ASSERT_H
 
 #include <cassert>
 
-#define N2T_ASM_ASSERT(...) \
+#define N2T_ASSERT(...) \
     assert(__VA_ARGS__)  // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay, misc-static-assert)
 
 #endif

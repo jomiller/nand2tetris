@@ -27,6 +27,8 @@
 #include "Parser.h"
 #include "VmUtil.h"
 
+#include <Util.h>
+
 #include <string>
 #include <utility>
 
@@ -44,7 +46,7 @@ n2t::TranslationEngine::TranslationEngine(PathList              inputFilenames,
 
 void n2t::TranslationEngine::translate()
 {
-    VmUtil::throwCond(!m_codeWriter.isClosed(), "Input files have already been translated");
+    throwCond(!m_codeWriter.isClosed(), "Input files have already been translated");
 
     for (const auto& path : m_inputFilenames)
     {
@@ -93,13 +95,13 @@ void n2t::TranslationEngine::translate()
                         break;
 
                     default:
-                        VmUtil::throwUncond("Unsupported command type ({})", VmUtil::toString(commandType));
+                        throwUncond("Unsupported command type ({})", toString(commandType));
                 }
             }
         }
         catch (const std::exception& ex)
         {
-            VmUtil::throwUncond({inputFilename, parser.lineNumber()}, ex.what());
+            throwUncond({inputFilename, parser.lineNumber()}, ex.what());
         }
     }
 

@@ -115,6 +115,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
 endif ()
 
+add_subdirectory (common)
 add_subdirectory (external)
 add_subdirectory (06)
 add_subdirectory (07-08)

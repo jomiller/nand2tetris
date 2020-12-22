@@ -24,14 +24,14 @@
 
 #include "VmUtil.h"
 
-#include "VmAssert.h"
+#include <Assert.h>
 
-#include <map>
+#include <frozen/unordered_map.h>
 
-std::string_view n2t::VmUtil::toString(CommandType command)
+std::string_view n2t::toString(CommandType command)
 {
     // clang-format off
-    static const std::map<CommandType, std::string_view> commands =
+    static constexpr auto commands = frozen::make_unordered_map<CommandType, std::string_view>(
     {
         {CommandType::Arithmetic, "arithmetic"},
         {CommandType::Push,       "push"},
@@ -42,10 +42,10 @@ std::string_view n2t::VmUtil::toString(CommandType command)
         {CommandType::Function,   "function"},
         {CommandType::Return,     "return"},
         {CommandType::Call,       "call"}
-    };
+    });
     // clang-format on
 
-    const auto key = commands.find(command);
-    N2T_VM_ASSERT((key != commands.end()) && "Invalid command type");
-    return key->second;
+    const auto iter = commands.find(command);  // NOLINT(readability-qualified-auto)
+    N2T_ASSERT((iter != commands.end()) && "Invalid command type");
+    return iter->second;
 }

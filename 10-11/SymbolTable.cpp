@@ -24,7 +24,9 @@
 
 #include "SymbolTable.h"
 
-#include "JackAssert.h"
+#include "JackUtil.h"
+
+#include <Assert.h>
 
 #include <algorithm>
 #include <limits>
@@ -32,17 +34,17 @@
 void n2t::SymbolTable::startSubroutine()
 {
     m_subroutineTable.clear();
-    m_nextVarIndices[JackUtil::toUnderlyingType(VariableKind::Argument)] = 0;
-    m_nextVarIndices[JackUtil::toUnderlyingType(VariableKind::Local)]    = 0;
+    m_nextVarIndices[toUnderlyingType(VariableKind::Argument)] = 0;
+    m_nextVarIndices[toUnderlyingType(VariableKind::Local)]    = 0;
 }
 
 void n2t::SymbolTable::define(const std::string& name, const std::string& type, VariableKind kind)
 {
     auto&          table = getHashTable(kind);
     HashTableEntry entry{type, kind, getNextVarIndex(kind)};
-    JackUtil::throwCond(table.emplace(name, std::move(entry)).second,
-                        "Identifier with name ({}) already defined in the current scope",
-                        name);
+    throwCond(table.emplace(name, std::move(entry)).second,
+              "Identifier with name ({}) already defined in the current scope",
+              name);
 }
 
 int16_t n2t::SymbolTable::varCount(VariableKind kind) const
@@ -64,7 +66,7 @@ int16_t n2t::SymbolTable::varCount(VariableKind kind) const
 const std::string& n2t::SymbolTable::typeOf(const std::string& name) const
 {
     const auto& entry = getHashTableEntry(name);
-    JackUtil::throwCond(entry.kind != VariableKind::None, "Identifier ({}) not defined in the current scope", name);
+    throwCond(entry.kind != VariableKind::None, "Identifier ({}) not defined in the current scope", name);
 
     return entry.type;
 }
@@ -78,7 +80,7 @@ n2t::VariableKind n2t::SymbolTable::kindOf(const std::string& name) const
 int16_t n2t::SymbolTable::indexOf(const std::string& name) const
 {
     const auto& entry = getHashTableEntry(name);
-    JackUtil::throwCond(entry.kind != VariableKind::None, "Identifier ({}) not defined in the current scope", name);
+    throwCond(entry.kind != VariableKind::None, "Identifier ({}) not defined in the current scope", name);
 
     return entry.index;
 }
@@ -121,16 +123,16 @@ const n2t::SymbolTable::HashTableEntry& n2t::SymbolTable::getHashTableEntry(cons
 
 int16_t n2t::SymbolTable::getNextVarIndex(VariableKind kind)
 {
-    N2T_JACK_ASSERT(kind < VariableKind::Count);
+    N2T_ASSERT(kind < VariableKind::Count);
 
     const int16_t maxVarIndex = std::numeric_limits<int16_t>::max() - 1;
 
-    auto* nextVarIndex = &m_nextVarIndices.at(JackUtil::toUnderlyingType(kind));
+    auto* nextVarIndex = &m_nextVarIndices.at(toUnderlyingType(kind));
 
-    JackUtil::throwCond(*nextVarIndex < maxVarIndex,
-                        "Variable count for kind ({}) exceeds the limit ({})",
-                        JackUtil::toString(kind),
-                        maxVarIndex + 1);
+    throwCond(*nextVarIndex < maxVarIndex,
+              "Variable count for kind ({}) exceeds the limit ({})",
+              toString(kind),
+              maxVarIndex + 1);
 
     return (*nextVarIndex)++;
 }

@@ -24,9 +24,9 @@
 
 #include "Code.h"
 
-#include "AsmUtil.h"
+#include <Util.h>
 
-#include <map>
+#include <frozen/unordered_map.h>
 
 uint16_t n2t::Code::dest(std::string_view dest)
 {
@@ -36,7 +36,7 @@ uint16_t n2t::Code::dest(std::string_view dest)
     }
 
     // clang-format off
-    static const std::map<std::string_view, uint16_t> destCodes =
+    static constexpr auto destCodes = frozen::make_unordered_map<frozen::string, uint16_t>(
     {
         {"M",   uint16_t{0b001}},
         {"D",   uint16_t{0b010}},
@@ -45,11 +45,11 @@ uint16_t n2t::Code::dest(std::string_view dest)
         {"AM",  uint16_t{0b101}},
         {"AD",  uint16_t{0b110}},
         {"AMD", uint16_t{0b111}}
-    };
+    });
     // clang-format on
 
-    const auto iter = destCodes.find(dest);
-    AsmUtil::throwCond(iter != destCodes.end(), "Invalid 'dest' mnemonic ({})", dest);
+    const auto iter = destCodes.find(toFrozenString(dest));  // NOLINT(readability-qualified-auto)
+    throwCond(iter != destCodes.end(), "Invalid 'dest' mnemonic ({})", dest);
 
     return iter->second;
 }
@@ -57,7 +57,7 @@ uint16_t n2t::Code::dest(std::string_view dest)
 uint16_t n2t::Code::comp(std::string_view comp)
 {
     // clang-format off
-    static const std::map<std::string_view, uint16_t> compCodes =
+    static constexpr auto compCodes = frozen::make_unordered_map<frozen::string, uint16_t>(
     {
         {"0",   uint16_t{0b0101010}},
         {"1",   uint16_t{0b0111111}},
@@ -87,11 +87,11 @@ uint16_t n2t::Code::comp(std::string_view comp)
         {"D&M", uint16_t{0b1000000}},
         {"D|A", uint16_t{0b0010101}},
         {"D|M", uint16_t{0b1010101}}
-    };
+    });
     // clang-format on
 
-    const auto iter = compCodes.find(comp);
-    AsmUtil::throwCond(iter != compCodes.end(), "Invalid 'comp' mnemonic ({})", comp);
+    const auto iter = compCodes.find(toFrozenString(comp));  // NOLINT(readability-qualified-auto)
+    throwCond(iter != compCodes.end(), "Invalid 'comp' mnemonic ({})", comp);
 
     return iter->second;
 }
@@ -103,21 +103,16 @@ uint16_t n2t::Code::jump(std::string_view jump)
         return 0b000;
     }
 
-    // clang-format off
-    static const std::map<std::string_view, uint16_t> jumpCodes =
-    {
-        {"JGT", uint16_t{0b001}},
-        {"JEQ", uint16_t{0b010}},
-        {"JGE", uint16_t{0b011}},
-        {"JLT", uint16_t{0b100}},
-        {"JNE", uint16_t{0b101}},
-        {"JLE", uint16_t{0b110}},
-        {"JMP", uint16_t{0b111}}
-    };
-    // clang-format on
+    static constexpr auto jumpCodes = frozen::make_unordered_map<frozen::string, uint16_t>({{"JGT", uint16_t{0b001}},
+                                                                                            {"JEQ", uint16_t{0b010}},
+                                                                                            {"JGE", uint16_t{0b011}},
+                                                                                            {"JLT", uint16_t{0b100}},
+                                                                                            {"JNE", uint16_t{0b101}},
+                                                                                            {"JLE", uint16_t{0b110}},
+                                                                                            {"JMP", uint16_t{0b111}}});
 
-    const auto iter = jumpCodes.find(jump);
-    AsmUtil::throwCond(iter != jumpCodes.end(), "Invalid 'jump' mnemonic ({})", jump);
+    const auto iter = jumpCodes.find(toFrozenString(jump));  // NOLINT(readability-qualified-auto)
+    throwCond(iter != jumpCodes.end(), "Invalid 'jump' mnemonic ({})", jump);
 
     return iter->second;
 }

@@ -4,3 +4,4 @@ set (CXXOPTS_ENABLE_INSTALL FALSE CACHE BOOL "Generate the install target")
 
 add_subdirectory (cxxopts)
 add_subdirectory (fmt)
+add_subdirectory (frozen)

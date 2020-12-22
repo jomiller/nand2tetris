@@ -26,6 +26,8 @@
 
 #include "JackUtil.h"
 
+#include <Util.h>
+
 #include <string_view>
 #include <utility>
 
@@ -55,7 +57,7 @@ n2t::XmlWriter::XmlWriter(std::filesystem::path filename) :
     m_filename{std::move(filename)},
     m_file{m_filename.string().data()}
 {
-    JackUtil::throwCond<std::runtime_error>(m_file.good(), "Could not open output file ({})", m_filename.string());
+    throwCond<std::runtime_error>(m_file.good(), "Could not open output file ({})", m_filename.string());
 
     m_file << R"(<?xml version="1.0" encoding="UTF-8"?>)" << '\n';
 }
@@ -77,7 +79,7 @@ n2t::XmlWriter::~XmlWriter() noexcept
 
 void n2t::XmlWriter::writeKeyword(Keyword keyword)
 {
-    m_file << m_indent << "<keyword> " << JackUtil::toString(keyword) << " </keyword>\n";
+    m_file << m_indent << "<keyword> " << toString(keyword) << " </keyword>\n";
 }
 
 void n2t::XmlWriter::writeSymbol(char symbol)

@@ -24,14 +24,15 @@
 
 #include "JackUtil.h"
 
-#include "JackAssert.h"
+#include <Assert.h>
+#include <Util.h>
 
-#include <map>
+#include <frozen/unordered_map.h>
 
-std::pair<n2t::Keyword, bool> n2t::JackUtil::toKeyword(std::string_view keyword)
+std::pair<n2t::Keyword, bool> n2t::toKeyword(std::string_view keyword)
 {
     // clang-format off
-    static const std::map<std::string_view, Keyword> keywords =
+    static constexpr auto keywords = frozen::make_unordered_map<frozen::string, Keyword>(
     {
         {"class",       Keyword::Class},
         {"constructor", Keyword::Constructor},
@@ -54,21 +55,21 @@ std::pair<n2t::Keyword, bool> n2t::JackUtil::toKeyword(std::string_view keyword)
         {"false",       Keyword::False},
         {"null",        Keyword::Null},
         {"this",        Keyword::This}
-    };
+    });
     // clang-format on
 
-    const auto key = keywords.find(keyword);
-    if (key == keywords.end())
+    const auto iter = keywords.find(toFrozenString(keyword));  // NOLINT(readability-qualified-auto)
+    if (iter == keywords.end())
     {
         return std::make_pair(Keyword{0}, false);
     }
-    return std::make_pair(key->second, true);
+    return std::make_pair(iter->second, true);
 }
 
-std::string_view n2t::JackUtil::toString(Keyword keyword)
+std::string_view n2t::toString(Keyword keyword)
 {
     // clang-format off
-    static const std::map<Keyword, std::string_view> keywords =
+    static constexpr auto keywords = frozen::make_unordered_map<Keyword, std::string_view>(
     {
         {Keyword::Class,       "class"},
         {Keyword::Constructor, "constructor"},
@@ -91,45 +92,45 @@ std::string_view n2t::JackUtil::toString(Keyword keyword)
         {Keyword::False,       "false"},
         {Keyword::Null,        "null"},
         {Keyword::This,        "this"}
-    };
+    });
     // clang-format on
 
-    const auto key = keywords.find(keyword);
-    N2T_JACK_ASSERT((key != keywords.end()) && "Invalid keyword");
-    return key->second;
+    const auto iter = keywords.find(keyword);  // NOLINT(readability-qualified-auto)
+    N2T_ASSERT((iter != keywords.end()) && "Invalid keyword");
+    return iter->second;
 }
 
-std::string_view n2t::JackUtil::toString(TokenType tokenType)
+std::string_view n2t::toString(TokenType tokenType)
 {
     // clang-format off
-    static const std::map<TokenType, std::string_view> tokenTypes =
+    static constexpr auto tokenTypes = frozen::make_unordered_map<TokenType, std::string_view>(
     {
         {TokenType::Keyword,     "keyword"},
         {TokenType::Symbol,      "symbol"},
         {TokenType::Identifier,  "identifier"},
         {TokenType::IntConst,    "integer constant"},
         {TokenType::StringConst, "string constant"}
-    };
+    });
     // clang-format on
 
-    const auto key = tokenTypes.find(tokenType);
-    N2T_JACK_ASSERT((key != tokenTypes.end()) && "Invalid token type");
-    return key->second;
+    const auto iter = tokenTypes.find(tokenType);  // NOLINT(readability-qualified-auto)
+    N2T_ASSERT((iter != tokenTypes.end()) && "Invalid token type");
+    return iter->second;
 }
 
-std::string_view n2t::JackUtil::toString(VariableKind kind)
+std::string_view n2t::toString(VariableKind kind)
 {
     // clang-format off
-    static const std::map<VariableKind, std::string_view> variableKinds =
+    static constexpr auto variableKinds = frozen::make_unordered_map<VariableKind, std::string_view>(
     {
         {VariableKind::Static,   "static"},
         {VariableKind::Field,    "field"},
         {VariableKind::Argument, "argument"},
         {VariableKind::Local,    "local"}
-    };
+    });
     // clang-format on
 
-    const auto key = variableKinds.find(kind);
-    N2T_JACK_ASSERT((key != variableKinds.end()) && "Invalid variable kind");
-    return key->second;
+    const auto iter = variableKinds.find(kind);  // NOLINT(readability-qualified-auto)
+    N2T_ASSERT((iter != variableKinds.end()) && "Invalid variable kind");
+    return iter->second;
 }
