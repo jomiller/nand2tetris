@@ -586,10 +586,10 @@ bool n2t::CompilationEngine::compileSymbol(char expected, bool optional, bool ad
 
 std::string n2t::CompilationEngine::compileIdentifier(std::string_view type)
 {
-    throwCond(m_inputTokenizer.tokenType() == TokenType::Identifier,
-              "Expected {} name before {}",
-              type,
-              getTokenDescription());
+    if (m_inputTokenizer.tokenType() != TokenType::Identifier)
+    {
+        throwUncond("Expected {} name before {}", type, getTokenDescription());
+    }
 
     auto identifier = m_inputTokenizer.identifier();
     if (m_xmlWriter)
@@ -602,9 +602,10 @@ std::string n2t::CompilationEngine::compileIdentifier(std::string_view type)
 
 int16_t n2t::CompilationEngine::compileIntegerConstant()
 {
-    throwCond(m_inputTokenizer.tokenType() == TokenType::IntConst,
-              "Expected integer constant before {}",
-              getTokenDescription());
+    if (m_inputTokenizer.tokenType() != TokenType::IntConst)
+    {
+        throwUncond("Expected integer constant before {}", getTokenDescription());
+    }
 
     const auto intConst = m_inputTokenizer.intVal();
     if (m_xmlWriter)
@@ -617,9 +618,10 @@ int16_t n2t::CompilationEngine::compileIntegerConstant()
 
 std::string n2t::CompilationEngine::compileStringConstant()
 {
-    throwCond(m_inputTokenizer.tokenType() == TokenType::StringConst,
-              "Expected string constant before {}",
-              getTokenDescription());
+    if (m_inputTokenizer.tokenType() != TokenType::StringConst)
+    {
+        throwUncond("Expected string constant before {}", getTokenDescription());
+    }
 
     auto stringConst = m_inputTokenizer.stringVal();
     if (m_xmlWriter)
@@ -652,9 +654,10 @@ std::string n2t::CompilationEngine::compileVarType(bool orVoid)
     {
         return compileIdentifier();
     }
-    throwCond((tokenType == TokenType::Keyword) && isVarType(m_inputTokenizer.keyword(), orVoid),
-              "Expected class name or variable type before {}",
-              getTokenDescription());
+    if ((tokenType != TokenType::Keyword) || !isVarType(m_inputTokenizer.keyword(), orVoid))
+    {
+        throwUncond("Expected class name or variable type before {}", getTokenDescription());
+    }
 
     const auto keyword = m_inputTokenizer.keyword();
     compileKeyword(keyword);
