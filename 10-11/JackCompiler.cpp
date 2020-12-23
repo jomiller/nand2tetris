@@ -146,8 +146,8 @@ int main(int argc, char* argv[])
          * Execute compilation tasks
          */
 
-        n2t::CompilationOptions options;
-        options.outputParseTree = outputParseTree;
+        n2t::CompilationOptions compileOptions;
+        compileOptions.outputParseTree = outputParseTree;
 
         const auto numFiles = inputFilenames.size();
         const auto numTasks = std::min(static_cast<n2t::PathList::size_type>(numJobs), numFiles);
@@ -159,10 +159,10 @@ int main(int argc, char* argv[])
         for (auto task = decltype(numTasks){0}; task < (numTasks - 1); ++task)
         {
             auto last = first + taskSize;
-            tasks.emplace_back(first, last, options, &result);
+            tasks.emplace_back(first, last, compileOptions, &result);
             first = last;
         }
-        n2t::CompilationTask::compile(first, inputFilenames.cend(), options);
+        n2t::CompilationTask::compile(first, inputFilenames.cend(), compileOptions);
     }
     catch (const cxxopts::OptionException& ex)
     {
