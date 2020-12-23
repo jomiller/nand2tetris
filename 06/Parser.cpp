@@ -32,7 +32,7 @@
 
 n2t::Parser::Parser(const std::filesystem::path& filename) : m_file{filename}
 {
-    throwCond<std::runtime_error>(m_file.good(), "Could not open input file ({})", filename.string());
+    throwIfNot<std::runtime_error>(m_file.good(), "Could not open input file ({})", filename.string());
 }
 
 bool n2t::Parser::advance()
@@ -57,16 +57,16 @@ bool n2t::Parser::advance()
 
     if (currentCommand.front() == '@')
     {
-        throwCond(currentCommand.length() != 1, "Address or symbol not specified in addressing instruction");
+        throwIfNot(currentCommand.length() != 1, "Address or symbol not specified in addressing instruction");
 
         m_commandType = CommandType::A;
         m_symbol      = currentCommand.substr(/* __pos = */ 1);  // @Xxx
     }
     else if (currentCommand.front() == '(')
     {
-        throwCond(currentCommand.back() == ')', "Expected closing parenthesis in label command ({})", currentCommand);
+        throwIfNot(currentCommand.back() == ')', "Expected closing parenthesis in label command ({})", currentCommand);
 
-        throwCond(currentCommand.length() != 2, "Symbol not specified in label command");
+        throwIfNot(currentCommand.length() != 2, "Symbol not specified in label command");
 
         m_commandType = CommandType::L;
         m_symbol      = currentCommand.substr(/* __pos = */ 1, currentCommand.length() - 2);  // (Xxx)

@@ -42,9 +42,9 @@ void n2t::SymbolTable::define(const std::string& name, const std::string& type, 
 {
     auto&          table = getHashTable(kind);
     HashTableEntry entry{type, kind, getNextVarIndex(kind)};
-    throwCond(table.emplace(name, std::move(entry)).second,
-              "Identifier with name ({}) already defined in the current scope",
-              name);
+    throwIfNot(table.emplace(name, std::move(entry)).second,
+               "Identifier with name ({}) already defined in the current scope",
+               name);
 }
 
 int16_t n2t::SymbolTable::varCount(VariableKind kind) const
@@ -66,7 +66,7 @@ int16_t n2t::SymbolTable::varCount(VariableKind kind) const
 const std::string& n2t::SymbolTable::typeOf(const std::string& name) const
 {
     const auto& entry = getHashTableEntry(name);
-    throwCond(entry.kind != VariableKind::None, "Identifier ({}) not defined in the current scope", name);
+    throwIfNot(entry.kind != VariableKind::None, "Identifier ({}) not defined in the current scope", name);
 
     return entry.type;
 }
@@ -80,7 +80,7 @@ n2t::VariableKind n2t::SymbolTable::kindOf(const std::string& name) const
 int16_t n2t::SymbolTable::indexOf(const std::string& name) const
 {
     const auto& entry = getHashTableEntry(name);
-    throwCond(entry.kind != VariableKind::None, "Identifier ({}) not defined in the current scope", name);
+    throwIfNot(entry.kind != VariableKind::None, "Identifier ({}) not defined in the current scope", name);
 
     return entry.index;
 }
@@ -129,10 +129,10 @@ int16_t n2t::SymbolTable::getNextVarIndex(VariableKind kind)
 
     auto* nextVarIndex = &m_nextVarIndices.at(toUnderlyingType(kind));
 
-    throwCond(*nextVarIndex < maxVarIndex,
-              "Variable count for kind ({}) exceeds the limit ({})",
-              toString(kind),
-              maxVarIndex + 1);
+    throwIfNot(*nextVarIndex < maxVarIndex,
+               "Variable count for kind ({}) exceeds the limit ({})",
+               toString(kind),
+               maxVarIndex + 1);
 
     return (*nextVarIndex)++;
 }

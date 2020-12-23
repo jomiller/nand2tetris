@@ -57,7 +57,7 @@ n2t::XmlWriter::XmlWriter(std::filesystem::path filename) :
     m_filename{std::move(filename)},
     m_file{m_filename.string().data()}
 {
-    throwCond<std::runtime_error>(m_file.good(), "Could not open output file ({})", m_filename.string());
+    throwIfNot<std::runtime_error>(m_file.good(), "Could not open output file ({})", m_filename.string());
 
     m_file << R"(<?xml version="1.0" encoding="UTF-8"?>)" << '\n';
 }

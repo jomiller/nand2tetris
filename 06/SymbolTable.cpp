@@ -48,7 +48,7 @@ n2t::SymbolTable::SymbolTable()
 
 void n2t::SymbolTable::addEntry(const std::string& symbol, int16_t address)
 {
-    throwCond(m_table.emplace(symbol, address).second, "Symbol ({}) already exists in the table", symbol);
+    throwIfNot(m_table.emplace(symbol, address).second, "Symbol ({}) already exists in the table", symbol);
 }
 
 bool n2t::SymbolTable::contains(const std::string& symbol) const
@@ -59,7 +59,7 @@ bool n2t::SymbolTable::contains(const std::string& symbol) const
 int16_t n2t::SymbolTable::getAddress(const std::string& symbol) const
 {
     const auto iter = m_table.find(symbol);
-    throwCond(iter != m_table.end(), "Symbol ({}) not found in the table", symbol);
+    throwIfNot(iter != m_table.end(), "Symbol ({}) not found in the table", symbol);
 
     return iter->second;
 }

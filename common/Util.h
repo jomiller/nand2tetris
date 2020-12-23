@@ -44,7 +44,7 @@ struct SourceLocation
 };
 
 template<typename Exception = std::logic_error, typename... Args>
-[[noreturn]] static void throwUncond(SourceLocation sourceLocation, std::string_view message, Args&&... args)
+[[noreturn]] void throwAlways(SourceLocation sourceLocation, std::string_view message, Args&&... args)
 {
     static_assert(std::is_base_of_v<std::exception, Exception>);
     std::string msg;
@@ -62,24 +62,24 @@ template<typename Exception = std::logic_error, typename... Args>
 }
 
 template<typename Exception = std::logic_error, typename... Args>
-[[noreturn]] static void throwUncond(std::string_view message, Args&&... args)
+[[noreturn]] inline void throwAlways(std::string_view message, Args&&... args)
 {
-    throwUncond<Exception, Args...>(SourceLocation{}, message, std::forward<Args>(args)...);
+    throwAlways<Exception, Args...>(SourceLocation{}, message, std::forward<Args>(args)...);
 }
 
 template<typename Exception = std::logic_error, typename... Args>
-static void throwCond(bool condition, SourceLocation sourceLocation, std::string_view message, Args&&... args)
+inline void throwIfNot(bool condition, SourceLocation sourceLocation, std::string_view message, Args&&... args)
 {
     if (!condition)
     {
-        throwUncond<Exception, Args...>(sourceLocation, message, std::forward<Args>(args)...);
+        throwAlways<Exception, Args...>(sourceLocation, message, std::forward<Args>(args)...);
     }
 }
 
 template<typename Exception = std::logic_error, typename... Args>
-static void throwCond(bool condition, std::string_view message, Args&&... args)
+inline void throwIfNot(bool condition, std::string_view message, Args&&... args)
 {
-    throwCond<Exception, Args...>(condition, SourceLocation{}, message, std::forward<Args>(args)...);
+    throwIfNot<Exception, Args...>(condition, SourceLocation{}, message, std::forward<Args>(args)...);
 }
 
 [[nodiscard]] constexpr frozen::string toFrozenString(std::string_view str) noexcept
@@ -88,7 +88,7 @@ static void throwCond(bool condition, std::string_view message, Args&&... args)
 }
 
 template<typename Enum>
-[[nodiscard]] static constexpr std::underlying_type_t<Enum> toUnderlyingType(Enum enumerator) noexcept
+[[nodiscard]] constexpr std::underlying_type_t<Enum> toUnderlyingType(Enum enumerator) noexcept
 {
     return static_cast<std::underlying_type_t<Enum>>(enumerator);
 }

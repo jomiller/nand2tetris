@@ -177,7 +177,7 @@ bool n2t::JackTokenizer::TokenizerFunction::operator()(std::istreambuf_iterator<
 
 bool n2t::JackTokenizer::TokenizerFunction::isDelimiter(char c)
 {
-    static const std::string_view delimiters{"{}()[].,;+-*/&|~<=>\""};
+    static constexpr std::string_view delimiters{"{}()[].,;+-*/&|~<=>\""};
 
     return (delimiters.find(c) != std::string_view::npos);
 }
@@ -186,7 +186,7 @@ n2t::JackTokenizer::JackTokenizer(const std::filesystem::path& filename) :
     m_filename{filename.filename().string()},
     m_file{filename.string().data()}
 {
-    throwCond<std::runtime_error>(m_file.good(), "Could not open input file ({})", filename.string());
+    throwIfNot<std::runtime_error>(m_file.good(), "Could not open input file ({})", filename.string());
 
     m_fileIter = boost::make_token_iterator<std::string>(
         std::istreambuf_iterator<char>(m_file), std::istreambuf_iterator<char>(), TokenizerFunction(&m_lineNumber));
@@ -234,7 +234,7 @@ void n2t::JackTokenizer::advance()
 
     if (currentToken.front() == '"')
     {
-        throwCond(
+        throwIfNot(
             currentToken.back() == '"', "Expected closing double quotation mark in string constant ({})", currentToken);
 
         m_tokenType = TokenType::StringConst;
@@ -250,13 +250,13 @@ void n2t::JackTokenizer::advance()
         }
         catch (const boost::bad_lexical_cast&)
         {
-            throwUncond("Integer constant ({}) is too large", currentToken);
+            throwAlways("Integer constant ({}) is too large", currentToken);
         }
         m_tokenType = TokenType::IntConst;
     }
     else
     {
-        throwCond(
+        throwIfNot(
             !std::isdigit(currentToken.front(), std::locale{}), "Identifier ({}) begins with a digit", currentToken);
 
         m_tokenType  = TokenType::Identifier;
@@ -301,6 +301,6 @@ const std::string& n2t::JackTokenizer::stringVal() const
 
 std::string n2t::JackTokenizer::readNextToken()
 {
-    throwCond(hasMoreTokens(), "Unexpected end of file reached");
+    throwIfNot(hasMoreTokens(), "Unexpected end of file reached");
     return *m_fileIter++;
 }

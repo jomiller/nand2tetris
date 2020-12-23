@@ -49,7 +49,7 @@ uint16_t n2t::Code::dest(std::string_view dest)
     // clang-format on
 
     const auto iter = destCodes.find(toFrozenString(dest));  // NOLINT(readability-qualified-auto)
-    throwCond(iter != destCodes.end(), "Invalid 'dest' mnemonic ({})", dest);
+    throwIfNot(iter != destCodes.end(), "Invalid 'dest' mnemonic ({})", dest);
 
     return iter->second;
 }
@@ -91,7 +91,7 @@ uint16_t n2t::Code::comp(std::string_view comp)
     // clang-format on
 
     const auto iter = compCodes.find(toFrozenString(comp));  // NOLINT(readability-qualified-auto)
-    throwCond(iter != compCodes.end(), "Invalid 'comp' mnemonic ({})", comp);
+    throwIfNot(iter != compCodes.end(), "Invalid 'comp' mnemonic ({})", comp);
 
     return iter->second;
 }
@@ -112,7 +112,7 @@ uint16_t n2t::Code::jump(std::string_view jump)
                                                                                             {"JMP", uint16_t{0b111}}});
 
     const auto iter = jumpCodes.find(toFrozenString(jump));  // NOLINT(readability-qualified-auto)
-    throwCond(iter != jumpCodes.end(), "Invalid 'jump' mnemonic ({})", jump);
+    throwIfNot(iter != jumpCodes.end(), "Invalid 'jump' mnemonic ({})", jump);
 
     return iter->second;
 }

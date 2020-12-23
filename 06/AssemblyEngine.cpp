@@ -63,7 +63,7 @@ n2t::AssemblyEngine::~AssemblyEngine() noexcept
 
 void n2t::AssemblyEngine::assemble()
 {
-    throwCond(!m_assembled, "Input file ({}) has already been assembled", m_inputFilename.filename().string());
+    throwIfNot(!m_assembled, "Input file ({}) has already been assembled", m_inputFilename.filename().string());
     buildSymbolTable();
     generateCode();
     m_assembled = true;
@@ -86,7 +86,7 @@ void n2t::AssemblyEngine::buildSymbolTable()
             const auto commandType = symbolParser.commandType();
             if ((commandType == CommandType::A) || (commandType == CommandType::C))
             {
-                throwCond(
+                throwIfNot(
                     nextRomAddress < maxRomAddress, "Instruction count exceeds the limit ({})", maxRomAddress + 1);
 
                 ++nextRomAddress;
@@ -94,9 +94,9 @@ void n2t::AssemblyEngine::buildSymbolTable()
             else if (commandType == CommandType::L)
             {
                 const auto& symbol = symbolParser.symbol();
-                throwCond(!std::isdigit(symbol.front(), std::locale{}),
-                          "Symbol ({}) begins with a digit in label command",
-                          symbol);
+                throwIfNot(!std::isdigit(symbol.front(), std::locale{}),
+                           "Symbol ({}) begins with a digit in label command",
+                           symbol);
 
                 // associate the symbol with the ROM address that will store the next command in the program
                 m_symbolTable.addEntry(symbol, nextRomAddress);
@@ -105,7 +105,7 @@ void n2t::AssemblyEngine::buildSymbolTable()
     }
     catch (const std::exception& ex)
     {
-        throwUncond({m_inputFilename.filename().string(), symbolParser.lineNumber()}, ex.what());
+        throwAlways({m_inputFilename.filename().string(), symbolParser.lineNumber()}, ex.what());
     }
 }
 
@@ -114,7 +114,7 @@ void n2t::AssemblyEngine::generateCode()
     Parser codeParser{m_inputFilename.string()};
 
     std::ofstream outputFile{m_outputFilename.string().data()};
-    throwCond<std::runtime_error>(outputFile.good(), "Could not open output file ({})", m_outputFilename.string());
+    throwIfNot<std::runtime_error>(outputFile.good(), "Could not open output file ({})", m_outputFilename.string());
 
     try
     {
@@ -142,19 +142,19 @@ void n2t::AssemblyEngine::generateCode()
                         }
                         catch (const boost::bad_lexical_cast&)
                         {
-                            throwUncond("Address ({}) is too large in addressing instruction", symbol);
+                            throwAlways("Address ({}) is too large in addressing instruction", symbol);
                         }
                     }
                     else
                     {
-                        throwUncond("Symbol ({}) begins with a digit in addressing instruction", symbol);
+                        throwAlways("Symbol ({}) begins with a digit in addressing instruction", symbol);
                     }
                 }
                 else
                 {
-                    throwCond((symbol.front() != '-') || (symbol.length() <= 1) || !digits,
-                              "Address ({}) is negative in addressing instruction",
-                              symbol);
+                    throwIfNot((symbol.front() != '-') || (symbol.length() <= 1) || !digits,
+                               "Address ({}) is negative in addressing instruction",
+                               symbol);
 
                     // this is a symbolic A-instruction, i.e. @Xxx where Xxx is a symbol rather than an integer
                     if (m_symbolTable.contains(symbol))
@@ -169,7 +169,7 @@ void n2t::AssemblyEngine::generateCode()
                         m_symbolTable.addEntry(symbol, nextRamAddress);
                         targetAddress = nextRamAddress;
 
-                        throwCond(
+                        throwIfNot(
                             nextRamAddress < maxRamAddress, "Variable count exceeds the limit ({})", maxRamAddress + 1);
 
                         ++nextRamAddress;
@@ -195,6 +195,6 @@ void n2t::AssemblyEngine::generateCode()
     }
     catch (const std::exception& ex)
     {
-        throwUncond({m_inputFilename.filename().string(), codeParser.lineNumber()}, ex.what());
+        throwAlways({m_inputFilename.filename().string(), codeParser.lineNumber()}, ex.what());
     }
 }
