@@ -85,15 +85,23 @@ void n2t::XmlWriter::writeSymbol(char symbol)
 {
     std::string_view xmlSymbol{&symbol, /* __len = */ 1};
 
-    // clang-format off
     switch (symbol)
     {
-        case '<': xmlSymbol = "&lt;"; break;
-        case '>': xmlSymbol = "&gt;"; break;
-        case '&': xmlSymbol = "&amp;"; break;
-        default: break;
+        case '<':
+            xmlSymbol = "&lt;";
+            break;
+
+        case '>':
+            xmlSymbol = "&gt;";
+            break;
+
+        case '&':
+            xmlSymbol = "&amp;";
+            break;
+
+        default:
+            break;
     }
-    // clang-format on
 
     m_file << m_indent << "<symbol> " << xmlSymbol << " </symbol>\n";
 }

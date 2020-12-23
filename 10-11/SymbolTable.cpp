@@ -51,14 +51,8 @@ int16_t n2t::SymbolTable::varCount(VariableKind kind) const
 {
     const auto& table = getHashTable(kind);
 
-    // clang-format off
-    const auto count = std::count_if(table.begin(),
-                                     table.end(),
-                                     [kind](const auto& entry)
-                                     {
-                                         return (entry.second.kind == kind);
-                                     });
-    // clang-format on
+    const auto count =
+        std::count_if(table.begin(), table.end(), [kind](const auto& entry) { return (entry.second.kind == kind); });
 
     return static_cast<int16_t>(count);
 }

@@ -130,30 +130,43 @@ bool n2t::CompilationEngine::isKeywordConstant(Keyword keyword)
 
 n2t::VariableKind n2t::CompilationEngine::getVariableKind(Keyword variableKind)
 {
-    // clang-format off
     switch (variableKind)
     {
-        case Keyword::Static: return VariableKind::Static;
-        case Keyword::Field:  return VariableKind::Field;
-        case Keyword::Var:    return VariableKind::Local;
-        default:              N2T_ASSERT(!"Invalid variable kind"); return VariableKind::None;
+        case Keyword::Static:
+            return VariableKind::Static;
+
+        case Keyword::Field:
+            return VariableKind::Field;
+
+        case Keyword::Var:
+            return VariableKind::Local;
+
+        default:
+            N2T_ASSERT(!"Invalid variable kind");
+            return VariableKind::None;
     }
-    // clang-format on
 }
 
 n2t::SegmentType n2t::CompilationEngine::getSegmentType(VariableKind kind)
 {
-    // clang-format off
     switch (kind)
     {
-        case VariableKind::Static:   return SegmentType::Static;
-        case VariableKind::Field:    return SegmentType::This;
-        case VariableKind::Argument: return SegmentType::Argument;
-        case VariableKind::Local:    return SegmentType::Local;
-        default:                     N2T_ASSERT(!"No memory segment associated with variable kind");
-                                     return SegmentType(0);
+        case VariableKind::Static:
+            return SegmentType::Static;
+
+        case VariableKind::Field:
+            return SegmentType::This;
+
+        case VariableKind::Argument:
+            return SegmentType::Argument;
+
+        case VariableKind::Local:
+            return SegmentType::Local;
+
+        default:
+            N2T_ASSERT(!"No memory segment associated with variable kind");
+            return SegmentType(0);
     }
-    // clang-format on
 }
 
 n2t::ArithmeticCommand n2t::CompilationEngine::getArithmeticCommand(char symbol, bool unary)
@@ -253,17 +266,31 @@ void n2t::CompilationEngine::compileStatements()  // NOLINT(misc-no-recursion)
 
     while ((m_inputTokenizer.tokenType() == TokenType::Keyword) && isStatement(m_inputTokenizer.keyword()))
     {
-        // clang-format off
         switch (m_inputTokenizer.keyword())
         {
-            case Keyword::Let:    compileLet(); break;
-            case Keyword::Do:     compileDo(); break;
-            case Keyword::If:     compileIf(); break;
-            case Keyword::While:  compileWhile(); break;
-            case Keyword::Return: compileReturn(); break;
-            default: break;
+            case Keyword::Let:
+                compileLet();
+                break;
+
+            case Keyword::Do:
+                compileDo();
+                break;
+
+            case Keyword::If:
+                compileIf();
+                break;
+
+            case Keyword::While:
+                compileWhile();
+                break;
+
+            case Keyword::Return:
+                compileReturn();
+                break;
+
+            default:
+                break;
         }
-        // clang-format on
     }
 }
 
@@ -853,17 +880,32 @@ std::string n2t::CompilationEngine::getTokenDescription() const
     const auto  tokenType = m_inputTokenizer.tokenType();
     std::string token;
 
-    // clang-format off
     switch (tokenType)
     {
-        case TokenType::Keyword:     token = toString(m_inputTokenizer.keyword()); break;
-        case TokenType::Symbol:      token = m_inputTokenizer.symbol(); break;
-        case TokenType::Identifier:  token = m_inputTokenizer.identifier(); break;
-        case TokenType::IntConst:    token = std::to_string(m_inputTokenizer.intVal()); break;
-        case TokenType::StringConst: token = m_inputTokenizer.stringVal(); break;
-        default:                     N2T_ASSERT(!"Invalid token type"); break;
+        case TokenType::Keyword:
+            token = toString(m_inputTokenizer.keyword());
+            break;
+
+        case TokenType::Symbol:
+            token = m_inputTokenizer.symbol();
+            break;
+
+        case TokenType::Identifier:
+            token = m_inputTokenizer.identifier();
+            break;
+
+        case TokenType::IntConst:
+            token = std::to_string(m_inputTokenizer.intVal());
+            break;
+
+        case TokenType::StringConst:
+            token = m_inputTokenizer.stringVal();
+            break;
+
+        default:
+            N2T_ASSERT(!"Invalid token type");
+            break;
     }
-    // clang-format on
 
     return fmt::format("{} ({})", toString(tokenType), token);
 }
