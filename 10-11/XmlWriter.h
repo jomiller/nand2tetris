@@ -32,6 +32,7 @@
 #include <fstream>
 #include <stack>
 #include <string>
+#include <string_view>
 
 namespace n2t
 {
@@ -41,7 +42,7 @@ public:
     class Element
     {
     public:
-        Element(XmlWriter* writer, const std::string& name);
+        Element(XmlWriter* writer, std::string_view name);
 
         Element(const Element&) = delete;
         Element(Element&&)      = delete;
@@ -70,7 +71,7 @@ public:
     void writeIdentifier(const std::string& identifier);
     void writeIntegerConstant(int16_t intConst);
     void writeStringConstant(const std::string& stringConst);
-    void beginElement(const std::string& name);
+    void beginElement(std::string_view name);
     void endElement();
 
     // Closes the output file.

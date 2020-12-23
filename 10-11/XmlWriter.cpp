@@ -28,10 +28,9 @@
 
 #include <Util.h>
 
-#include <string_view>
 #include <utility>
 
-n2t::XmlWriter::Element::Element(XmlWriter* writer, const std::string& name) : m_writer(writer)
+n2t::XmlWriter::Element::Element(XmlWriter* writer, std::string_view name) : m_writer{writer}
 {
     if (m_writer)
     {
@@ -114,9 +113,9 @@ void n2t::XmlWriter::writeStringConstant(const std::string& stringConst)
     m_file << m_indent << "<stringConstant> " << stringConst << " </stringConstant>\n";
 }
 
-void n2t::XmlWriter::beginElement(const std::string& name)
+void n2t::XmlWriter::beginElement(std::string_view name)
 {
-    m_elementNames.push(name);
+    m_elementNames.emplace(name);
     m_file << m_indent << "<" << m_elementNames.top() << ">\n";
     m_indent += "  ";
 }
