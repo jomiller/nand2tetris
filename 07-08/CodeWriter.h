@@ -131,6 +131,7 @@ private:
     void                       popToD();
     [[nodiscard]] unsigned int getNextLabelId();
     [[nodiscard]] std::string  makeLabel(const std::string& label) const;
+    [[nodiscard]] std::string  makeNumberedLabel(std::string_view label);
     void                       validateFunction();
     void                       validateFunctionCalls() const;
 

@@ -171,6 +171,7 @@ private:
     void                       validateSubroutineCalls() const;
     [[nodiscard]] VariableKind getKindOf(const std::string& variableName) const;
     [[nodiscard]] unsigned int getNextLabelId();
+    [[nodiscard]] std::string  makeLabel(std::string_view label);
     [[nodiscard]] std::string  getTokenDescription() const;
 
     JackTokenizer                                   m_inputTokenizer;

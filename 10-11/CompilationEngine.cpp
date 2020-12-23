@@ -327,7 +327,7 @@ void n2t::CompilationEngine::compileIf()  // NOLINT(misc-no-recursion)
     compileSymbol(')');
 
     m_vmWriter.writeArithmetic(ArithmeticCommand::Not);
-    auto endLabel = fmt::format("IF{}", getNextLabelId());
+    auto endLabel = makeLabel("IF");
     m_vmWriter.writeIf(endLabel);
     compileSymbol('{');
     compileStatements();
@@ -336,7 +336,7 @@ void n2t::CompilationEngine::compileIf()  // NOLINT(misc-no-recursion)
     if (compileKeyword(Keyword::Else, /* optional = */ true))
     {
         const auto elseLabel = endLabel;
-        endLabel             = fmt::format("IF{}", getNextLabelId());
+        endLabel             = makeLabel("IF");
         m_vmWriter.writeGoto(endLabel);
         m_vmWriter.writeLabel(elseLabel);
         compileSymbol('{');
@@ -350,7 +350,7 @@ void n2t::CompilationEngine::compileWhile()  // NOLINT(misc-no-recursion)
 {
     XmlWriter::Element element{m_xmlWriter.get(), "whileStatement"};
 
-    const auto beginLabel = fmt::format("WHILE{}", getNextLabelId());
+    const auto beginLabel = makeLabel("WHILE");
     m_vmWriter.writeLabel(beginLabel);
     compileKeyword(Keyword::While);
     compileSymbol('(');
@@ -358,7 +358,7 @@ void n2t::CompilationEngine::compileWhile()  // NOLINT(misc-no-recursion)
     compileSymbol(')');
 
     m_vmWriter.writeArithmetic(ArithmeticCommand::Not);
-    const auto endLabel = fmt::format("WHILE{}", getNextLabelId());
+    const auto endLabel = makeLabel("WHILE");
     m_vmWriter.writeIf(endLabel);
     compileSymbol('{');
     compileStatements();
@@ -838,6 +838,11 @@ n2t::VariableKind n2t::CompilationEngine::getKindOf(const std::string& variableN
 unsigned int n2t::CompilationEngine::getNextLabelId()
 {
     return m_nextLabelId++;
+}
+
+std::string n2t::CompilationEngine::makeLabel(std::string_view label)
+{
+    return fmt::format("{}{}", label, getNextLabelId());
 }
 
 std::string n2t::CompilationEngine::getTokenDescription() const

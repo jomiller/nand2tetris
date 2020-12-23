@@ -127,7 +127,7 @@ void n2t::CodeWriter::writeArithmetic(const std::string& command)
 
         if (info.logic)
         {
-            const auto label = makeLabel(fmt::format("LOGIC{}", getNextLabelId()));
+            const auto label = makeNumberedLabel("LOGIC");
 
             // clang-format off
             m_file << "D=M-D\n"
@@ -420,7 +420,7 @@ void n2t::CodeWriter::writeCall(const std::string& functionName, int16_t numArgu
     N2T_ASSERT((numArguments >= 0) && "Number of function arguments is negative");
 
     m_calledFunctions.emplace(functionName, numArguments);
-    const auto label = makeLabel(fmt::format("RETURN{}", getNextLabelId()));
+    const auto label = makeNumberedLabel("RETURN");
 
     // push the return address onto the stack
     // clang-format off
@@ -516,6 +516,11 @@ unsigned int n2t::CodeWriter::getNextLabelId()
 std::string n2t::CodeWriter::makeLabel(const std::string& label) const
 {
     return fmt::format("{}${}", m_currentFunction.name, label);
+}
+
+std::string n2t::CodeWriter::makeNumberedLabel(std::string_view label)
+{
+    return fmt::format("{}${}{}", m_currentFunction.name, label, getNextLabelId());
 }
 
 void n2t::CodeWriter::validateFunction()
