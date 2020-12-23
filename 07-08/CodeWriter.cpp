@@ -38,7 +38,7 @@ n2t::CodeWriter::CodeWriter(std::filesystem::path filename) :
     m_outputFilename{std::move(filename)},
     m_file{m_outputFilename.string().data()}
 {
-    throwIfNot<std::runtime_error>(m_file.good(), "Could not open output file ({})", m_outputFilename.string());
+    throwUnless<std::runtime_error>(m_file.good(), "Could not open output file ({})", m_outputFilename.string());
 }
 
 n2t::CodeWriter::~CodeWriter() noexcept
@@ -105,7 +105,7 @@ void n2t::CodeWriter::writeArithmetic(const std::string& command)
     // clang-format on
 
     const auto iter = arithmeticInfo.find(toFrozenString(command));  // NOLINT(readability-qualified-auto)
-    throwIfNot(iter != arithmeticInfo.end(), "Invalid arithmetic command type ({})", command);
+    throwUnless(iter != arithmeticInfo.end(), "Invalid arithmetic command type ({})", command);
 
     const auto& info = iter->second;
     if (info.unary)
@@ -180,7 +180,7 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
     // clang-format on
 
     const auto iter = segmentInfo.find(toFrozenString(segment));  // NOLINT(readability-qualified-auto)
-    throwIfNot(iter != segmentInfo.end(), "Invalid memory segment ({})", segment);
+    throwUnless(iter != segmentInfo.end(), "Invalid memory segment ({})", segment);
 
     const auto& info = iter->second;
     std::string symbol{info.name};
@@ -244,7 +244,7 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
     }
     else  // (command == CommandType::Pop)
     {
-        throwIfNot(info.type != SegmentType::Constant, "Cannot pop to the constant segment");
+        throwUnless(info.type != SegmentType::Constant, "Cannot pop to the constant segment");
 
         if (info.indirect && (index > 1))
         {
@@ -278,7 +278,7 @@ void n2t::CodeWriter::writePushPop(CommandType command, const std::string& segme
 
 void n2t::CodeWriter::writeLabel(const std::string& label)
 {
-    throwIfNot(!std::isdigit(label.front(), std::locale{}), "Label ({}) begins with a digit", label);
+    throwUnless(!std::isdigit(label.front(), std::locale{}), "Label ({}) begins with a digit", label);
 
     if (!m_labels.insert(label).second)
     {
@@ -322,12 +322,12 @@ void n2t::CodeWriter::writeFunction(const std::string& functionName, int16_t num
 
     validateFunction();
 
-    throwIfNot(
+    throwUnless(
         !std::isdigit(functionName.front(), std::locale{}), "Function name ({}) begins with a digit", functionName);
 
-    throwIfNot(m_definedFunctions.find(functionName) == m_definedFunctions.end(),
-               "Function with name ({}) already exists",
-               functionName);
+    throwUnless(m_definedFunctions.find(functionName) == m_definedFunctions.end(),
+                "Function with name ({}) already exists",
+                functionName);
 
     m_currentFunction.name          = functionName;
     m_currentFunction.numParameters = 0;
@@ -348,7 +348,7 @@ void n2t::CodeWriter::writeFunction(const std::string& functionName, int16_t num
 
 void n2t::CodeWriter::writeReturn()
 {
-    throwIfNot(!m_currentFunction.name.empty(), "Return command is outside of a function");
+    throwUnless(!m_currentFunction.name.empty(), "Return command is outside of a function");
 
     // save the base address of the calling function's saved state into R13
     // clang-format off
@@ -554,12 +554,12 @@ void n2t::CodeWriter::validateFunctionCalls() const
     for (const FunctionCallInfo& call : m_calledFunctions)
     {
         const auto func = m_definedFunctions.find(call.name);
-        throwIfNot(func != m_definedFunctions.end(), "Undefined reference to function ({})", call.name);
+        throwUnless(func != m_definedFunctions.end(), "Undefined reference to function ({})", call.name);
 
-        throwIfNot(call.numArguments >= func->second,
-                   "Function ({}) requires at least {} argument(s) but called with {} argument(s)",
-                   func->first,
-                   func->second,
-                   call.numArguments);
+        throwUnless(call.numArguments >= func->second,
+                    "Function ({}) requires at least {} argument(s) but called with {} argument(s)",
+                    func->first,
+                    func->second,
+                    call.numArguments);
     }
 }

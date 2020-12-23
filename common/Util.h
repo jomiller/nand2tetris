@@ -68,7 +68,7 @@ template<typename Exception = std::logic_error, typename... Args>
 }
 
 template<typename Exception = std::logic_error, typename... Args>
-inline void throwIfNot(bool condition, SourceLocation sourceLocation, std::string_view message, Args&&... args)
+inline void throwUnless(bool condition, SourceLocation sourceLocation, std::string_view message, Args&&... args)
 {
     if (!condition)
     {
@@ -77,9 +77,9 @@ inline void throwIfNot(bool condition, SourceLocation sourceLocation, std::strin
 }
 
 template<typename Exception = std::logic_error, typename... Args>
-inline void throwIfNot(bool condition, std::string_view message, Args&&... args)
+inline void throwUnless(bool condition, std::string_view message, Args&&... args)
 {
-    throwIfNot<Exception, Args...>(condition, SourceLocation{}, message, std::forward<Args>(args)...);
+    throwUnless<Exception, Args...>(condition, SourceLocation{}, message, std::forward<Args>(args)...);
 }
 
 [[nodiscard]] constexpr frozen::string toFrozenString(std::string_view str) noexcept

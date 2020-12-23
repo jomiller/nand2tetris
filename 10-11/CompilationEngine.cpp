@@ -51,9 +51,9 @@ n2t::CompilationEngine::CompilationEngine(const std::filesystem::path& inputFile
 
 void n2t::CompilationEngine::compileClass()
 {
-    throwIfNot(!m_vmWriter.isClosed() && (!m_xmlWriter || !m_xmlWriter->isClosed()),
-               "Input file ({}) has already been compiled",
-               m_inputTokenizer.filename());
+    throwUnless(!m_vmWriter.isClosed() && (!m_xmlWriter || !m_xmlWriter->isClosed()),
+                "Input file ({}) has already been compiled",
+                m_inputTokenizer.filename());
 
     try
     {
@@ -61,7 +61,7 @@ void n2t::CompilationEngine::compileClass()
 
         compileKeyword(Keyword::Class);
         const auto className = compileIdentifier("class");
-        throwIfNot(className == m_className, "Class name ({}) does not match filename ()", className, m_className);
+        throwUnless(className == m_className, "Class name ({}) does not match filename ()", className, m_className);
 
         compileSymbol('{');
         while ((m_inputTokenizer.tokenType() == TokenType::Keyword) && isClassVarDec(m_inputTokenizer.keyword()))
@@ -74,7 +74,7 @@ void n2t::CompilationEngine::compileClass()
         }
         compileSymbol('}', /* optional = */ false, /* advance = */ false);
 
-        throwIfNot(!m_inputTokenizer.hasMoreTokens(), "Expected end of file");
+        throwUnless(!m_inputTokenizer.hasMoreTokens(), "Expected end of file");
     }
     catch (const std::exception& ex)
     {
@@ -213,10 +213,10 @@ void n2t::CompilationEngine::compileSubroutine()
     m_currentSubroutine.isVoid   = (returnTypeKeyword.second && (returnTypeKeyword.first == Keyword::Void));
     if (m_currentSubroutine.type == Keyword::Constructor)
     {
-        throwIfNot(returnType == m_className,
-                   "Constructor return type ({}) is not of the class type ({})",
-                   returnType,
-                   m_className);
+        throwUnless(returnType == m_className,
+                    "Constructor return type ({}) is not of the class type ({})",
+                    returnType,
+                    m_className);
     }
     else if (m_currentSubroutine.type == Keyword::Method)
     {
@@ -225,9 +225,9 @@ void n2t::CompilationEngine::compileSubroutine()
     }
 
     m_currentSubroutine.name = compileIdentifier("subroutine");
-    throwIfNot(m_definedSubroutines.find(m_currentSubroutine.name) == m_definedSubroutines.end(),
-               "Subroutine with name ({}) already defined",
-               m_currentSubroutine.name);
+    throwUnless(m_definedSubroutines.find(m_currentSubroutine.name) == m_definedSubroutines.end(),
+                "Subroutine with name ({}) already defined",
+                m_currentSubroutine.name);
 
     m_currentSubroutine.numParameters = 0;
     compileSymbol('(');
@@ -326,7 +326,7 @@ void n2t::CompilationEngine::compileLet()
     {
         // store the expression value to the destination variable
         const VariableKind kind = getKindOf(variableName);
-        throwIfNot(kind != VariableKind::None, "Identifier ({}) not defined in the current scope", variableName);
+        throwUnless(kind != VariableKind::None, "Identifier ({}) not defined in the current scope", variableName);
 
         m_vmWriter.writePop(getSegmentType(kind), m_symbolTable.indexOf(variableName));
     }
@@ -402,15 +402,15 @@ void n2t::CompilationEngine::compileReturn()
     compileKeyword(Keyword::Return);
     if ((m_inputTokenizer.tokenType() != TokenType::Symbol) || (m_inputTokenizer.symbol() != ';'))
     {
-        throwIfNot(!m_currentSubroutine.isVoid, "Void subroutine returns a value");
+        throwUnless(!m_currentSubroutine.isVoid, "Void subroutine returns a value");
 
         compileExpression();
     }
     else
     {
-        throwIfNot(m_currentSubroutine.type != Keyword::Constructor, "Constructor does not return 'this'");
+        throwUnless(m_currentSubroutine.type != Keyword::Constructor, "Constructor does not return 'this'");
 
-        throwIfNot(m_currentSubroutine.isVoid, "Non-void subroutine does not return a value");
+        throwUnless(m_currentSubroutine.isVoid, "Non-void subroutine does not return a value");
 
         // return constant 0 from void subroutine
         m_vmWriter.writePush(SegmentType::Constant, /* index = */ 0);
@@ -427,8 +427,8 @@ void n2t::CompilationEngine::compileExpression()  // NOLINT(misc-no-recursion)
     compileTerm();
     while ((m_inputTokenizer.tokenType() == TokenType::Symbol) && isBinaryOperator(m_inputTokenizer.symbol()))
     {
-        throwIfNot(!m_inReturnStatement || (m_currentSubroutine.type != Keyword::Constructor),
-                   "Constructor does not return 'this'");
+        throwUnless(!m_inReturnStatement || (m_currentSubroutine.type != Keyword::Constructor),
+                    "Constructor does not return 'this'");
 
         const auto symbol = m_inputTokenizer.symbol();
         compileSymbol(symbol);
@@ -471,7 +471,7 @@ void n2t::CompilationEngine::compileTerm()  // NOLINT(misc-no-recursion)
                 break;
 
             case Keyword::This:
-                throwIfNot(m_currentSubroutine.type != Keyword::Function, "'this' referenced from within a function");
+                throwUnless(m_currentSubroutine.type != Keyword::Function, "'this' referenced from within a function");
 
                 m_vmWriter.writePush(SegmentType::Pointer, /* index = */ 0);
                 thisKeyword = true;
@@ -491,10 +491,10 @@ void n2t::CompilationEngine::compileTerm()  // NOLINT(misc-no-recursion)
         const auto    stringConst          = compileStringConstant();
         const auto    stringConstLength    = stringConst.length();
         const int16_t maxStringConstLength = std::numeric_limits<int16_t>::max();
-        throwIfNot(stringConstLength <= static_cast<std::string::size_type>(maxStringConstLength),
-                   "Length of string constant ({}) exceeds the limit ({})",
-                   stringConst,
-                   maxStringConstLength);
+        throwUnless(stringConstLength <= static_cast<std::string::size_type>(maxStringConstLength),
+                    "Length of string constant ({}) exceeds the limit ({})",
+                    stringConst,
+                    maxStringConstLength);
 
         m_vmWriter.writePush(SegmentType::Constant, static_cast<int16_t>(stringConstLength));
         m_vmWriter.writeCall("String.new", /* numArguments = */ 1);
@@ -542,7 +542,7 @@ void n2t::CompilationEngine::compileTerm()  // NOLINT(misc-no-recursion)
         else
         {
             const auto kind = getKindOf(identifier);
-            throwIfNot(kind != VariableKind::None, "Identifier ({}) not defined in the current scope", identifier);
+            throwUnless(kind != VariableKind::None, "Identifier ({}) not defined in the current scope", identifier);
 
             m_vmWriter.writePush(getSegmentType(kind), m_symbolTable.indexOf(identifier));
         }
@@ -552,8 +552,8 @@ void n2t::CompilationEngine::compileTerm()  // NOLINT(misc-no-recursion)
         throwAlways("Expected expression before {}", getTokenDescription());
     }
 
-    throwIfNot(!m_inReturnStatement || (m_currentSubroutine.type != Keyword::Constructor) || thisKeyword,
-               "Constructor does not return 'this'");
+    throwUnless(!m_inReturnStatement || (m_currentSubroutine.type != Keyword::Constructor) || thisKeyword,
+                "Constructor does not return 'this'");
 }
 
 void n2t::CompilationEngine::compileExpressionList()  // NOLINT(misc-no-recursion)
@@ -735,9 +735,9 @@ void n2t::CompilationEngine::compileSubroutineBody()
 
 void n2t::CompilationEngine::compileArrayEntry(const std::string& variableName)  // NOLINT(misc-no-recursion)
 {
-    throwIfNot(m_symbolTable.typeOf(variableName) == "Array",
-               "Array entry accessed in variable ({}) that is not of type Array",
-               variableName);
+    throwUnless(m_symbolTable.typeOf(variableName) == "Array",
+                "Array entry accessed in variable ({}) that is not of type Array",
+                variableName);
 
     // the expression value is the index of the array entry
     compileSymbol('[');
@@ -746,7 +746,7 @@ void n2t::CompilationEngine::compileArrayEntry(const std::string& variableName) 
 
     // add the index of the array entry to the array base address
     const auto kind = getKindOf(variableName);
-    throwIfNot(kind != VariableKind::None, "Identifier ({}) not defined in the current scope", variableName);
+    throwUnless(kind != VariableKind::None, "Identifier ({}) not defined in the current scope", variableName);
 
     m_vmWriter.writePush(getSegmentType(kind), m_symbolTable.indexOf(variableName));
     m_vmWriter.writeArithmetic(ArithmeticCommand::Add);
@@ -779,9 +779,9 @@ void n2t::CompilationEngine::compileSubroutineCall(const std::string& identifier
     {
         // a method is invoked for the current object
         subroutineCall.type = Keyword::Method;
-        throwIfNot(m_currentSubroutine.type != Keyword::Function,
-                   "Subroutine ({}) called as a method from within a function",
-                   subroutineName);
+        throwUnless(m_currentSubroutine.type != Keyword::Function,
+                    "Subroutine ({}) called as a method from within a function",
+                    subroutineName);
 
         // set the first argument to be a pointer to the current object
         thisArgument = true;
@@ -824,43 +824,43 @@ void n2t::CompilationEngine::compileSubroutineCall(const std::string& identifier
 void n2t::CompilationEngine::validateSubroutineCalls() const
 {
     const auto mainSub = m_definedSubroutines.find("main");
-    throwIfNot((m_className != "Main") ||
-                   ((mainSub != m_definedSubroutines.end()) && (mainSub->second.type == Keyword::Function)),
-               "Class does not contain a function named 'main'");
+    throwUnless((m_className != "Main") ||
+                    ((mainSub != m_definedSubroutines.end()) && (mainSub->second.type == Keyword::Function)),
+                "Class does not contain a function named 'main'");
 
     for (const SubroutineCallInfo& call : m_calledSubroutines)
     {
         const auto sub = m_definedSubroutines.find(call.name);
-        throwIfNot(sub != m_definedSubroutines.end(), "Undefined reference to subroutine ({})", call.name);
+        throwUnless(sub != m_definedSubroutines.end(), "Undefined reference to subroutine ({})", call.name);
 
-        throwIfNot((sub->second.type != Keyword::Constructor) || (call.type != Keyword::Method),
-                   "Constructor ({}) called as a method",
-                   sub->first);
+        throwUnless((sub->second.type != Keyword::Constructor) || (call.type != Keyword::Method),
+                    "Constructor ({}) called as a method",
+                    sub->first);
 
-        throwIfNot((sub->second.type != Keyword::Function) || (call.type != Keyword::Method),
-                   "Function ({}) called as a method",
-                   sub->first);
+        throwUnless((sub->second.type != Keyword::Function) || (call.type != Keyword::Method),
+                    "Function ({}) called as a method",
+                    sub->first);
 
-        throwIfNot((sub->second.type != Keyword::Method) || (call.type != Keyword::Function),
-                   "Method ({}) called as a constructor/function",
-                   sub->first);
+        throwUnless((sub->second.type != Keyword::Method) || (call.type != Keyword::Function),
+                    "Method ({}) called as a constructor/function",
+                    sub->first);
 
-        throwIfNot(sub->second.numParameters == call.numArguments,
-                   "Subroutine ({}) declared to accept {} parameter(s) but called with {} argument(s)",
-                   sub->first,
-                   sub->second.numParameters,
-                   call.numArguments);
+        throwUnless(sub->second.numParameters == call.numArguments,
+                    "Subroutine ({}) declared to accept {} parameter(s) but called with {} argument(s)",
+                    sub->first,
+                    sub->second.numParameters,
+                    call.numArguments);
 
-        throwIfNot(!sub->second.isVoid || !call.expression, "Void subroutine ({}) used in an expression", sub->first);
+        throwUnless(!sub->second.isVoid || !call.expression, "Void subroutine ({}) used in an expression", sub->first);
     }
 }
 
 n2t::VariableKind n2t::CompilationEngine::getKindOf(const std::string& variableName) const
 {
     const auto kind = m_symbolTable.kindOf(variableName);
-    throwIfNot((kind != VariableKind::Field) || (m_currentSubroutine.type != Keyword::Function),
-               "Field variable ({}) referenced from within a function",
-               variableName);
+    throwUnless((kind != VariableKind::Field) || (m_currentSubroutine.type != Keyword::Function),
+                "Field variable ({}) referenced from within a function",
+                variableName);
 
     return kind;
 }

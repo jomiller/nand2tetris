@@ -36,7 +36,7 @@ n2t::VmWriter::VmWriter(std::filesystem::path filename) :
     m_filename{std::move(filename)},
     m_file{m_filename.string().data()}
 {
-    throwIfNot<std::runtime_error>(m_file.good(), "Could not open output file ({})", m_filename.string());
+    throwUnless<std::runtime_error>(m_file.good(), "Could not open output file ({})", m_filename.string());
 }
 
 n2t::VmWriter::~VmWriter() noexcept

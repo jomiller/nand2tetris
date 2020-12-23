@@ -186,7 +186,7 @@ n2t::JackTokenizer::JackTokenizer(const std::filesystem::path& filename) :
     m_filename{filename.filename().string()},
     m_file{filename.string().data()}
 {
-    throwIfNot<std::runtime_error>(m_file.good(), "Could not open input file ({})", filename.string());
+    throwUnless<std::runtime_error>(m_file.good(), "Could not open input file ({})", filename.string());
 
     m_fileIter = boost::make_token_iterator<std::string>(
         std::istreambuf_iterator<char>(m_file), std::istreambuf_iterator<char>(), TokenizerFunction(&m_lineNumber));
@@ -234,7 +234,7 @@ void n2t::JackTokenizer::advance()
 
     if (currentToken.front() == '"')
     {
-        throwIfNot(
+        throwUnless(
             currentToken.back() == '"', "Expected closing double quotation mark in string constant ({})", currentToken);
 
         m_tokenType = TokenType::StringConst;
@@ -256,7 +256,7 @@ void n2t::JackTokenizer::advance()
     }
     else
     {
-        throwIfNot(
+        throwUnless(
             !std::isdigit(currentToken.front(), std::locale{}), "Identifier ({}) begins with a digit", currentToken);
 
         m_tokenType  = TokenType::Identifier;
@@ -301,6 +301,6 @@ const std::string& n2t::JackTokenizer::stringVal() const
 
 std::string n2t::JackTokenizer::readNextToken()
 {
-    throwIfNot(hasMoreTokens(), "Unexpected end of file reached");
+    throwUnless(hasMoreTokens(), "Unexpected end of file reached");
     return *m_fileIter++;
 }

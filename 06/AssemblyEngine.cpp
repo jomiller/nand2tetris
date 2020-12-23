@@ -63,7 +63,7 @@ n2t::AssemblyEngine::~AssemblyEngine() noexcept
 
 void n2t::AssemblyEngine::assemble()
 {
-    throwIfNot(!m_assembled, "Input file ({}) has already been assembled", m_inputFilename.filename().string());
+    throwUnless(!m_assembled, "Input file ({}) has already been assembled", m_inputFilename.filename().string());
     buildSymbolTable();
     generateCode();
     m_assembled = true;
@@ -86,7 +86,7 @@ void n2t::AssemblyEngine::buildSymbolTable()
             const auto commandType = symbolParser.commandType();
             if ((commandType == CommandType::A) || (commandType == CommandType::C))
             {
-                throwIfNot(
+                throwUnless(
                     nextRomAddress < maxRomAddress, "Instruction count exceeds the limit ({})", maxRomAddress + 1);
 
                 ++nextRomAddress;
@@ -94,9 +94,9 @@ void n2t::AssemblyEngine::buildSymbolTable()
             else if (commandType == CommandType::L)
             {
                 const auto& symbol = symbolParser.symbol();
-                throwIfNot(!std::isdigit(symbol.front(), std::locale{}),
-                           "Symbol ({}) begins with a digit in label command",
-                           symbol);
+                throwUnless(!std::isdigit(symbol.front(), std::locale{}),
+                            "Symbol ({}) begins with a digit in label command",
+                            symbol);
 
                 // associate the symbol with the ROM address that will store the next command in the program
                 m_symbolTable.addEntry(symbol, nextRomAddress);
@@ -114,7 +114,7 @@ void n2t::AssemblyEngine::generateCode()
     Parser codeParser{m_inputFilename.string()};
 
     std::ofstream outputFile{m_outputFilename.string().data()};
-    throwIfNot<std::runtime_error>(outputFile.good(), "Could not open output file ({})", m_outputFilename.string());
+    throwUnless<std::runtime_error>(outputFile.good(), "Could not open output file ({})", m_outputFilename.string());
 
     try
     {
@@ -152,9 +152,9 @@ void n2t::AssemblyEngine::generateCode()
                 }
                 else
                 {
-                    throwIfNot((symbol.front() != '-') || (symbol.length() <= 1) || !digits,
-                               "Address ({}) is negative in addressing instruction",
-                               symbol);
+                    throwUnless((symbol.front() != '-') || (symbol.length() <= 1) || !digits,
+                                "Address ({}) is negative in addressing instruction",
+                                symbol);
 
                     // this is a symbolic A-instruction, i.e. @Xxx where Xxx is a symbol rather than an integer
                     if (m_symbolTable.contains(symbol))
@@ -169,7 +169,7 @@ void n2t::AssemblyEngine::generateCode()
                         m_symbolTable.addEntry(symbol, nextRamAddress);
                         targetAddress = nextRamAddress;
 
-                        throwIfNot(
+                        throwUnless(
                             nextRamAddress < maxRamAddress, "Variable count exceeds the limit ({})", maxRamAddress + 1);
 
                         ++nextRamAddress;
