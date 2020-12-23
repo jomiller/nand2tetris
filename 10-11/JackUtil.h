@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef JACK_UTIL_H
-#define JACK_UTIL_H
+#ifndef N2T_JACK_UTIL_H
+#define N2T_JACK_UTIL_H
 
 #include "JackTypes.h"
 

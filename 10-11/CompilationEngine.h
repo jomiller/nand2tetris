@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef COMPILATION_ENGINE_H
-#define COMPILATION_ENGINE_H
+#ifndef N2T_COMPILATION_ENGINE_H
+#define N2T_COMPILATION_ENGINE_H
 
 #include "JackTokenizer.h"
 #include "SymbolTable.h"

@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef N2T_PARSER_H
+#define N2T_PARSER_H
 
 #include "VmTypes.h"
 

@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef CODE_WRITER_H
-#define CODE_WRITER_H
+#ifndef N2T_CODE_WRITER_H
+#define N2T_CODE_WRITER_H
 
 #include "VmTypes.h"
 

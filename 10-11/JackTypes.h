@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef JACK_TYPES_H
-#define JACK_TYPES_H
+#ifndef N2T_JACK_TYPES_H
+#define N2T_JACK_TYPES_H
 
 #include <filesystem>
 #include <vector>

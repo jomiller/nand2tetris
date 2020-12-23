@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef TRANSLATION_ENGINE_H
-#define TRANSLATION_ENGINE_H
+#ifndef N2T_TRANSLATION_ENGINE_H
+#define N2T_TRANSLATION_ENGINE_H
 
 #include "CodeWriter.h"
 #include "VmTypes.h"

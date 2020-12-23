@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef COMPILATION_TASK_H
-#define COMPILATION_TASK_H
+#ifndef N2T_COMPILATION_TASK_H
+#define N2T_COMPILATION_TASK_H
 
 #include "JackTypes.h"
 

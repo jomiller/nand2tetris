@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef SYMBOL_TABLE_H
-#define SYMBOL_TABLE_H
+#ifndef N2T_SYMBOL_TABLE_H
+#define N2T_SYMBOL_TABLE_H
 
 #include <cstdint>
 #include <string>

@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef ASSEMBLY_ENGINE_H
-#define ASSEMBLY_ENGINE_H
+#ifndef N2T_ASSEMBLY_ENGINE_H
+#define N2T_ASSEMBLY_ENGINE_H
 
 #include "SymbolTable.h"
 

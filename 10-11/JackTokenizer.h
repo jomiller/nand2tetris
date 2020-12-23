@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef JACK_TOKENIZER_H
-#define JACK_TOKENIZER_H
+#ifndef N2T_JACK_TOKENIZER_H
+#define N2T_JACK_TOKENIZER_H
 
 #include "JackTypes.h"
 

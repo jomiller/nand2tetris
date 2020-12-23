@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef XML_WRITER_H
-#define XML_WRITER_H
+#ifndef N2T_XML_WRITER_H
+#define N2T_XML_WRITER_H
 
 #include "JackTypes.h"
 

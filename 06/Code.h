@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef CODE_H
-#define CODE_H
+#ifndef N2T_CODE_H
+#define N2T_CODE_H
 
 #include <cstdint>
 #include <string_view>

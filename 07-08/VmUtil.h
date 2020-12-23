@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef VM_UTIL_H
-#define VM_UTIL_H
+#ifndef N2T_VM_UTIL_H
+#define N2T_VM_UTIL_H
 
 #include "VmTypes.h"
 

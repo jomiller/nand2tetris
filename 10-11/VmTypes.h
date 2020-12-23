@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef VM_TYPES_H
-#define VM_TYPES_H
+#ifndef N2T_VM_TYPES_H
+#define N2T_VM_TYPES_H
 
 namespace n2t
 {
